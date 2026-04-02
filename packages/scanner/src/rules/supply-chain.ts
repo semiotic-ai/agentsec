@@ -1,4 +1,5 @@
 import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
+import { getLineNumber, getEvidenceLine } from "./utils";
 
 /**
  * Rule: Supply Chain Risks (AST-08)
@@ -342,17 +343,3 @@ function checkVendoredDeps(skill: AgentSkill, findings: SecurityFinding[]): void
   }
 }
 
-function getLineNumber(content: string, index: number): number {
-  let line = 1;
-  for (let i = 0; i < index && i < content.length; i++) {
-    if (content[i] === "\n") line++;
-  }
-  return line;
-}
-
-function getEvidenceLine(content: string, index: number): string {
-  const lineStart = content.lastIndexOf("\n", index) + 1;
-  let lineEnd = content.indexOf("\n", index);
-  if (lineEnd === -1) lineEnd = content.length;
-  return content.slice(lineStart, lineEnd).trim();
-}

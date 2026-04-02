@@ -1,4 +1,5 @@
 import type { AgentSkill, SecurityFinding, SkillFile } from "@agent-audit/shared";
+import { getLineNumber, getEvidenceLine, isInComment } from "./utils";
 
 /**
  * Rule: Insecure Output Handling (AST-03)
@@ -321,30 +322,4 @@ function isScannableFile(ext: string): boolean {
     "vue",
     "svelte",
   ].includes(ext);
-}
-
-function getLineNumber(content: string, index: number): number {
-  let line = 1;
-  for (let i = 0; i < index && i < content.length; i++) {
-    if (content[i] === "\n") line++;
-  }
-  return line;
-}
-
-function getEvidenceLine(content: string, index: number): string {
-  const lineStart = content.lastIndexOf("\n", index) + 1;
-  let lineEnd = content.indexOf("\n", index);
-  if (lineEnd === -1) lineEnd = content.length;
-  return content.slice(lineStart, lineEnd).trim();
-}
-
-function isInComment(content: string, index: number): boolean {
-  const lineStart = content.lastIndexOf("\n", index) + 1;
-  const lineUpToMatch = content.slice(lineStart, index);
-  if (/\/\//.test(lineUpToMatch)) return true;
-  const before = content.slice(Math.max(0, index - 500), index);
-  const lastBlockOpen = before.lastIndexOf("/*");
-  const lastBlockClose = before.lastIndexOf("*/");
-  if (lastBlockOpen > lastBlockClose) return true;
-  return false;
 }

@@ -1,4 +1,5 @@
 import type { AgentSkill, SecurityFinding, SkillFile } from "@agent-audit/shared";
+import { getLineNumber, getEvidenceLine, isInComment } from "./utils";
 
 /**
  * Rule: Skill Injection (AST-01)
@@ -211,36 +212,6 @@ const ALL_PATTERNS: PatternDef[] = [
   ...DYNAMIC_CODE_PATTERNS,
   ...SQL_NOSQL_INJECTION_PATTERNS,
 ];
-
-function getLineNumber(content: string, index: number): number {
-  let line = 1;
-  for (let i = 0; i < index && i < content.length; i++) {
-    if (content[i] === "\n") line++;
-  }
-  return line;
-}
-
-function getEvidenceLine(content: string, index: number): string {
-  const lineStart = content.lastIndexOf("\n", index) + 1;
-  let lineEnd = content.indexOf("\n", index);
-  if (lineEnd === -1) lineEnd = content.length;
-  return content.slice(lineStart, lineEnd).trim();
-}
-
-function isInComment(content: string, index: number): boolean {
-  // Check if the match is inside a single-line comment
-  const lineStart = content.lastIndexOf("\n", index) + 1;
-  const lineUpToMatch = content.slice(lineStart, index);
-  if (/\/\//.test(lineUpToMatch)) return true;
-
-  // Check for block comments (simplified)
-  const before = content.slice(Math.max(0, index - 500), index);
-  const lastBlockOpen = before.lastIndexOf("/*");
-  const lastBlockClose = before.lastIndexOf("*/");
-  if (lastBlockOpen > lastBlockClose) return true;
-
-  return false;
-}
 
 function isInString(content: string, index: number): boolean {
   // Check if "eval" etc. appear as part of a string like "don't use eval()"

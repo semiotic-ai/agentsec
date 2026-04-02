@@ -1,5 +1,6 @@
 import type { AgentSkill, SecurityFinding, SkillFile } from "@agent-audit/shared";
 import { DANGEROUS_PERMISSIONS } from "@agent-audit/shared";
+import { getLineNumber, getEvidenceLine, isInComment, isCodeFile } from "./utils";
 
 /**
  * Rule: Excessive Permissions (AST-02)
@@ -20,8 +21,7 @@ interface PermissionPattern {
 
 const CODE_PERMISSION_PATTERNS: PermissionPattern[] = [
   {
-    pattern:
-      /fs\s*\.\s*(?:writeFile|writeFileSync|appendFile|appendFileSync|mkdir|mkdirSync|rm|rmSync|rmdir|rmdirSync|unlink|unlinkSync|rename|renameSync|chmod|chmodSync|chown|chownSync)\s*\(/g,
+    pattern: /fs\s*\.\s*(?:writeFile|writeFileSync|appendFile|appendFileSync|mkdir|mkdirSync|rm|rmSync|rmdir|rmdirSync|unlink|unlinkSync|rename|renameSync|chmod|chmodSync|chown|chownSync)\s*\(/g,
     id: "PERM-010",
     title: "Filesystem write operation detected",
     description:
@@ -31,8 +31,7 @@ const CODE_PERMISSION_PATTERNS: PermissionPattern[] = [
       "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.",
   },
   {
-    pattern:
-      /fs\s*\.\s*(?:readFile|readFileSync|readdir|readdirSync|stat|statSync|access|accessSync|createReadStream)\s*\(\s*(?:user|input|query|req|data|param|arg|body|path)\b/gi,
+    pattern: /fs\s*\.\s*(?:readFile|readFileSync|readdir|readdirSync|stat|statSync|access|accessSync|createReadStream)\s*\(\s*(?:user|input|query|req|data|param|arg|body|path)\b/gi,
     id: "PERM-011",
     title: "Filesystem read with user-controlled path",
     description:
@@ -42,8 +41,7 @@ const CODE_PERMISSION_PATTERNS: PermissionPattern[] = [
       "Validate and sanitize file paths. Use path.resolve() and verify the resolved path is within the allowed directory. Block '..' sequences.",
   },
   {
-    pattern:
-      /(?:fetch|axios|got|request|http\.(?:get|post|put|patch|delete|request)|https\.(?:get|post|put|patch|delete|request))\s*\(/g,
+    pattern: /(?:fetch|axios|got|request|http\.(?:get|post|put|patch|delete|request)|https\.(?:get|post|put|patch|delete|request))\s*\(/g,
     id: "PERM-020",
     title: "Network request detected",
     description:
@@ -53,8 +51,7 @@ const CODE_PERMISSION_PATTERNS: PermissionPattern[] = [
       "Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).",
   },
   {
-    pattern:
-      /(?:fetch|axios|got|request|http\.(?:get|post)|https\.(?:get|post))\s*\(\s*(?:user|input|query|req|data|param|arg|body|url)\b/gi,
+    pattern: /(?:fetch|axios|got|request|http\.(?:get|post)|https\.(?:get|post))\s*\(\s*(?:user|input|query|req|data|param|arg|body|url)\b/gi,
     id: "PERM-021",
     title: "Network request with user-controlled URL",
     description:
@@ -104,8 +101,7 @@ const CODE_PERMISSION_PATTERNS: PermissionPattern[] = [
       "Minimize clipboard access. Only read/write when explicitly triggered by user action. Clear clipboard data after use.",
   },
   {
-    pattern:
-      /(?:os|child_process)\s*\.\s*(?:platform|arch|cpus|hostname|userInfo|networkInterfaces|totalmem|freemem)\s*\(/g,
+    pattern: /(?:os|child_process)\s*\.\s*(?:platform|arch|cpus|hostname|userInfo|networkInterfaces|totalmem|freemem)\s*\(/g,
     id: "PERM-060",
     title: "System information gathering",
     description:
@@ -124,7 +120,8 @@ const WILDCARD_PERMISSION_PATTERNS: PermissionPattern[] = [
     description:
       "The skill references wildcard or administrative permissions. Skills should follow the principle of least privilege and request only the specific permissions they need.",
     severity: "high",
-    remediation: "Replace wildcard permissions with specific, minimal permission grants.",
+    remediation:
+      "Replace wildcard permissions with specific, minimal permission grants.",
   },
 ];
 
@@ -172,7 +169,10 @@ export function checkPermissions(skill: AgentSkill): SecurityFinding[] {
   return findings;
 }
 
-function checkManifestPermissions(skill: AgentSkill, findings: SecurityFinding[]): void {
+function checkManifestPermissions(
+  skill: AgentSkill,
+  findings: SecurityFinding[]
+): void {
   const permissions = skill.manifest.permissions ?? [];
 
   // Check each declared permission against dangerous list
@@ -217,7 +217,10 @@ function getDangerousPermSeverity(perm: string): SecurityFinding["severity"] {
   return "medium";
 }
 
-function checkEscalationPatterns(file: SkillFile, findings: SecurityFinding[]): void {
+function checkEscalationPatterns(
+  file: SkillFile,
+  findings: SecurityFinding[]
+): void {
   const lines = file.content.split("\n");
 
   for (let i = 0; i < lines.length; i++) {
@@ -261,49 +264,3 @@ function checkEscalationPatterns(file: SkillFile, findings: SecurityFinding[]): 
   }
 }
 
-function getLineNumber(content: string, index: number): number {
-  let line = 1;
-  for (let i = 0; i < index && i < content.length; i++) {
-    if (content[i] === "\n") line++;
-  }
-  return line;
-}
-
-function getEvidenceLine(content: string, index: number): string {
-  const lineStart = content.lastIndexOf("\n", index) + 1;
-  let lineEnd = content.indexOf("\n", index);
-  if (lineEnd === -1) lineEnd = content.length;
-  return content.slice(lineStart, lineEnd).trim();
-}
-
-function isInComment(content: string, index: number): boolean {
-  const lineStart = content.lastIndexOf("\n", index) + 1;
-  const lineUpToMatch = content.slice(lineStart, index);
-  if (/\/\//.test(lineUpToMatch)) return true;
-  const before = content.slice(Math.max(0, index - 500), index);
-  const lastBlockOpen = before.lastIndexOf("/*");
-  const lastBlockClose = before.lastIndexOf("*/");
-  if (lastBlockOpen > lastBlockClose) return true;
-  return false;
-}
-
-function isCodeFile(ext: string): boolean {
-  return [
-    "ts",
-    "tsx",
-    "js",
-    "jsx",
-    "mjs",
-    "cjs",
-    "py",
-    "rb",
-    "go",
-    "rs",
-    "java",
-    "kt",
-    "sh",
-    "bash",
-    "zsh",
-    "fish",
-  ].includes(ext);
-}
