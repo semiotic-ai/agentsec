@@ -1,5 +1,5 @@
 import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
-import { getLineNumber, getEvidenceLine, isInComment } from "./utils";
+import { getEvidenceLine, getLineNumber, isInComment } from "./utils";
 
 /**
  * Rule: Unsafe Deserialization (AST-10)

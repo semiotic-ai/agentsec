@@ -3,13 +3,13 @@
  */
 
 import type {
-  AuditReport,
-  AuditSummary,
-  SkillAuditResult,
-  SecurityFinding,
   AgentSkill,
-  QualityMetrics,
+  AuditReport,
   AuditScore,
+  AuditSummary,
+  QualityMetrics,
+  SecurityFinding,
+  SkillAuditResult,
 } from "@agent-audit/shared";
 
 export const makeSkill = (overrides: Partial<AgentSkill> = {}): AgentSkill => ({
@@ -126,12 +126,34 @@ export const makeReportWithManyFindings = (): AuditReport => {
       makeSkillResult({
         securityFindings: findings,
         policyViolations: [
-          { policy: "no-critical-vulns", severity: "critical", message: "Critical vulnerability found", action: "block" },
-          { policy: "require-tests", severity: "medium", message: "Tests required", action: "warn" },
+          {
+            policy: "no-critical-vulns",
+            severity: "critical",
+            message: "Critical vulnerability found",
+            action: "block",
+          },
+          {
+            policy: "require-tests",
+            severity: "medium",
+            message: "Tests required",
+            action: "warn",
+          },
         ],
         recommendations: [
-          { category: "security", priority: "critical", title: "Fix eval", description: "Remove eval calls", effort: "low" },
-          { category: "quality", priority: "medium", title: "Add tests", description: "Write unit tests", effort: "medium" },
+          {
+            category: "security",
+            priority: "critical",
+            title: "Fix eval",
+            description: "Remove eval calls",
+            effort: "low",
+          },
+          {
+            category: "quality",
+            priority: "medium",
+            title: "Add tests",
+            description: "Write unit tests",
+            effort: "medium",
+          },
         ],
       }),
     ],

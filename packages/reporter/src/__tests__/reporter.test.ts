@@ -1,17 +1,16 @@
-import { describe, expect, test, beforeEach, afterEach } from "bun:test";
-
-import { ReportGenerator } from "../reporter.js";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { stripAnsi } from "../colors.js";
+import { ReportGenerator } from "../reporter.js";
 import {
-  makeSkill,
+  makeEmptyReport,
   makeFinding,
-  makeScore,
   makeQualityMetrics,
+  makeReport,
+  makeReportWithManyFindings,
+  makeScore,
+  makeSkill,
   makeSkillResult,
   makeSummary,
-  makeReport,
-  makeEmptyReport,
-  makeReportWithManyFindings,
 } from "./fixtures.js";
 
 // ── ReportGenerator tests ───────────────────────────────────────────────── //
@@ -165,9 +164,9 @@ describe("ReportGenerator", () => {
 
   describe("generate() with unsupported format", () => {
     test("throws for unknown format", () => {
-      expect(() =>
-        generator.generate(makeReport(), "pdf" as any),
-      ).toThrow("Unsupported output format");
+      expect(() => generator.generate(makeReport(), "pdf" as any)).toThrow(
+        "Unsupported output format",
+      );
     });
   });
 
@@ -268,7 +267,13 @@ describe("ReportGenerator", () => {
       const report = makeReport({
         skills: [
           makeSkillResult({
-            score: makeScore({ overall: 100, security: 100, quality: 100, maintenance: 100, grade: "A" }),
+            score: makeScore({
+              overall: 100,
+              security: 100,
+              quality: 100,
+              maintenance: 100,
+              grade: "A",
+            }),
           }),
         ],
       });
@@ -299,9 +304,7 @@ describe("ReportGenerator", () => {
       const report = makeReport({
         skills: [
           makeSkillResult({
-            securityFindings: [
-              makeFinding({ evidence: undefined, remediation: undefined }),
-            ],
+            securityFindings: [makeFinding({ evidence: undefined, remediation: undefined })],
           }),
         ],
       });
@@ -315,7 +318,9 @@ describe("ReportGenerator", () => {
       const report = makeReport({
         skills: [
           makeSkillResult({
-            skill: makeSkill({ name: "a-very-long-skill-name-that-exceeds-the-column-width-limit" }),
+            skill: makeSkill({
+              name: "a-very-long-skill-name-that-exceeds-the-column-width-limit",
+            }),
           }),
         ],
       });

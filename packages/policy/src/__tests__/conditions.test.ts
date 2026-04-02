@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { evaluateCondition } from "../conditions";
 import type { PolicyCondition } from "@agent-audit/shared";
+import { evaluateCondition } from "../conditions";
 import { makeAuditResult, makeAuditResultWithManifest } from "./helpers";
 
 // ---------------------------------------------------------------------------

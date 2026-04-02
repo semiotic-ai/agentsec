@@ -1,34 +1,33 @@
-import { describe, expect, test, beforeEach, afterEach } from "bun:test";
-import type { Severity, AuditGrade } from "@agent-audit/shared";
-
-import { formatJson } from "../formats/json.js";
-import { formatSarif } from "../formats/sarif.js";
-import { formatHtml } from "../formats/html.js";
-import { formatText } from "../formats/text.js";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import type { AuditGrade, Severity } from "@agent-audit/shared";
 import {
-  severityColor,
-  gradeColor,
-  stripAnsi,
-  visibleLength,
-  progressBar,
-  scoreGauge,
   bold,
-  red,
-  green,
-  dim,
-  symbols,
   box,
+  center,
+  dim,
+  gradeColor,
+  green,
   padEnd,
   padStart,
-  center,
+  progressBar,
+  red,
+  scoreGauge,
+  severityColor,
+  stripAnsi,
+  symbols,
+  visibleLength,
 } from "../colors.js";
+import { formatHtml } from "../formats/html.js";
+import { formatJson } from "../formats/json.js";
+import { formatSarif } from "../formats/sarif.js";
+import { formatText } from "../formats/text.js";
 import {
-  makeSkill,
-  makeFinding,
-  makeSkillResult,
-  makeReport,
   makeEmptyReport,
+  makeFinding,
+  makeReport,
   makeReportWithManyFindings,
+  makeSkill,
+  makeSkillResult,
 } from "./fixtures.js";
 
 // ── JSON formatter tests ────────────────────────────────────────────────── //
@@ -135,11 +134,21 @@ describe("formatSarif", () => {
     const parsed = JSON.parse(output);
     const results = parsed.runs[0].results;
 
-    const criticalResult = results.find((r: { properties: { severity: string } }) => r.properties.severity === "critical");
-    const highResult = results.find((r: { properties: { severity: string } }) => r.properties.severity === "high");
-    const mediumResult = results.find((r: { properties: { severity: string } }) => r.properties.severity === "medium");
-    const lowResult = results.find((r: { properties: { severity: string } }) => r.properties.severity === "low");
-    const infoResult = results.find((r: { properties: { severity: string } }) => r.properties.severity === "info");
+    const criticalResult = results.find(
+      (r: { properties: { severity: string } }) => r.properties.severity === "critical",
+    );
+    const highResult = results.find(
+      (r: { properties: { severity: string } }) => r.properties.severity === "high",
+    );
+    const mediumResult = results.find(
+      (r: { properties: { severity: string } }) => r.properties.severity === "medium",
+    );
+    const lowResult = results.find(
+      (r: { properties: { severity: string } }) => r.properties.severity === "low",
+    );
+    const infoResult = results.find(
+      (r: { properties: { severity: string } }) => r.properties.severity === "info",
+    );
 
     expect(criticalResult.level).toBe("error");
     expect(highResult.level).toBe("error");
@@ -216,9 +225,7 @@ describe("formatSarif", () => {
     const report = makeReport({
       skills: [
         makeSkillResult({
-          securityFindings: [
-            makeFinding({ file: undefined, line: undefined, column: undefined }),
-          ],
+          securityFindings: [makeFinding({ file: undefined, line: undefined, column: undefined })],
         }),
       ],
     });

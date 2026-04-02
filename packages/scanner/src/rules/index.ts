@@ -1,26 +1,25 @@
-export { checkInjection } from "./injection";
-export { checkPermissions } from "./permissions";
 export { checkDependencies } from "./dependencies";
-export { checkOutputHandling } from "./output-handling";
-export { checkStorage } from "./storage";
-export { checkSupplyChain } from "./supply-chain";
-export { checkErrorHandling } from "./error-handling";
 export { checkUnsafeDeserialization } from "./deserialization";
 export { checkDenialOfService } from "./dos";
+export { checkErrorHandling } from "./error-handling";
+export { checkInjection } from "./injection";
 export { checkInsufficientLogging } from "./logging";
+export { checkOutputHandling } from "./output-handling";
+export { checkPermissions } from "./permissions";
+export { checkStorage } from "./storage";
+export { checkSupplyChain } from "./supply-chain";
 
 import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
-
-import { checkInjection } from "./injection";
-import { checkPermissions } from "./permissions";
 import { checkDependencies } from "./dependencies";
-import { checkOutputHandling } from "./output-handling";
-import { checkStorage } from "./storage";
-import { checkSupplyChain } from "./supply-chain";
-import { checkErrorHandling } from "./error-handling";
 import { checkUnsafeDeserialization } from "./deserialization";
 import { checkDenialOfService } from "./dos";
+import { checkErrorHandling } from "./error-handling";
+import { checkInjection } from "./injection";
 import { checkInsufficientLogging } from "./logging";
+import { checkOutputHandling } from "./output-handling";
+import { checkPermissions } from "./permissions";
+import { checkStorage } from "./storage";
+import { checkSupplyChain } from "./supply-chain";
 
 export type RuleFunction = (skill: AgentSkill) => SecurityFinding[];
 
@@ -42,7 +41,8 @@ export const ALL_RULES: RuleDefinition[] = [
   {
     name: "injection",
     category: "skill-injection",
-    description: "Detects prompt injection, eval/exec, dynamic code, and template injection vectors (AST-01)",
+    description:
+      "Detects prompt injection, eval/exec, dynamic code, and template injection vectors (AST-01)",
     owaspId: "AST01",
     owaspLink: OWASP_BASE,
     run: checkInjection,
@@ -90,7 +90,8 @@ export const ALL_RULES: RuleDefinition[] = [
   {
     name: "dos",
     category: "denial-of-service",
-    description: "Detects denial of service vectors: unbounded loops, ReDoS, resource exhaustion (AST-06)",
+    description:
+      "Detects denial of service vectors: unbounded loops, ReDoS, resource exhaustion (AST-06)",
     owaspId: "AST06",
     owaspLink: OWASP_BASE,
     run: checkDenialOfService,
@@ -98,7 +99,8 @@ export const ALL_RULES: RuleDefinition[] = [
   {
     name: "supply-chain",
     category: "supply-chain",
-    description: "Checks for supply chain risks: unpinned deps, suspicious registries, install scripts (AST-02)",
+    description:
+      "Checks for supply chain risks: unpinned deps, suspicious registries, install scripts (AST-02)",
     owaspId: "AST02",
     owaspLink: OWASP_BASE,
     run: checkSupplyChain,

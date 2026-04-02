@@ -1,16 +1,16 @@
-import { describe, test, expect } from "bun:test";
-import { resolve, join } from "node:path";
-import { mkdtemp, writeFile, mkdir, rm } from "node:fs/promises";
+import { describe, expect, test } from "bun:test";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { SkillParser } from "../parser";
-import { findAndParseManifest, parseManifestFile } from "../manifest";
+import { join, resolve } from "node:path";
 import {
   detectLanguage,
   detectManifestFormat,
+  MANIFEST_FILENAMES,
   normalizeManifest,
   SKIP_PATTERNS,
-  MANIFEST_FILENAMES,
 } from "../formats";
+import { findAndParseManifest, parseManifestFile } from "../manifest";
+import { SkillParser } from "../parser";
 import { walkSkillDirectory } from "../walker";
 
 const FIXTURES_DIR = resolve(__dirname, "../../../../e2e/fixtures");
@@ -230,9 +230,7 @@ describe("normalizeManifest", () => {
 describe("YAML frontmatter parsing", () => {
   let tempDir: string;
 
-  async function createTempSkill(
-    skillMdContent: string,
-  ): Promise<string> {
+  async function createTempSkill(skillMdContent: string): Promise<string> {
     tempDir = await mkdtemp(join(tmpdir(), "openclaw-test-"));
     await writeFile(join(tempDir, "SKILL.md"), skillMdContent);
     return tempDir;
@@ -260,10 +258,7 @@ This is the body content.
     expect(result!.manifest.name).toBe("frontmatter-skill");
     expect(result!.manifest.version).toBe("1.0.0");
     expect(result!.manifest.author).toBe("test-author");
-    expect(result!.manifest.permissions).toEqual([
-      "clipboard:read",
-      "network:unrestricted",
-    ]);
+    expect(result!.manifest.permissions).toEqual(["clipboard:read", "network:unrestricted"]);
     await rm(tempDir, { recursive: true });
   });
 
@@ -279,9 +274,7 @@ This paragraph should become the description.
 `);
     const result = await findAndParseManifest(dir);
     expect(result).not.toBeNull();
-    expect(result!.manifest.description).toBe(
-      "This paragraph should become the description.",
-    );
+    expect(result!.manifest.description).toBe("This paragraph should become the description.");
     await rm(tempDir, { recursive: true });
   });
 
@@ -311,9 +304,7 @@ A bare markdown skill without YAML frontmatter.
 // ---------------------------------------------------------------------------
 describe("findAndParseManifest", () => {
   test("parses skill.json from good-skill fixture", async () => {
-    const result = await findAndParseManifest(
-      join(FIXTURES_DIR, "good-skill"),
-    );
+    const result = await findAndParseManifest(join(FIXTURES_DIR, "good-skill"));
     expect(result).not.toBeNull();
     expect(result!.format).toBe("skill-json");
     expect(result!.manifest.name).toBe("code-formatter");
@@ -323,9 +314,7 @@ describe("findAndParseManifest", () => {
   test("parses package.json from supply-chain fixture", async () => {
     // supply-chain-skill has both skill.json and package.json,
     // but skill.json has higher priority in MANIFEST_FILENAMES
-    const result = await findAndParseManifest(
-      join(FIXTURES_DIR, "supply-chain-skill"),
-    );
+    const result = await findAndParseManifest(join(FIXTURES_DIR, "supply-chain-skill"));
     expect(result).not.toBeNull();
     expect(result!.manifest.name).toBeDefined();
   });
@@ -350,9 +339,9 @@ describe("parseManifestFile", () => {
   });
 
   test("throws for unrecognized manifest filename", async () => {
-    await expect(
-      parseManifestFile("/tmp/foo.txt", "foo.txt"),
-    ).rejects.toThrow("Unrecognized manifest filename");
+    await expect(parseManifestFile("/tmp/foo.txt", "foo.txt")).rejects.toThrow(
+      "Unrecognized manifest filename",
+    );
   });
 });
 
@@ -390,9 +379,7 @@ describe("SKIP_PATTERNS", () => {
 // ---------------------------------------------------------------------------
 describe("walkSkillDirectory", () => {
   test("walks fixture skill and returns source files", async () => {
-    const files = await walkSkillDirectory(
-      join(FIXTURES_DIR, "good-skill"),
-    );
+    const files = await walkSkillDirectory(join(FIXTURES_DIR, "good-skill"));
     expect(files.length).toBeGreaterThan(0);
 
     // Should find the source file
@@ -406,10 +393,7 @@ describe("walkSkillDirectory", () => {
     // Create a temp dir with a node_modules subdirectory
     const tempDir = await mkdtemp(join(tmpdir(), "walker-test-"));
     await mkdir(join(tempDir, "node_modules"), { recursive: true });
-    await writeFile(
-      join(tempDir, "node_modules", "evil.js"),
-      "module.exports = 'nope';",
-    );
+    await writeFile(join(tempDir, "node_modules", "evil.js"), "module.exports = 'nope';");
     await mkdir(join(tempDir, ".git"), { recursive: true });
     await writeFile(join(tempDir, ".git", "HEAD"), "ref: refs/heads/main");
     await writeFile(join(tempDir, "index.ts"), "export const x = 1;");
@@ -450,9 +434,7 @@ describe("walkSkillDirectory", () => {
     await writeFile(join(tempDir, "lib.ts"), "export const a = 1;");
 
     const files = await walkSkillDirectory(tempDir);
-    const languages = new Map(
-      files.map((f) => [f.relativePath, f.language]),
-    );
+    const languages = new Map(files.map((f) => [f.relativePath, f.language]));
 
     expect(languages.get("app.py")).toBe("python");
     expect(languages.get("run.sh")).toBe("shell");
@@ -518,10 +500,7 @@ describe("SkillParser", () => {
     test("derives skill ID from directory name when name is unknown", async () => {
       const tempDir = await mkdtemp(join(tmpdir(), "unnamed-skill-"));
       // Create a skill.json with no name
-      await writeFile(
-        join(tempDir, "skill.json"),
-        JSON.stringify({ version: "1.0.0" }),
-      );
+      await writeFile(join(tempDir, "skill.json"), JSON.stringify({ version: "1.0.0" }));
       const skill = await parser.parse(tempDir);
       expect(skill).not.toBeNull();
       // ID should fall back to directory basename
@@ -533,17 +512,13 @@ describe("SkillParser", () => {
 
   describe("parseOrThrow", () => {
     test("returns skill for valid directory", async () => {
-      const skill = await parser.parseOrThrow(
-        join(FIXTURES_DIR, "good-skill"),
-      );
+      const skill = await parser.parseOrThrow(join(FIXTURES_DIR, "good-skill"));
       expect(skill.name).toBe("code-formatter");
     });
 
     test("throws for directory without manifest", async () => {
       const tempDir = await mkdtemp(join(tmpdir(), "parseorthrow-"));
-      await expect(parser.parseOrThrow(tempDir)).rejects.toThrow(
-        "No valid skill manifest found",
-      );
+      await expect(parser.parseOrThrow(tempDir)).rejects.toThrow("No valid skill manifest found");
       await rm(tempDir, { recursive: true });
     });
   });

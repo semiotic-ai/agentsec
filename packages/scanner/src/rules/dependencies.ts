@@ -1,5 +1,5 @@
 import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
-import { getLineNumber, getEvidenceLine } from "./utils";
+import { getEvidenceLine, getLineNumber } from "./utils";
 
 /**
  * Rule: Dependency Vulnerabilities (AST-04)
@@ -393,4 +393,3 @@ function isNodeBuiltin(name: string): boolean {
   ]);
   return builtins.has(name);
 }
-

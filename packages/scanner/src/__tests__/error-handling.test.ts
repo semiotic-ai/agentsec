@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { checkErrorHandling } from "../rules/error-handling";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill } from "@agent-audit/shared";
+import { checkErrorHandling } from "../rules/error-handling";
 
 /**
  * Helper to create a mock AgentSkill with a single file containing
@@ -86,9 +86,7 @@ try { work(); } catch (e) {
   });
 
   test("detects Express error middleware leaking details (ERR-003)", () => {
-    const skill = mockSkill(
-      `app.use(error => { res.send(error.stack) });`
-    );
+    const skill = mockSkill(`app.use(error => { res.send(error.stack) });`);
     const findings = checkErrorHandling(skill);
     const mwFindings = findings.filter((f) => f.id.startsWith("ERR-003"));
     expect(mwFindings.length).toBeGreaterThanOrEqual(1);

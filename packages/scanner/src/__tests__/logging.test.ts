@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { checkInsufficientLogging } from "../rules/logging";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill } from "@agent-audit/shared";
+import { checkInsufficientLogging } from "../rules/logging";
 
 /**
  * Helper to create a mock AgentSkill with a single code file.
@@ -30,9 +30,7 @@ function mockSkill(code: string, filename = "index.ts"): AgentSkill {
 }
 
 /** Helper to create a skill with multiple code files. */
-function mockSkillMultiFile(
-  files: { name: string; code: string }[]
-): AgentSkill {
+function mockSkillMultiFile(files: { name: string; code: string }[]): AgentSkill {
   return {
     id: "log-multi-skill",
     name: "Logging Multi File Skill",
@@ -94,9 +92,7 @@ describe("Logging: secret in logs (LOG-002)", () => {
   });
 
   test("detects console.info with client_secret", () => {
-    const skill = mockSkill(
-      `console.info("client_secret is", client_secret);`
-    );
+    const skill = mockSkill(`console.info("client_secret is", client_secret);`);
     const findings = checkInsufficientLogging(skill);
     const secretFindings = findings.filter((f) => f.id.startsWith("LOG-002"));
     expect(secretFindings.length).toBe(1);
@@ -123,9 +119,7 @@ describe("Logging: token in logs (LOG-003)", () => {
   });
 
   test("detects console.debug with access_token", () => {
-    const skill = mockSkill(
-      `console.debug("access_token:", access_token);`
-    );
+    const skill = mockSkill(`console.debug("access_token:", access_token);`);
     const findings = checkInsufficientLogging(skill);
     const tokenFindings = findings.filter((f) => f.id.startsWith("LOG-003"));
     expect(tokenFindings.length).toBe(1);
@@ -188,9 +182,7 @@ describe("Logging: PII/financial data in logs (LOG-005)", () => {
   });
 
   test("detects console.warn with card_number", () => {
-    const skill = mockSkill(
-      `console.warn("card_number validation failed:", card_number);`
-    );
+    const skill = mockSkill(`console.warn("card_number validation failed:", card_number);`);
     const findings = checkInsufficientLogging(skill);
     const piiFindings = findings.filter((f) => f.id.startsWith("LOG-005"));
     expect(piiFindings.length).toBe(1);
@@ -202,9 +194,7 @@ describe("Logging: PII/financial data in logs (LOG-005)", () => {
 // ---------------------------------------------------------------------------
 describe("Logging: sensitive data in structured logging (LOG-006)", () => {
   test("detects logger.info with password", () => {
-    const skill = mockSkill(
-      `logger.info("User password changed", { password });`
-    );
+    const skill = mockSkill(`logger.info("User password changed", { password });`);
     const findings = checkInsufficientLogging(skill);
     const structFindings = findings.filter((f) => f.id.startsWith("LOG-006"));
     expect(structFindings.length).toBe(1);
@@ -389,9 +379,7 @@ describe("Logging: unstructured logging warning (LOG-UNSTRUCTURED)", () => {
       { name: "c.ts", code: `console.log("plain log 2");` },
     ]);
     const findings = checkInsufficientLogging(skill);
-    const unstructFindings = findings.filter(
-      (f) => f.id === "LOG-UNSTRUCTURED"
-    );
+    const unstructFindings = findings.filter((f) => f.id === "LOG-UNSTRUCTURED");
     expect(unstructFindings.length).toBe(1);
     expect(unstructFindings[0].severity).toBe("info");
   });
@@ -406,9 +394,7 @@ describe("Logging: unstructured logging warning (LOG-UNSTRUCTURED)", () => {
       { name: "c.ts", code: `console.log("info");` },
     ]);
     const findings = checkInsufficientLogging(skill);
-    const unstructFindings = findings.filter(
-      (f) => f.id === "LOG-UNSTRUCTURED"
-    );
+    const unstructFindings = findings.filter((f) => f.id === "LOG-UNSTRUCTURED");
     expect(unstructFindings.length).toBe(0);
   });
 
@@ -422,9 +408,7 @@ describe("Logging: unstructured logging warning (LOG-UNSTRUCTURED)", () => {
       { name: "c.ts", code: `console.log("info");` },
     ]);
     const findings = checkInsufficientLogging(skill);
-    const unstructFindings = findings.filter(
-      (f) => f.id === "LOG-UNSTRUCTURED"
-    );
+    const unstructFindings = findings.filter((f) => f.id === "LOG-UNSTRUCTURED");
     expect(unstructFindings.length).toBe(0);
   });
 
@@ -438,9 +422,7 @@ describe("Logging: unstructured logging warning (LOG-UNSTRUCTURED)", () => {
       { name: "c.ts", code: `console.log("info");` },
     ]);
     const findings = checkInsufficientLogging(skill);
-    const unstructFindings = findings.filter(
-      (f) => f.id === "LOG-UNSTRUCTURED"
-    );
+    const unstructFindings = findings.filter((f) => f.id === "LOG-UNSTRUCTURED");
     expect(unstructFindings.length).toBe(0);
   });
 });
@@ -456,9 +438,7 @@ function authenticate(user, pass) {
 }
 `);
     const findings = checkInsufficientLogging(skill);
-    const authFindings = findings.filter((f) =>
-      f.id.startsWith("LOG-AUTH")
-    );
+    const authFindings = findings.filter((f) => f.id.startsWith("LOG-AUTH"));
     expect(authFindings.length).toBe(1);
     expect(authFindings[0].severity).toBe("medium");
     expect(authFindings[0].title).toBe("Authentication without logging");
@@ -473,9 +453,7 @@ function authenticate(user, pass) {
 }
 `);
     const findings = checkInsufficientLogging(skill);
-    const authFindings = findings.filter((f) =>
-      f.id.startsWith("LOG-AUTH")
-    );
+    const authFindings = findings.filter((f) => f.id.startsWith("LOG-AUTH"));
     expect(authFindings.length).toBe(0);
   });
 
@@ -486,9 +464,7 @@ async function login(credentials) {
 }
 `);
     const findings = checkInsufficientLogging(skill);
-    const authFindings = findings.filter((f) =>
-      f.id.startsWith("LOG-AUTH")
-    );
+    const authFindings = findings.filter((f) => f.id.startsWith("LOG-AUTH"));
     expect(authFindings.length).toBe(1);
   });
 });
@@ -504,14 +480,10 @@ function isAdmin(user) {
 }
 `);
     const findings = checkInsufficientLogging(skill);
-    const authzFindings = findings.filter((f) =>
-      f.id.startsWith("LOG-AUTHZ")
-    );
+    const authzFindings = findings.filter((f) => f.id.startsWith("LOG-AUTHZ"));
     expect(authzFindings.length).toBe(1);
     expect(authzFindings[0].severity).toBe("medium");
-    expect(authzFindings[0].title).toBe(
-      "Authorization checks without logging"
-    );
+    expect(authzFindings[0].title).toBe("Authorization checks without logging");
   });
 
   test("does not flag when authz logging is present", () => {
@@ -523,9 +495,7 @@ function hasPermission(user, perm) {
 }
 `);
     const findings = checkInsufficientLogging(skill);
-    const authzFindings = findings.filter((f) =>
-      f.id.startsWith("LOG-AUTHZ")
-    );
+    const authzFindings = findings.filter((f) => f.id.startsWith("LOG-AUTHZ"));
     expect(authzFindings.length).toBe(0);
   });
 
@@ -536,9 +506,7 @@ function checkRole(user, role) {
 }
 `);
     const findings = checkInsufficientLogging(skill);
-    const authzFindings = findings.filter((f) =>
-      f.id.startsWith("LOG-AUTHZ")
-    );
+    const authzFindings = findings.filter((f) => f.id.startsWith("LOG-AUTHZ"));
     expect(authzFindings.length).toBe(1);
   });
 
@@ -549,9 +517,7 @@ function canAccess(user, resource) {
 }
 `);
     const findings = checkInsufficientLogging(skill);
-    const authzFindings = findings.filter((f) =>
-      f.id.startsWith("LOG-AUTHZ")
-    );
+    const authzFindings = findings.filter((f) => f.id.startsWith("LOG-AUTHZ"));
     expect(authzFindings.length).toBe(1);
   });
 });
@@ -646,7 +612,7 @@ console.error("Connection timeout");
         f.id.startsWith("LOG-003") ||
         f.id.startsWith("LOG-004") ||
         f.id.startsWith("LOG-005") ||
-        f.id.startsWith("LOG-006")
+        f.id.startsWith("LOG-006"),
     );
     expect(sensitiveFindings.length).toBe(0);
   });
@@ -697,10 +663,7 @@ const z = 3;`);
   });
 
   test("reports file path in finding", () => {
-    const skill = mockSkill(
-      `console.log("secret:", secret);`,
-      "src/handler.ts"
-    );
+    const skill = mockSkill(`console.log("secret:", secret);`, "src/handler.ts");
     const findings = checkInsufficientLogging(skill);
     const secretFindings = findings.filter((f) => f.id.startsWith("LOG-002"));
     expect(secretFindings.length).toBe(1);
@@ -708,9 +671,7 @@ const z = 3;`);
   });
 
   test("evidence is included and redacted", () => {
-    const skill = mockSkill(
-      `console.log("api_key:", "sk-abcdefghijklmnopqrstuvwx");`
-    );
+    const skill = mockSkill(`console.log("api_key:", "sk-abcdefghijklmnopqrstuvwx");`);
     const findings = checkInsufficientLogging(skill);
     const apiFindings = findings.filter((f) => f.id.startsWith("LOG-004"));
     expect(apiFindings.length).toBe(1);

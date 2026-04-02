@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { PolicyEngine } from "../engine";
 import type { PolicyConfig, PolicyViolation } from "@agent-audit/shared";
+import { PolicyEngine } from "../engine";
 import { makeAuditResult } from "./helpers";
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
-import { getLineNumber, getEvidenceLine } from "./utils";
+import { getEvidenceLine, getLineNumber } from "./utils";
 
 /**
  * Rule: Supply Chain Risks (AST-08)
@@ -342,4 +342,3 @@ function checkVendoredDeps(skill: AgentSkill, findings: SecurityFinding[]): void
     }
   }
 }
-

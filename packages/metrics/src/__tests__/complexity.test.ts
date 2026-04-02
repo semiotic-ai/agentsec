@@ -1,13 +1,9 @@
-import { describe, test, expect } from "bun:test";
-import { calculateComplexity, countTotalLinesOfCode } from "../complexity";
+import { describe, expect, test } from "bun:test";
 import type { SkillFile } from "@agent-audit/shared";
+import { calculateComplexity, countTotalLinesOfCode } from "../complexity";
 
 /** Helper to build a SkillFile from source and language. */
-function makeFile(
-  content: string,
-  language: string,
-  relativePath = "index.ts"
-): SkillFile {
+function makeFile(content: string, language: string, relativePath = "index.ts"): SkillFile {
   return {
     path: `/tmp/skill/${relativePath}`,
     relativePath,
@@ -260,9 +256,7 @@ describe("calculateComplexity: edge cases", () => {
   });
 
   test("returns zero for unknown language files", () => {
-    const result = calculateComplexity([
-      makeFile("if (x) { while (y) {} }", "rust", "main.rs"),
-    ]);
+    const result = calculateComplexity([makeFile("if (x) { while (y) {} }", "rust", "main.rs")]);
     expect(result.score).toBe(0);
     expect(result.rawBranchCount).toBe(0);
   });
@@ -310,9 +304,7 @@ if (x) { }
     for (let i = 1; i < result.branches.length; i++) {
       const prev = result.branches[i - 1];
       const curr = result.branches[i];
-      expect(prev.count * prev.weight).toBeGreaterThanOrEqual(
-        curr.count * curr.weight
-      );
+      expect(prev.count * prev.weight).toBeGreaterThanOrEqual(curr.count * curr.weight);
     }
   });
 });

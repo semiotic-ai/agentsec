@@ -1,5 +1,5 @@
-import { describe, test, expect } from "bun:test";
-import { resolve, join } from "node:path";
+import { describe, expect, test } from "bun:test";
+import { join, resolve } from "node:path";
 import { SkillDiscovery } from "../discovery";
 
 const FIXTURES_DIR = resolve(__dirname, "../../../../e2e/fixtures");
@@ -155,9 +155,7 @@ describe("SkillDiscovery", () => {
   describe("parseSkill", () => {
     test("parses a single known fixture skill", async () => {
       const discovery = new SkillDiscovery();
-      const skill = await discovery.parseSkill(
-        join(FIXTURES_DIR, "good-skill"),
-      );
+      const skill = await discovery.parseSkill(join(FIXTURES_DIR, "good-skill"));
       expect(skill).not.toBeNull();
       expect(skill!.name).toBe("code-formatter");
       expect(skill!.platform).toBe("openclaw");
@@ -171,9 +169,7 @@ describe("SkillDiscovery", () => {
 
     test("shallow parse skips file contents", async () => {
       const discovery = new SkillDiscovery({ shallow: true });
-      const skill = await discovery.parseSkill(
-        join(FIXTURES_DIR, "good-skill"),
-      );
+      const skill = await discovery.parseSkill(join(FIXTURES_DIR, "good-skill"));
       expect(skill).not.toBeNull();
       expect(skill!.files).toEqual([]);
     });

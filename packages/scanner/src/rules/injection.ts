@@ -1,5 +1,5 @@
 import type { AgentSkill, SecurityFinding, SkillFile } from "@agent-audit/shared";
-import { getLineNumber, getEvidenceLine, isInComment } from "./utils";
+import { getEvidenceLine, getLineNumber, isInComment } from "./utils";
 
 /**
  * Rule: Skill Injection (AST-01)

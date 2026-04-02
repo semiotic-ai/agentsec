@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { checkUnsafeDeserialization } from "../rules/deserialization";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill } from "@agent-audit/shared";
+import { checkUnsafeDeserialization } from "../rules/deserialization";
 
 /**
  * Helper to create a mock AgentSkill with a single file containing
@@ -124,7 +124,7 @@ describe("Deserialization: Java ObjectInputStream", () => {
   test("detects ObjectInputStream usage", () => {
     const skill = mockSkill(
       `ObjectInputStream ois = new ObjectInputStream(input);`,
-      "Handler.java"
+      "Handler.java",
     );
     const findings = checkUnsafeDeserialization(skill);
     const hits = findings.filter((f) => f.id.startsWith("DES-005"));
@@ -133,10 +133,7 @@ describe("Deserialization: Java ObjectInputStream", () => {
   });
 
   test("detects readObject()", () => {
-    const skill = mockSkill(
-      `Object obj = ois.readObject();`,
-      "Handler.java"
-    );
+    const skill = mockSkill(`Object obj = ois.readObject();`, "Handler.java");
     const findings = checkUnsafeDeserialization(skill);
     const hits = findings.filter((f) => f.id.startsWith("DES-005"));
     expect(hits.length).toBeGreaterThanOrEqual(1);
@@ -148,10 +145,7 @@ describe("Deserialization: Java ObjectInputStream", () => {
 // ---------------------------------------------------------------------------
 describe("Deserialization: PHP unserialize", () => {
   test("detects unserialize with data argument", () => {
-    const skill = mockSkill(
-      `unserialize(data)`,
-      "handler.php"
-    );
+    const skill = mockSkill(`unserialize(data)`, "handler.php");
     const findings = checkUnsafeDeserialization(skill);
     const hits = findings.filter((f) => f.id.startsWith("DES-006"));
     expect(hits.length).toBeGreaterThanOrEqual(1);
@@ -159,20 +153,14 @@ describe("Deserialization: PHP unserialize", () => {
   });
 
   test("detects unserialize with input argument", () => {
-    const skill = mockSkill(
-      `unserialize(input)`,
-      "handler.php"
-    );
+    const skill = mockSkill(`unserialize(input)`, "handler.php");
     const findings = checkUnsafeDeserialization(skill);
     const hits = findings.filter((f) => f.id.startsWith("DES-006"));
     expect(hits.length).toBeGreaterThanOrEqual(1);
   });
 
   test("detects unserialize with user argument", () => {
-    const skill = mockSkill(
-      `unserialize(user)`,
-      "handler.php"
-    );
+    const skill = mockSkill(`unserialize(user)`, "handler.php");
     const findings = checkUnsafeDeserialization(skill);
     const hits = findings.filter((f) => f.id.startsWith("DES-006"));
     expect(hits.length).toBeGreaterThanOrEqual(1);
@@ -258,7 +246,7 @@ describe("Deserialization: __proto__ property access", () => {
     expect(hits[0].severity).toBe("high");
   });
 
-  test("detects [\"__proto__\"] access", () => {
+  test('detects ["__proto__"] access', () => {
     const skill = mockSkill(`obj["__proto__"] = malicious;`);
     const findings = checkUnsafeDeserialization(skill);
     const hits = findings.filter((f) => f.id.startsWith("DES-020"));

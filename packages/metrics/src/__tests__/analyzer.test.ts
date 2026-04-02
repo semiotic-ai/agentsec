@@ -1,13 +1,9 @@
-import { describe, test, expect } from "bun:test";
-import { MetricsAnalyzer } from "../analyzer";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill, SkillFile } from "@agent-audit/shared";
+import { MetricsAnalyzer } from "../analyzer";
 
 /** Build a mock SkillFile. */
-function makeFile(
-  content: string,
-  language: string,
-  relativePath: string
-): SkillFile {
+function makeFile(content: string, language: string, relativePath: string): SkillFile {
   return {
     path: `/tmp/mock-skill/${relativePath}`,
     relativePath,
@@ -118,7 +114,7 @@ describe("MetricsAnalyzer.analyzeDetailed()", () => {
     const readme = makeFile(
       "# My Skill\n\nThis skill does things.\n\n## Installation\n\n```bash\nnpm install\n```\n\n## Usage\n\nUse it like so.\n\nMore text to reach the minimum length threshold for scoring well. This is additional content that provides details about the skill and its purpose. It includes enough text to be considered substantive documentation.",
       "markdown",
-      "readme.md"
+      "readme.md",
     );
     const skill = mockSkill({ files: [readme] });
     const detailed = new MetricsAnalyzer(skill).analyzeDetailed();
@@ -257,7 +253,7 @@ describe("MetricsAnalyzer: maintenance health", () => {
     const testFile = makeFile(
       'test("works", () => expect(1).toBe(1));',
       "typescript",
-      "src/utils.test.ts"
+      "src/utils.test.ts",
     );
     const srcFile = makeFile("export const x = 1;", "typescript", "src/utils.ts");
     const skill = mockSkill({ files: [testFile, srcFile] });
@@ -272,7 +268,7 @@ describe("MetricsAnalyzer: maintenance health", () => {
     const ciFile = makeFile(
       "name: CI\non: push\njobs:\n  test:\n    runs-on: ubuntu-latest",
       "yaml",
-      ".github/workflows/ci.yml"
+      ".github/workflows/ci.yml",
     );
     const skill = mockSkill({ files: [ciFile] });
     const detailed = new MetricsAnalyzer(skill).analyzeDetailed();
@@ -308,11 +304,7 @@ describe("MetricsAnalyzer: maintenance health", () => {
   });
 
   test("detects license from LICENSE file", () => {
-    const licenseFile = makeFile(
-      "MIT License\n\nCopyright (c) 2024 Test",
-      "text",
-      "LICENSE"
-    );
+    const licenseFile = makeFile("MIT License\n\nCopyright (c) 2024 Test", "text", "LICENSE");
     const skill = mockSkill({ files: [licenseFile] });
     const detailed = new MetricsAnalyzer(skill).analyzeDetailed();
 

@@ -4,9 +4,7 @@ import type { SkillAuditResult, SkillManifest } from "@agent-audit/shared";
  * Build a SkillAuditResult with sensible defaults. Pass partial overrides
  * for the fields you care about in each test.
  */
-export function makeAuditResult(
-  overrides: Partial<SkillAuditResult> = {},
-): SkillAuditResult {
+export function makeAuditResult(overrides: Partial<SkillAuditResult> = {}): SkillAuditResult {
   return {
     skill: {
       id: "test-skill",

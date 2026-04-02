@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { checkDenialOfService } from "../rules/dos";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill } from "@agent-audit/shared";
+import { checkDenialOfService } from "../rules/dos";
 
 /**
  * Helper to create a mock AgentSkill with a single file containing
@@ -304,7 +304,7 @@ const safe = /^[a-z0-9]+$/;
 `);
     const findings = checkDenialOfService(skill);
     const regexFindings = findings.filter(
-      (f) => f.id.startsWith("DOS-011") || f.id.startsWith("DOS-012")
+      (f) => f.id.startsWith("DOS-011") || f.id.startsWith("DOS-012"),
     );
     expect(regexFindings.length).toBe(0);
   });
@@ -438,7 +438,7 @@ const json = await response.json();
 `);
     const findings = checkDenialOfService(skill);
     const timeoutFindings = findings.filter(
-      (f) => f.id.startsWith("DOS-030") || f.id.startsWith("DOS-TIMEOUT")
+      (f) => f.id.startsWith("DOS-030") || f.id.startsWith("DOS-TIMEOUT"),
     );
     expect(timeoutFindings.length).toBeGreaterThanOrEqual(1);
   });
@@ -585,7 +585,7 @@ const safe = "hello";
 `);
     const findings = checkDenialOfService(skill);
     const loopFindings = findings.filter(
-      (f) => f.id.startsWith("DOS-001") || f.id.startsWith("DOS-002")
+      (f) => f.id.startsWith("DOS-001") || f.id.startsWith("DOS-002"),
     );
     expect(loopFindings.length).toBe(0);
   });

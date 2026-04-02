@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { checkStorage } from "../rules/storage";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill } from "@agent-audit/shared";
+import { checkStorage } from "../rules/storage";
 
 /**
  * Helper to create a mock AgentSkill with a single file containing
@@ -125,7 +125,7 @@ const key = "-----BEGIN RSA PRIVATE KEY-----\\nMIIE...";
 `);
     const findings = checkStorage(skill);
     const pkFindings = findings.filter(
-      (f) => f.id.startsWith("STOR-005") || f.id.startsWith("STOR-006")
+      (f) => f.id.startsWith("STOR-005") || f.id.startsWith("STOR-006"),
     );
     expect(pkFindings.length).toBeGreaterThanOrEqual(1);
     expect(pkFindings[0].severity).toBe("critical");
@@ -153,7 +153,7 @@ const aws_access_key_id = "AKIA4RJPLNCZV8GNQUD2";
 `);
     const findings = checkStorage(skill);
     const awsFindings = findings.filter(
-      (f) => f.id.startsWith("STOR-007") || f.id.startsWith("STOR-008")
+      (f) => f.id.startsWith("STOR-007") || f.id.startsWith("STOR-008"),
     );
     expect(awsFindings.length).toBeGreaterThanOrEqual(1);
   });
@@ -469,7 +469,7 @@ const x = 42;
     ]);
     const findings = checkStorage(skill);
     const gitFindings = findings.filter(
-      (f) => f.id === "STOR-GIT-MISSING" || f.id === "STOR-GIT-INCOMPLETE"
+      (f) => f.id === "STOR-GIT-MISSING" || f.id === "STOR-GIT-INCOMPLETE",
     );
     expect(gitFindings.length).toBe(0);
   });
@@ -541,7 +541,7 @@ export function formatDate(date: Date): string {
     ]);
     const findings = checkStorage(skill);
     const criticalOrHigh = findings.filter(
-      (f) => f.severity === "critical" || f.severity === "high"
+      (f) => f.severity === "critical" || f.severity === "high",
     );
     expect(criticalOrHigh.length).toBe(0);
   });

@@ -68,9 +68,22 @@ export function isInComment(content: string, index: number): boolean {
 
 /** Standard set of code file extensions used by most scanner rules. */
 const CODE_EXTENSIONS = new Set([
-  "ts", "tsx", "js", "jsx", "mjs", "cjs",
-  "py", "rb", "go", "rs", "java", "kt",
-  "sh", "bash", "zsh", "fish",
+  "ts",
+  "tsx",
+  "js",
+  "jsx",
+  "mjs",
+  "cjs",
+  "py",
+  "rb",
+  "go",
+  "rs",
+  "java",
+  "kt",
+  "sh",
+  "bash",
+  "zsh",
+  "fish",
 ]);
 
 /**

@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { checkOutputHandling } from "../rules/output-handling";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill } from "@agent-audit/shared";
+import { checkOutputHandling } from "../rules/output-handling";
 
 /**
  * Helper to create a mock AgentSkill with a single file containing
@@ -95,9 +95,12 @@ document.writeln(content);
 // ---------------------------------------------------------------------------
 describe("Output Handling: dangerouslySetInnerHTML", () => {
   test("detects dangerouslySetInnerHTML usage", () => {
-    const skill = mockSkill(`
+    const skill = mockSkill(
+      `
 <div dangerouslySetInnerHTML ={{ __html: data }} />
-`, "component.tsx");
+`,
+      "component.tsx",
+    );
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-005"));
     expect(matched.length).toBeGreaterThanOrEqual(1);
@@ -110,9 +113,12 @@ describe("Output Handling: dangerouslySetInnerHTML", () => {
 // ---------------------------------------------------------------------------
 describe("Output Handling: Vue v-html", () => {
   test("detects v-html directive", () => {
-    const skill = mockSkill(`
+    const skill = mockSkill(
+      `
 <div v-html="rawHtml"></div>
-`, "component.vue");
+`,
+      "component.vue",
+    );
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-006"));
     expect(matched.length).toBeGreaterThanOrEqual(1);
@@ -125,9 +131,12 @@ describe("Output Handling: Vue v-html", () => {
 // ---------------------------------------------------------------------------
 describe("Output Handling: Angular [innerHTML]", () => {
   test("detects Angular innerHTML binding", () => {
-    const skill = mockSkill(`
+    const skill = mockSkill(
+      `
 <div [innerHTML]="dynamicContent"></div>
-`, "component.html");
+`,
+      "component.html",
+    );
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-007"));
     expect(matched.length).toBeGreaterThanOrEqual(1);
@@ -233,9 +242,12 @@ res.json(body);
 // ---------------------------------------------------------------------------
 describe("Output Handling: EJS template output", () => {
   test("detects unescaped EJS output with user data", () => {
-    const skill = mockSkill(`
+    const skill = mockSkill(
+      `
 <p><%- input %></p>
-`, "page.ejs");
+`,
+      "page.ejs",
+    );
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-040"));
     expect(matched.length).toBeGreaterThanOrEqual(1);
@@ -243,9 +255,12 @@ describe("Output Handling: EJS template output", () => {
   });
 
   test("detects escaped EJS with user variable (still flagged)", () => {
-    const skill = mockSkill(`
+    const skill = mockSkill(
+      `
 <p><%= query %></p>
-`, "page.ejs");
+`,
+      "page.ejs",
+    );
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-040"));
     expect(matched.length).toBeGreaterThanOrEqual(1);
@@ -257,9 +272,12 @@ describe("Output Handling: EJS template output", () => {
 // ---------------------------------------------------------------------------
 describe("Output Handling: template safe filter", () => {
   test("detects Jinja2/Nunjucks safe filter", () => {
-    const skill = mockSkill(`
+    const skill = mockSkill(
+      `
 {{ content|safe }}
-`, "template.html");
+`,
+      "template.html",
+    );
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-041"));
     expect(matched.length).toBeGreaterThanOrEqual(1);
@@ -267,9 +285,12 @@ describe("Output Handling: template safe filter", () => {
   });
 
   test("detects Blade unescaped output", () => {
-    const skill = mockSkill(`
+    const skill = mockSkill(
+      `
 {!! $userContent !!}
-`, "view.html");
+`,
+      "view.html",
+    );
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-042"));
     expect(matched.length).toBeGreaterThanOrEqual(1);
@@ -399,9 +420,7 @@ const config = JSON.parse(data);
 const safe = 42;
 `);
     const findings = checkOutputHandling(skill);
-    const xss = findings.filter(
-      (f) => f.id.startsWith("OUT-001") || f.id.startsWith("OUT-004")
-    );
+    const xss = findings.filter((f) => f.id.startsWith("OUT-001") || f.id.startsWith("OUT-004"));
     expect(xss.length).toBe(0);
   });
 });

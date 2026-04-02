@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { parseFlags, resolveConfig } from "../config";
 import { argv } from "./helpers";
 
@@ -182,7 +182,9 @@ describe("parseFlags", () => {
   // -- Combined flags --
 
   it("parses multiple flags together", () => {
-    const flags = parseFlags(argv("scan", "--format", "json", "--policy", "strict", "-v", "--path", "/skills"));
+    const flags = parseFlags(
+      argv("scan", "--format", "json", "--policy", "strict", "-v", "--path", "/skills"),
+    );
     expect(flags.command).toBe("scan");
     expect(flags.format).toBe("json");
     expect(flags.policy).toBe("strict");
@@ -208,7 +210,9 @@ describe("resolveConfig", () => {
   });
 
   it("applies CLI flag overrides", async () => {
-    const flags = parseFlags(argv("--format", "json", "--policy", "strict", "-v", "--path", "/tmp/skills"));
+    const flags = parseFlags(
+      argv("--format", "json", "--policy", "strict", "-v", "--path", "/tmp/skills"),
+    );
     const config = await resolveConfig(flags);
     expect(config.format).toBe("json");
     expect(config.policy).toBe("strict");
