@@ -26,8 +26,6 @@ agent-audit/
     openclaw/      @agent-audit/openclaw     - OpenClaw format support
     reporter/      @agent-audit/reporter     - Report generation
     cli/           @agent-audit/cli          - CLI entry point
-  apps/
-    dashboard/     @agent-audit/dashboard    - Web dashboard
 ```
 
 ### Package Naming
@@ -39,15 +37,17 @@ agent-audit/
 
 ```
 shared (types, constants, utilities)
-  -> scanner (skill scanning, vulnerability detection)
-  -> metrics (security scoring, risk calculation)
-  -> policy  (policy rules, compliance checks)
-  -> openclaw (OpenClaw SKILL.md parsing)
-    -> reporter (HTML/JSON/PDF report generation)
-      -> cli (command-line interface, published as "agent-audit")
+  ^--- scanner  (skill scanning, vulnerability detection)
+  ^--- metrics  (security scoring, risk calculation)
+  ^--- policy   (policy rules, compliance checks)
+  ^--- openclaw (OpenClaw SKILL.md parsing)
+  ^--- reporter (HTML/JSON/PDF report generation)
+
+cli (command-line interface, published as "agent-audit")
+  depends on ALL 6 packages above
 ```
 
-Packages must only depend on packages above them in this graph. The `shared` package has no internal dependencies.
+`shared` has no internal dependencies. `scanner`, `metrics`, `policy`, `openclaw`, and `reporter` each depend on `shared` only. `cli` depends on all six packages.
 
 ## TypeScript
 
@@ -72,6 +72,10 @@ Packages must only depend on packages above them in this graph. The `shared` pac
 - Lint: `bun run lint`
 - Type check: `bun run check`
 - Clean: `bun run clean`
+
+## Linting and Formatting
+
+Linting and formatting are handled by [Biome](https://biomejs.dev/) via `biome.json` in the repo root. Configuration: 2-space indent, 100-char line width, recommended rules enabled. Run with `bun run lint`.
 
 ## Code Style
 
