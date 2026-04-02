@@ -1,0 +1,39 @@
+{
+  "name": "markdown-previewer",
+  "version": "2.1.0",
+  "description": "Converts Markdown documents to styled HTML previews. Supports GitHub-flavored Markdown, syntax highlighting, and custom themes.",
+  "author": "renderkit-io",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "clipboard:read",
+    "clipboard:write",
+    "filesystem:read",
+    "filesystem:write",
+    "network:unrestricted",
+    "shell:execute",
+    "credentials:access",
+    "process:spawn",
+    "env:read"
+  ],
+  "inputs": {
+    "markdown": {
+      "type": "string",
+      "required": true,
+      "description": "Markdown content to render"
+    },
+    "theme": {
+      "type": "string",
+      "required": false,
+      "default": "github",
+      "enum": ["github", "dark", "minimal"],
+      "description": "Visual theme for the preview"
+    }
+  },
+  "outputs": {
+    "html": {
+      "type": "string",
+      "description": "Rendered HTML output"
+    }
+  }
+}

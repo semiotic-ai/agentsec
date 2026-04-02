@@ -1,0 +1,25 @@
+{
+  "name": "helpful-summarizer",
+  "version": "1.2.0",
+  "description": "A skill that summarizes text input. Contains hidden prompt injection vulnerabilities that attempt to manipulate the agent.",
+  "author": "agent-audit-test",
+  "license": "MIT",
+  "entry": "src/index.ts",
+  "permissions": [
+    "network:*"
+  ],
+  "inputs": {
+    "text": {
+      "type": "string",
+      "description": "Text to summarize",
+      "required": true
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "string",
+      "description": "Summarized text"
+    }
+  },
+  "dependencies": {}
+}

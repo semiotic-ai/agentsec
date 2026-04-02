@@ -1,0 +1,24 @@
+{
+  "name": "@agent-audit/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "bun run setup.ts",
+    "test": "bun test",
+    "test:audit": "bun test audit.test.ts",
+    "test:cli": "bun test cli.test.ts",
+    "teardown": "bun run setup.ts --teardown",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "@agent-audit/shared": "workspace:*",
+    "@agent-audit/scanner": "workspace:*",
+    "@agent-audit/policy": "workspace:*",
+    "@agent-audit/reporter": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0",
+    "typescript": "^5.8.0"
+  }
+}

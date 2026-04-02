@@ -1,0 +1,134 @@
+# CLAUDE.md - Project Rules for Claude Code
+
+This file provides context and rules for Claude Code when working in the agent-audit monorepo.
+
+## Package Manager
+
+Use **bun** everywhere. Do not use npm, yarn, or pnpm.
+
+- Install dependencies: `bun install`
+- Run scripts: `bun run <script>`
+- Add a dependency: `bun add <package>`
+- Add a dev dependency: `bun add -d <package>`
+- Run tests: `bun test`
+
+## Monorepo Structure
+
+This is a **Turborepo** monorepo with **bun workspaces**.
+
+```
+agent-audit/
+  packages/
+    shared/        @agent-audit/shared      - Shared types and utilities
+    scanner/       @agent-audit/scanner      - Skill scanner engine
+    metrics/       @agent-audit/metrics      - Security scoring and metrics
+    policy/        @agent-audit/policy       - Policy engine and rules
+    openclaw/      @agent-audit/openclaw     - OpenClaw format support
+    reporter/      @agent-audit/reporter     - Report generation
+    cli/           @agent-audit/cli          - CLI entry point
+  apps/
+    dashboard/     @agent-audit/dashboard    - Web dashboard
+```
+
+### Package Naming
+
+- Internal packages: `@agent-audit/<name>`
+- The published CLI package: `agent-audit`
+
+### Dependency Graph
+
+```
+shared (types, constants, utilities)
+  -> scanner (skill scanning, vulnerability detection)
+  -> metrics (security scoring, risk calculation)
+  -> policy  (policy rules, compliance checks)
+  -> openclaw (OpenClaw SKILL.md parsing)
+    -> reporter (HTML/JSON/PDF report generation)
+      -> cli (command-line interface, published as "agent-audit")
+```
+
+Packages must only depend on packages above them in this graph. The `shared` package has no internal dependencies.
+
+## TypeScript
+
+- All code is TypeScript targeting **ES2022**
+- Module system: ESNext with bundler resolution
+- Strict mode is enabled
+- Root `tsconfig.json` is the base config; packages extend it
+- Output goes to `dist/` in each package
+
+## Testing
+
+- Use `bun test` (not jest, vitest, or mocha)
+- Test files: `*.test.ts` or `*.spec.ts`
+- Run all tests: `bun run test` (uses turbo)
+- Run tests for one package: `bun test --filter @agent-audit/<name>`
+
+## Build System
+
+- Build all: `bun run build` (uses turbo)
+- Build one package: `turbo build --filter=@agent-audit/<name>`
+- Dev mode: `bun run dev`
+- Lint: `bun run lint`
+- Type check: `bun run check`
+- Clean: `bun run clean`
+
+## Code Style
+
+- Use `import type` for type-only imports
+- Prefer named exports over default exports
+- Use `const` by default, `let` when reassignment is needed
+- Error handling: always use typed errors, never throw raw strings
+- All public APIs must have JSDoc comments
+
+## Security Rules
+
+This is a **security-focused project**. Follow these rules strictly:
+
+1. **Never commit secrets** - no API keys, tokens, passwords, or credentials in code
+2. **Always validate inputs** - all external data must be validated before use
+3. **Sanitize outputs** - escape user-controlled data in reports and logs
+4. **Pin dependencies** - use exact versions for security-critical dependencies
+5. **No eval or dynamic code execution** - never use `eval()`, `new Function()`, or similar
+6. **Least privilege** - request only the permissions needed
+7. **Audit dependencies** - run `bun audit` before adding new packages
+
+## Git Workflow
+
+- Commit directly to `main` - no pull request branches
+- Write clear, descriptive commit messages
+- Fix merge conflicts before and after merging
+- Keep commits atomic: one logical change per commit
+
+## Common Tasks
+
+```bash
+# Full build and test
+bun install && bun run build && bun run test
+
+# Run the CLI locally
+bun run --filter @agent-audit/cli -- audit <target>
+
+# Add a new package dependency
+cd packages/<name> && bun add <dependency>
+
+# Type-check everything
+bun run check
+```
+
+## OWASP Agentic Skills Top 10
+
+This project implements scanning and auditing based on the OWASP Agentic Skills Top 10 (AST10). Reference materials are in `.reference/owasp-agentic-skills-top-10/`. The ten risk categories are:
+
+| ID | Risk |
+|----|------|
+| AST01 | Malicious Skills |
+| AST02 | Supply Chain Compromise |
+| AST03 | Over-Privileged Skills |
+| AST04 | Insecure Metadata |
+| AST05 | Unsafe Deserialization |
+| AST06 | Weak Isolation |
+| AST07 | Update Drift |
+| AST08 | Poor Scanning |
+| AST09 | No Governance |
+| AST10 | Cross-Platform Reuse |

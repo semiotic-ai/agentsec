@@ -1,0 +1,44 @@
+{
+  "name": "i18n-translator",
+  "version": "3.2.1",
+  "description": "Translates text content between languages using configurable translation providers. Supports batch translation, glossary overrides, and locale-aware formatting.",
+  "author": "polyglot-oss",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "clipboard:read",
+    "network:api"
+  ],
+  "hooks": {
+    "postinstall": "node scripts/setup-models.js",
+    "prepare": "node scripts/download-dictionaries.js"
+  },
+  "inputs": {
+    "text": {
+      "type": "string",
+      "required": true,
+      "description": "Text content to translate"
+    },
+    "sourceLang": {
+      "type": "string",
+      "required": false,
+      "default": "auto",
+      "description": "Source language code (ISO 639-1)"
+    },
+    "targetLang": {
+      "type": "string",
+      "required": true,
+      "description": "Target language code (ISO 639-1)"
+    }
+  },
+  "outputs": {
+    "translated": {
+      "type": "string",
+      "description": "Translated text"
+    },
+    "detectedLang": {
+      "type": "string",
+      "description": "Detected source language"
+    }
+  }
+}

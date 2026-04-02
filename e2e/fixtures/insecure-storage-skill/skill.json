@@ -1,0 +1,48 @@
+{
+  "name": "git-changelog",
+  "version": "1.5.2",
+  "description": "Generates formatted changelogs from git commit history. Connects to GitHub/GitLab APIs to enrich commits with PR titles, labels, and author information.",
+  "author": "release-toolkit",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "clipboard:read",
+    "clipboard:write",
+    "network:api"
+  ],
+  "inputs": {
+    "repo": {
+      "type": "string",
+      "required": true,
+      "description": "Repository in owner/name format"
+    },
+    "from": {
+      "type": "string",
+      "required": true,
+      "description": "Start tag or commit SHA"
+    },
+    "to": {
+      "type": "string",
+      "required": false,
+      "default": "HEAD",
+      "description": "End tag or commit SHA"
+    },
+    "format": {
+      "type": "string",
+      "required": false,
+      "default": "markdown",
+      "enum": ["markdown", "json", "plaintext"],
+      "description": "Output format for the changelog"
+    }
+  },
+  "outputs": {
+    "changelog": {
+      "type": "string",
+      "description": "The formatted changelog"
+    },
+    "commitCount": {
+      "type": "number",
+      "description": "Number of commits included"
+    }
+  }
+}

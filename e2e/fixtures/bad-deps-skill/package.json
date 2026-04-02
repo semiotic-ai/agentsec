@@ -1,0 +1,28 @@
+{
+  "name": "@openclaw/skill-csv-analyzer",
+  "version": "1.0.0",
+  "description": "CSV analysis skill for OpenClaw",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"no tests\""
+  },
+  "dependencies": {
+    "lodash": "*",
+    "csv-parsre": "^2.1.0",
+    "colurs": "^1.4.0",
+    "event-streem": "^4.0.1",
+    "cross-envv": "^7.0.3",
+    "underscore.string": ">=0.0.1",
+    "node-uuid": "latest",
+    "momnet": "^2.29.4",
+    "axois": "^1.6.0",
+    "chak": "^5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm-mirror.datatools-contrib.io/registry/"
+  }
+}
