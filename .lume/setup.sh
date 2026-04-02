@@ -105,15 +105,31 @@ create_vm() {
   fi
 
   info "Creating VM '$VM_NAME' (cpu=$VM_CPU, memory=$VM_MEMORY, disk=$VM_DISK)..."
-  info "This will download a macOS restore image (~15 GB) on first run."
 
-  lume create "$VM_NAME" \
-    --os macos \
-    --ipsw latest \
-    --cpu "$VM_CPU" \
-    --memory "$VM_MEMORY" \
-    --disk-size "$VM_DISK" \
-    --unattended sequoia
+  local lume_dir="$HOME/.lume"
+  if [[ -d "$lume_dir" ]] && ls "$lume_dir"/*.ipsw &>/dev/null; then
+    info "Using cached macOS restore image from $lume_dir."
+  else
+    info "This will download a macOS restore image (~15 GB) on first run."
+  fi
+
+  local create_args=(
+    "$VM_NAME"
+    --os macos
+    --ipsw latest
+    --cpu "$VM_CPU"
+    --memory "$VM_MEMORY"
+    --disk-size "$VM_DISK"
+    --unattended tahoe
+  )
+
+  if ! lume create "${create_args[@]}"; then
+    warn "First lume create attempt failed. Retrying after cooldown..."
+    sleep 5
+    if ! lume create "${create_args[@]}"; then
+      die "lume create failed after retry. Check logs for details."
+    fi
+  fi
 
   info "VM '$VM_NAME' created successfully."
 }

@@ -17,9 +17,9 @@ disk_size: 50GB
 display: 1024x768
 
 # Setup automation
-# Uses the built-in "sequoia" preset to run through the macOS Setup Assistant
+# Uses the built-in "tahoe" preset to run through the macOS Setup Assistant
 # automatically, creating user "lume" with password "lume" and enabling SSH.
-unattended: sequoia
+unattended: tahoe
 
 # SSH credentials (set by unattended setup)
 ssh_user: lume
