@@ -44,3 +44,4 @@ out/
 .reference/
 .lume/images/
 .lume/*.qcow2
+.vercel

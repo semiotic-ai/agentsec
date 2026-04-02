@@ -23,10 +23,10 @@ export function CTA(): React.ReactNode {
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         <h2 className="text-4xl md:text-5xl font-bold mb-6">
-          Ready to Ship with Confidence?
+          Start Auditing Your Agents
         </h2>
         <p className="text-xl text-brand-muted mb-12 max-w-2xl mx-auto">
-          Start auditing your AI agents today. Free forever for open source projects.
+          One command. Every skill. Full visibility into what your AI agents are running.
         </p>
 
         {/* Email signup */}
@@ -50,7 +50,7 @@ export function CTA(): React.ReactNode {
         {/* Links */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12 text-sm">
           <a
-            href="https://github.com/agent-audit/agent-audit"
+            href="https://github.com/Markeljan/agent-audit"
             target="_blank"
             rel="noopener noreferrer"
             className="text-brand-blue hover:text-brand-teal transition-colors"
@@ -58,12 +58,12 @@ export function CTA(): React.ReactNode {
             GitHub
           </a>
           <a
-            href="https://github.com/agent-audit/agent-audit"
+            href="https://owasp.org/www-project-agentic-skills-top-10/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-brand-blue hover:text-brand-teal transition-colors"
           >
-            Documentation
+            OWASP AST10 Report
           </a>
           <a
             href="mailto:markeljan19@gmail.com"
@@ -71,37 +71,26 @@ export function CTA(): React.ReactNode {
           >
             Contact
           </a>
-          <a
-            href="https://github.com/agent-audit/agent-audit/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brand-blue hover:text-brand-teal transition-colors"
-          >
-            Report Issues
-          </a>
         </div>
 
         {/* Footer stats */}
         <div className="pt-12 border-t border-brand-border">
-          <p className="text-brand-muted text-sm mb-6">
-            Trusted by security teams building with AI agents
-          </p>
           <div className="flex flex-col md:flex-row justify-center items-center gap-8 text-brand-muted text-xs">
             <div>
-              <div className="text-2xl font-bold text-brand-teal">100%</div>
+              <div className="text-2xl font-bold text-brand-teal">10</div>
+              <div>OWASP Risk Categories</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-brand-green">119</div>
+              <div>Vulnerability Patterns</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-brand-blue">4</div>
+              <div>Output Formats</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-brand-yellow">100%</div>
               <div>Open Source</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-brand-green">91K+</div>
-              <div>Skills Analyzed</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-brand-blue">15+</div>
-              <div>AI Platforms</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-brand-yellow">$0</div>
-              <div>Cost to Start</div>
             </div>
           </div>
         </div>

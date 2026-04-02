@@ -20,24 +20,17 @@ export function Hero(): React.ReactNode {
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-20">
         <div className={`text-center transition-all duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
-          {/* Badge */}
-          <div className="inline-block mb-8">
-            <div className="px-4 py-2 rounded-full border border-brand-teal bg-brand-teal/10 text-brand-teal text-sm font-semibold">
-              OWASP Agentic Skills Top 10
-            </div>
-          </div>
-
           {/* Main headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Know What Your
+            Audit What Your
             <br />
-            AI Agents Run
+            <span className="text-brand-teal">AI Agents</span> Run
           </h1>
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl text-brand-muted mb-12 max-w-3xl mx-auto leading-relaxed">
-            One command audits every skill your agent has installed.
-            Security scanning, compliance checks, and trust verification -- automatically.
+            One command scans every skill your agent has installed.
+            Security vulnerabilities, supply chain risks, and policy violations -- automatically.
           </p>
 
           {/* Terminal code block */}
@@ -55,10 +48,13 @@ export function Hero(): React.ReactNode {
                 <span className="text-brand-blue">npx agent-audit</span>
                 <div className="mt-4 text-brand-muted text-sm">
                   <div>Discovering installed skills...</div>
-                  <div className="mt-2 text-brand-green">✓ 12 skills discovered</div>
-                  <div className="mt-1 text-brand-green">✓ 10 passed audit</div>
-                  <div className="mt-1 text-brand-yellow">⚠ 2 vulnerabilities found</div>
-                  <div className="mt-1 text-brand-teal">✓ Policy compliant: 91%</div>
+                  <div className="mt-2 text-brand-green">Found 12 skills across 3 agents</div>
+                  <div className="mt-3 text-brand-text">
+                    <div><span className="text-brand-red">CRITICAL</span>  eval() injection in fetch-data/src/index.ts:14</div>
+                    <div><span className="text-brand-yellow">HIGH</span>      Unpinned dependency in deploy-helper</div>
+                    <div><span className="text-brand-green">PASS</span>      code-review -- all checks passed</div>
+                  </div>
+                  <div className="mt-3 text-brand-teal">12 skills | 1 critical | 1 high | 10 passed</div>
                 </div>
               </div>
             </div>
@@ -66,32 +62,37 @@ export function Hero(): React.ReactNode {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <button className="btn-primary text-lg px-8 py-4 rounded-lg font-semibold">
-              Get Started
-            </button>
             <a
-              href="https://github.com/agent-audit/agent-audit"
+              href="https://github.com/Markeljan/agent-audit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary text-lg px-8 py-4 rounded-lg font-semibold text-center"
+            >
+              View on GitHub
+            </a>
+            <a
+              href="https://owasp.org/www-project-agentic-skills-top-10/"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary text-lg px-8 py-4 rounded-lg font-semibold text-center"
             >
-              View on GitHub
+              OWASP AST10 Report
             </a>
           </div>
 
-          {/* Trust badges */}
+          {/* Stats */}
           <div className="pt-12 border-t border-brand-border flex flex-col md:flex-row justify-center items-center gap-8 text-brand-muted text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-brand-teal text-lg">◆</span>
-              <span>91K+ Skills Audited</span>
+              <span className="text-brand-teal text-lg">10</span>
+              <span>OWASP Risk Categories</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-brand-teal text-lg">◆</span>
-              <span>15+ AI Platforms</span>
+              <span className="text-brand-teal text-lg">119</span>
+              <span>Vulnerability Patterns</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-brand-teal text-lg">◆</span>
-              <span>100% Open Source</span>
+              <span className="text-brand-teal text-lg">4</span>
+              <span>Output Formats</span>
             </div>
           </div>
         </div>

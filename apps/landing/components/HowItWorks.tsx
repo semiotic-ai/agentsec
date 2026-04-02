@@ -36,7 +36,7 @@ const steps: Step[] = [
 
 export function HowItWorks(): React.ReactNode {
   return (
-    <section className="section-pad bg-brand-dark">
+    <section id="how-it-works" className="section-pad bg-brand-dark">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">

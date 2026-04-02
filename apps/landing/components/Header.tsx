@@ -31,20 +31,20 @@ export function Header(): React.ReactNode {
 
         {/* Nav links */}
         <div className="hidden md:flex items-center gap-8 text-sm">
-          <a href="#" className="text-brand-muted hover:text-brand-teal transition-colors">
+          <a href="#how-it-works" className="text-brand-muted hover:text-brand-teal transition-colors">
             How It Works
           </a>
-          <a href="#" className="text-brand-muted hover:text-brand-teal transition-colors">
-            Security
+          <a href="#cli" className="text-brand-muted hover:text-brand-teal transition-colors">
+            CLI
           </a>
-          <a href="https://github.com/agent-audit/agent-audit" target="_blank" rel="noopener noreferrer" className="text-brand-muted hover:text-brand-teal transition-colors">
+          <a href="https://github.com/Markeljan/agent-audit" target="_blank" rel="noopener noreferrer" className="text-brand-muted hover:text-brand-teal transition-colors">
             GitHub
           </a>
         </div>
 
         {/* CTA Button */}
         <a
-          href="https://github.com/agent-audit/agent-audit"
+          href="https://github.com/Markeljan/agent-audit"
           target="_blank"
           rel="noopener noreferrer"
           className="btn-secondary text-sm px-6 py-2 font-semibold"

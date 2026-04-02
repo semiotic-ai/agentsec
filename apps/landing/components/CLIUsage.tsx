@@ -71,7 +71,7 @@ Applying 8 custom rules...
 
 export function CLIUsage(): React.ReactNode {
   return (
-    <section className="section-pad bg-brand-secondary">
+    <section id="cli" className="section-pad bg-brand-secondary">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">

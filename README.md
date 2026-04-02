@@ -8,10 +8,10 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/agent-audit">
-    <img src="https://img.shields.io/npm/v/agent-audit.svg" alt="npm version">
+  <a href="https://github.com/Markeljan/agent-audit">
+    <img src="https://img.shields.io/github/stars/Markeljan/agent-audit.svg?style=social" alt="GitHub stars">
   </a>
-  <a href="https://github.com/agent-audit/agent-audit/blob/main/LICENSE">
+  <a href="https://github.com/Markeljan/agent-audit/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   </a>
   <a href="https://owasp.org/www-project-agentic-skills-top-10/">
