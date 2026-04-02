@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0d1117;
+  color: #e6edf3;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Dot pattern background */
+.dot-pattern {
+  background-image: radial-gradient(circle, #30363d 0.5px, transparent 0.5px);
+  background-size: 40px 40px;
+  background-position: 0 0;
+}
+
+/* Terminal code block styling */
+.terminal-block {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 20px;
+  font-family: "Monaco", "Courier New", monospace;
+  font-size: 14px;
+  color: #00d2b4;
+  overflow-x: auto;
+}
+
+.terminal-block code {
+  color: #58a6ff;
+}
+
+.terminal-block .prompt {
+  color: #8b949e;
+  margin-right: 8px;
+}
+
+/* Smooth scroll animations */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: #00d2b4;
+  box-shadow: 0 0 20px rgba(0, 210, 180, 0.2);
+}
+
+/* Glow effect */
+.glow-teal {
+  box-shadow: 0 0 20px rgba(0, 210, 180, 0.3);
+}
+
+.glow-teal:hover {
+  box-shadow: 0 0 40px rgba(0, 210, 180, 0.5);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #00d2b4;
+  color: #0d1117;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease-out;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #00e6c3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 210, 180, 0.4);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #e6edf3;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease-out;
+  border: 1px solid #30363d;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  border-color: #00d2b4;
+  color: #00d2b4;
+  background-color: rgba(0, 210, 180, 0.1);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #00d2b4, #58a6ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Section spacing */
+.section-pad {
+  padding: 80px 20px;
+}
+
+@media (max-width: 768px) {
+  .section-pad {
+    padding: 60px 20px;
+  }
+
+  .terminal-block {
+    font-size: 12px;
+    padding: 16px;
+  }
+}

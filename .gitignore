@@ -30,6 +30,16 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
+# Vercel
+.vercel/
+
+# Next.js
+.next/
+out/
+
+# Logs
+*.log
+
 # Project-specific
 .reference/
 .lume/images/
