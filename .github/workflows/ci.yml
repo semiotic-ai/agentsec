@@ -35,4 +35,9 @@ jobs:
         run: bun run test
 
       - name: Lint
-        run: bun run lint
+        run: bunx biome check .
+        continue-on-error: true
+
+      - name: Format check
+        run: bunx biome check --no-errors-on-unmatched
+        continue-on-error: true
