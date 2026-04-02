@@ -138,7 +138,7 @@ export function checkInsufficientLogging(skill: AgentSkill): SecurityFinding[] {
 
         counter++;
         findings.push({
-          id: `${def.id}-${counter}`,
+          id: `${def.id}-${file.relativePath}-${counter}`,
           rule: "logging",
           severity: def.severity,
           category: "insufficient-logging",
