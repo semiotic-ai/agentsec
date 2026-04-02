@@ -1,12 +1,9 @@
-import type { AuditGrade, AuditScore, SecurityFinding, QualityMetrics } from "./types";
 import { severityWeight } from "./severity";
+import type { AuditGrade, AuditScore, QualityMetrics, SecurityFinding } from "./types";
 
 export function calculateSecurityScore(findings: SecurityFinding[]): number {
   if (findings.length === 0) return 100;
-  const totalPenalty = findings.reduce(
-    (sum, f) => sum + severityWeight(f.severity) * 3,
-    0
-  );
+  const totalPenalty = findings.reduce((sum, f) => sum + severityWeight(f.severity) * 3, 0);
   return Math.max(0, Math.min(100, 100 - totalPenalty));
 }
 
@@ -40,7 +37,11 @@ export function calculateQualityScore(metrics: QualityMetrics): number {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-export function calculateOverallScore(security: number, quality: number, maintenance: number): number {
+export function calculateOverallScore(
+  security: number,
+  quality: number,
+  maintenance: number,
+): number {
   // Security is weighted most heavily
   return Math.round(security * 0.5 + quality * 0.3 + maintenance * 0.2);
 }
@@ -56,7 +57,7 @@ export function scoreToGrade(score: number): AuditGrade {
 export function buildAuditScore(
   securityFindings: SecurityFinding[],
   qualityMetrics: QualityMetrics,
-  maintenanceScore: number
+  maintenanceScore: number,
 ): AuditScore {
   const security = calculateSecurityScore(securityFindings);
   const quality = calculateQualityScore(qualityMetrics);

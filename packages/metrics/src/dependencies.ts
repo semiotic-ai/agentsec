@@ -1,4 +1,4 @@
-import type { AgentSkill, SkillFile } from "@agent-audit/shared";
+import type { AgentSkill } from "@agent-audit/shared";
 
 export interface DependencyResult {
   /** Total number of declared dependencies */
@@ -123,7 +123,7 @@ export function analyzeDependencies(skill: AgentSkill): DependencyResult {
 
   // Parse package.json if present
   const packageJsonFile = files.find(
-    (f) => f.relativePath === "package.json" || f.relativePath.endsWith("/package.json")
+    (f) => f.relativePath === "package.json" || f.relativePath.endsWith("/package.json"),
   );
 
   if (packageJsonFile) {
@@ -151,7 +151,7 @@ export function analyzeDependencies(skill: AgentSkill): DependencyResult {
     (f) =>
       f.relativePath === "requirements.txt" ||
       f.relativePath === "requirements/base.txt" ||
-      f.relativePath === "requirements/prod.txt"
+      f.relativePath === "requirements/prod.txt",
   );
 
   if (requirementsFile) {
@@ -187,9 +187,7 @@ export function analyzeDependencies(skill: AgentSkill): DependencyResult {
   if (!hasLockFile && allDepNames.length > 0) {
     // Without a lock file, dependencies are unverified
     outdatedDependencies = allDepNames.length;
-    warnings.push(
-      "No lock file found. All dependencies are potentially outdated or unverified."
-    );
+    warnings.push("No lock file found. All dependencies are potentially outdated or unverified.");
   }
 
   // Check for version pinning in package.json
@@ -199,7 +197,7 @@ export function analyzeDependencies(skill: AgentSkill): DependencyResult {
       const deps = { ...(pkg.dependencies ?? {}), ...(pkg.devDependencies ?? {}) };
       let unpinnedCount = 0;
 
-      for (const [name, version] of Object.entries(deps)) {
+      for (const [_name, version] of Object.entries(deps)) {
         const v = version as string;
         // Unpinned: starts with ^ or ~ or * or >= or > or latest
         if (/^[\^~*>]|latest/.test(v)) {
@@ -208,9 +206,7 @@ export function analyzeDependencies(skill: AgentSkill): DependencyResult {
       }
 
       if (unpinnedCount > 0) {
-        warnings.push(
-          `${unpinnedCount} dependencies use unpinned version ranges (^, ~, *, etc.).`
-        );
+        warnings.push(`${unpinnedCount} dependencies use unpinned version ranges (^, ~, *, etc.).`);
       }
     } catch {
       // Ignore parse errors; already handled above
@@ -223,11 +219,11 @@ export function analyzeDependencies(skill: AgentSkill): DependencyResult {
   const excessiveDependencies = totalDependencies > DEP_THRESHOLDS.excessive;
   if (totalDependencies > DEP_THRESHOLDS.veryExcessive) {
     warnings.push(
-      `Very high dependency count (${totalDependencies}). Consider reducing dependencies to minimize supply chain risk.`
+      `Very high dependency count (${totalDependencies}). Consider reducing dependencies to minimize supply chain risk.`,
     );
   } else if (excessiveDependencies) {
     warnings.push(
-      `High dependency count (${totalDependencies}). Review whether all dependencies are necessary.`
+      `High dependency count (${totalDependencies}). Review whether all dependencies are necessary.`,
     );
   }
 

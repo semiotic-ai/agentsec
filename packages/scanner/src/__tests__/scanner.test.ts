@@ -1,8 +1,8 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
+import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
+import { checkDependencies } from "../rules/dependencies";
 import { checkInjection } from "../rules/injection";
 import { checkPermissions } from "../rules/permissions";
-import { checkDependencies } from "../rules/dependencies";
-import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
 
 /**
  * Integration tests: simulate a full scan by running all available rule
@@ -11,11 +11,7 @@ import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
 
 /** Run all scanners against a skill and return combined findings. */
 function fullScan(skill: AgentSkill): SecurityFinding[] {
-  return [
-    ...checkInjection(skill),
-    ...checkPermissions(skill),
-    ...checkDependencies(skill),
-  ];
+  return [...checkInjection(skill), ...checkPermissions(skill), ...checkDependencies(skill)];
 }
 
 /** Build a deliberately vulnerable mock skill with many known issues. */
@@ -84,7 +80,7 @@ const users = fs.readFileSync("/etc/passwd", "utf-8");
         "system:admin",
       ],
       dependencies: {
-        "l0dash": "*",
+        l0dash: "*",
         "event-stream": "3.3.6",
         request: "^2.88.2",
         "node-ipc": "latest",
@@ -198,7 +194,8 @@ describe("Scanner Integration: vulnerable skill", () => {
     const permFindings = findings.filter((f) => f.rule === "permissions");
     const manifestFindings = permFindings.filter((f) => f.id.startsWith("PERM-M-"));
     const codeFindings = permFindings.filter(
-      (f) => !f.id.startsWith("PERM-M-") && !f.id.startsWith("PERM-ESC") && !f.id.startsWith("PERM-SYS")
+      (f) =>
+        !f.id.startsWith("PERM-M-") && !f.id.startsWith("PERM-ESC") && !f.id.startsWith("PERM-SYS"),
     );
     expect(manifestFindings.length).toBeGreaterThan(0);
     expect(codeFindings.length).toBeGreaterThan(0);
@@ -341,7 +338,7 @@ describe("Scanner Integration: edge cases", () => {
     const findings = fullScan(skill);
     // Should still detect shell:execute permission from manifest
     const manifestPermFindings = findings.filter(
-      (f) => f.rule === "permissions" && f.id.startsWith("PERM-M-")
+      (f) => f.rule === "permissions" && f.id.startsWith("PERM-M-"),
     );
     expect(manifestPermFindings.length).toBeGreaterThanOrEqual(1);
   });
@@ -371,7 +368,7 @@ describe("Scanner Integration: edge cases", () => {
     };
     const findings = fullScan(binaryFileSkill);
     const codeFindings = findings.filter(
-      (f) => f.rule === "injection" || (f.rule === "permissions" && !f.id.startsWith("PERM-M-"))
+      (f) => f.rule === "injection" || (f.rule === "permissions" && !f.id.startsWith("PERM-M-")),
     );
     expect(codeFindings.length).toBe(0);
   });
@@ -451,7 +448,7 @@ export async function search(rawInput: unknown) {
     // This skill uses fetch, which will trigger a network detection (medium)
     // but should NOT trigger critical or high injection findings
     const criticalInjections = findings.filter(
-      (f) => f.rule === "injection" && f.severity === "critical"
+      (f) => f.rule === "injection" && f.severity === "critical",
     );
     expect(criticalInjections.length).toBe(0);
   });

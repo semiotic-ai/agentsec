@@ -49,7 +49,8 @@ const HARDCODED_SECRET_PATTERNS: SecretPattern[] = [
       "Remove hardcoded passwords. Use environment variables, a secrets manager, or prompt for credentials at runtime.",
   },
   {
-    pattern: /(?:token|auth[_-]?token|access[_-]?token|bearer)\s*[:=]\s*["'][a-zA-Z0-9_\-./+=]{16,}["']/gi,
+    pattern:
+      /(?:token|auth[_-]?token|access[_-]?token|bearer)\s*[:=]\s*["'][a-zA-Z0-9_\-./+=]{16,}["']/gi,
     id: "STOR-004",
     title: "Hardcoded token detected",
     description:
@@ -59,7 +60,8 @@ const HARDCODED_SECRET_PATTERNS: SecretPattern[] = [
       "Use a token management system. Fetch tokens at runtime from a secure credentials provider.",
   },
   {
-    pattern: /(?:private[_-]?key|privatekey)\s*[:=]\s*["']-----BEGIN\s+(?:RSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY/gi,
+    pattern:
+      /(?:private[_-]?key|privatekey)\s*[:=]\s*["']-----BEGIN\s+(?:RSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY/gi,
     id: "STOR-005",
     title: "Hardcoded private key detected",
     description:
@@ -79,7 +81,8 @@ const HARDCODED_SECRET_PATTERNS: SecretPattern[] = [
       "Remove the private key from source code immediately. Rotate the key and store the new key securely.",
   },
   {
-    pattern: /(?:aws[_-]?(?:access[_-]?key[_-]?id|secret[_-]?access[_-]?key))\s*[:=]\s*["'][A-Za-z0-9/+=]{16,}["']/gi,
+    pattern:
+      /(?:aws[_-]?(?:access[_-]?key[_-]?id|secret[_-]?access[_-]?key))\s*[:=]\s*["'][A-Za-z0-9/+=]{16,}["']/gi,
     id: "STOR-007",
     title: "Hardcoded AWS credentials",
     description:
@@ -102,8 +105,7 @@ const HARDCODED_SECRET_PATTERNS: SecretPattern[] = [
     pattern: /(?:ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9_]{22,})/g,
     id: "STOR-009",
     title: "GitHub token detected",
-    description:
-      "A GitHub personal access token or OAuth token is present in the source code.",
+    description: "A GitHub personal access token or OAuth token is present in the source code.",
     severity: "critical",
     remediation:
       "Revoke the token, generate a new one, and store it as an environment variable or secret.",
@@ -115,24 +117,22 @@ const HARDCODED_SECRET_PATTERNS: SecretPattern[] = [
     description:
       "A string matching the format of an OpenAI or Stripe secret key (sk-...) is present in the source code.",
     severity: "critical",
-    remediation:
-      "Revoke the key, generate a new one, and store it as an environment variable.",
+    remediation: "Revoke the key, generate a new one, and store it as an environment variable.",
   },
   {
     pattern: /(?:xox[bpas]-[a-zA-Z0-9-]{10,})/g,
     id: "STOR-011",
     title: "Slack token detected",
-    description:
-      "A Slack API token (xoxb-, xoxp-, xoxa-, xoxs-) is present in the source code.",
+    description: "A Slack API token (xoxb-, xoxp-, xoxa-, xoxs-) is present in the source code.",
     severity: "critical",
-    remediation:
-      "Revoke the token and store the new one in environment variables.",
+    remediation: "Revoke the token and store the new one in environment variables.",
   },
 ];
 
 const INSECURE_STORAGE_PATTERNS: SecretPattern[] = [
   {
-    pattern: /localStorage\s*\.\s*setItem\s*\(\s*["'](?:token|key|secret|password|auth|credential|session)/gi,
+    pattern:
+      /localStorage\s*\.\s*setItem\s*\(\s*["'](?:token|key|secret|password|auth|credential|session)/gi,
     id: "STOR-020",
     title: "Sensitive data in localStorage",
     description:
@@ -142,7 +142,8 @@ const INSECURE_STORAGE_PATTERNS: SecretPattern[] = [
       "Use httpOnly cookies for session tokens. If client-side storage is necessary, use the Web Crypto API with encryption.",
   },
   {
-    pattern: /sessionStorage\s*\.\s*setItem\s*\(\s*["'](?:token|key|secret|password|auth|credential)/gi,
+    pattern:
+      /sessionStorage\s*\.\s*setItem\s*\(\s*["'](?:token|key|secret|password|auth|credential)/gi,
     id: "STOR-021",
     title: "Sensitive data in sessionStorage",
     description:
@@ -152,7 +153,8 @@ const INSECURE_STORAGE_PATTERNS: SecretPattern[] = [
       "Use httpOnly cookies for session tokens. Avoid storing credentials in browser storage.",
   },
   {
-    pattern: /document\s*\.\s*cookie\s*=\s*(?:(?!.*(?:httponly|httpOnly|HttpOnly|secure|Secure)))/gi,
+    pattern:
+      /document\s*\.\s*cookie\s*=\s*(?:(?!.*(?:httponly|httpOnly|HttpOnly|secure|Secure)))/gi,
     id: "STOR-022",
     title: "Cookie set without security flags",
     description:
@@ -162,7 +164,8 @@ const INSECURE_STORAGE_PATTERNS: SecretPattern[] = [
       "Set cookies with httpOnly, Secure, and SameSite=Strict flags. Use a cookie library that sets secure defaults.",
   },
   {
-    pattern: /(?:writeFile|writeFileSync)\s*\([^)]*(?:\.env|credentials|secret|key|password|token|config)/gi,
+    pattern:
+      /(?:writeFile|writeFileSync)\s*\([^)]*(?:\.env|credentials|secret|key|password|token|config)/gi,
     id: "STOR-023",
     title: "Writing credentials to file",
     description:
@@ -172,7 +175,8 @@ const INSECURE_STORAGE_PATTERNS: SecretPattern[] = [
       "Use a platform-provided secrets manager or keychain. If file storage is necessary, use proper file permissions (0600) and encrypt at rest.",
   },
   {
-    pattern: /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:password|secret|token|key|credential|api[_-]?key)\b/gi,
+    pattern:
+      /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:password|secret|token|key|credential|api[_-]?key)\b/gi,
     id: "STOR-024",
     title: "Credential data logged to console",
     description:
@@ -201,8 +205,7 @@ const WEAK_CRYPTO_PATTERNS: SecretPattern[] = [
     description:
       "Weak or broken encryption algorithms (DES, RC4, RC2, Blowfish) are used. These can be broken with modern computing resources.",
     severity: "high",
-    remediation:
-      "Use AES-256-GCM or ChaCha20-Poly1305 for encryption.",
+    remediation: "Use AES-256-GCM or ChaCha20-Poly1305 for encryption.",
   },
   {
     pattern: /createCipher\b/g,
@@ -221,8 +224,7 @@ const WEAK_CRYPTO_PATTERNS: SecretPattern[] = [
     description:
       "Base64 encoding is used on credentials. Base64 is an encoding, not encryption. It provides zero security and is trivially reversible.",
     severity: "high",
-    remediation:
-      "Use proper encryption (AES-256-GCM) instead of Base64 encoding for credentials.",
+    remediation: "Use proper encryption (AES-256-GCM) instead of Base64 encoding for credentials.",
   },
 ];
 
@@ -325,7 +327,7 @@ function checkGitignoreForSecrets(skill: AgentSkill, findings: SecurityFinding[]
 
   const importantExclusions = [".env", "*.pem", "*.key", "credentials"];
   const missingExclusions = importantExclusions.filter(
-    (exclusion) => !gitignoreFile.content.includes(exclusion)
+    (exclusion) => !gitignoreFile.content.includes(exclusion),
   );
 
   if (missingExclusions.length > 0) {
@@ -346,28 +348,56 @@ function checkGitignoreForSecrets(skill: AgentSkill, findings: SecurityFinding[]
 function isExampleValue(content: string, index: number): boolean {
   const line = getEvidenceLine(content, index).toLowerCase();
   const exampleIndicators = [
-    "example", "placeholder", "xxx", "your_", "replace_",
-    "changeme", "todo", "fixme", "test", "sample", "demo",
-    "dummy", "fake", "mock",
+    "example",
+    "placeholder",
+    "xxx",
+    "your_",
+    "replace_",
+    "changeme",
+    "todo",
+    "fixme",
+    "test",
+    "sample",
+    "demo",
+    "dummy",
+    "fake",
+    "mock",
   ];
   return exampleIndicators.some((indicator) => line.includes(indicator));
 }
 
 function redactEvidence(evidence: string): string {
   // Redact actual secret values while preserving the pattern for analysis
-  return evidence.replace(
-    /(["'])[a-zA-Z0-9_\-/+=]{16,}(\1)/g,
-    "$1[REDACTED]$2"
-  );
+  return evidence.replace(/(["'])[a-zA-Z0-9_\-/+=]{16,}(\1)/g, "$1[REDACTED]$2");
 }
 
 function isScannableFile(ext: string): boolean {
   return [
-    "ts", "tsx", "js", "jsx", "mjs", "cjs",
-    "py", "rb", "go", "rs", "java", "kt",
-    "sh", "bash", "zsh", "fish",
-    "yaml", "yml", "json", "toml", "env",
-    "html", "htm", "vue", "svelte",
+    "ts",
+    "tsx",
+    "js",
+    "jsx",
+    "mjs",
+    "cjs",
+    "py",
+    "rb",
+    "go",
+    "rs",
+    "java",
+    "kt",
+    "sh",
+    "bash",
+    "zsh",
+    "fish",
+    "yaml",
+    "yml",
+    "json",
+    "toml",
+    "env",
+    "html",
+    "htm",
+    "vue",
+    "svelte",
   ].includes(ext);
 }
 

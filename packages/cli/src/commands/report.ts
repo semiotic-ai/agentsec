@@ -8,16 +8,7 @@
 import type { AuditReport } from "@agent-audit/shared";
 
 import type { AuditConfig } from "../config";
-import {
-  color,
-  createSpinner,
-  error,
-  formatGrade,
-  heading,
-  info,
-  keyValue,
-  success,
-} from "../ui";
+import { color, createSpinner, error, formatGrade, heading, info, keyValue, success } from "../ui";
 
 // ---------------------------------------------------------------------------
 // Command entry point
@@ -29,7 +20,9 @@ export async function runReport(config: AuditConfig, args: string[]): Promise<nu
   if (!inputPath) {
     error("No input file specified");
     console.log();
-    console.log(`  ${color.bold("Usage:")} agent-audit report <audit.json> [--format html] [--output report.html]`);
+    console.log(
+      `  ${color.bold("Usage:")} agent-audit report <audit.json> [--format html] [--output report.html]`,
+    );
     console.log();
     console.log("  Generate a formatted report from a previously saved audit JSON file.");
     console.log();
@@ -69,24 +62,27 @@ export async function runReport(config: AuditConfig, args: string[]): Promise<nu
 
   spinner.succeed(
     `Loaded audit report: ${color.bold(String(report.skills.length))} skills, ` +
-    `${color.dim(report.timestamp)}`,
+      `${color.dim(report.timestamp)}`,
   );
 
   // Generate report in requested format
   if (config.format === "text") {
     // Print summary to stdout
     heading("Audit Report");
-    keyValue("Report ID",        report.id);
-    keyValue("Timestamp",        report.timestamp);
-    keyValue("Platform",         report.platform);
-    keyValue("Skills scanned",   String(report.summary.totalSkills));
-    keyValue("Average score",    String(report.summary.averageScore));
+    keyValue("Report ID", report.id);
+    keyValue("Timestamp", report.timestamp);
+    keyValue("Platform", report.platform);
+    keyValue("Skills scanned", String(report.summary.totalSkills));
+    keyValue("Average score", String(report.summary.averageScore));
     keyValue("Certified skills", color.green(String(report.summary.certifiedSkills)));
-    keyValue("Blocked skills",   report.summary.blockedSkills > 0
-      ? color.red(String(report.summary.blockedSkills))
-      : color.green("0"));
+    keyValue(
+      "Blocked skills",
+      report.summary.blockedSkills > 0
+        ? color.red(String(report.summary.blockedSkills))
+        : color.green("0"),
+    );
     keyValue("Critical findings", String(report.summary.criticalFindings));
-    keyValue("High findings",    String(report.summary.highFindings));
+    keyValue("High findings", String(report.summary.highFindings));
 
     console.log();
     heading("Skills");
@@ -94,7 +90,7 @@ export async function runReport(config: AuditConfig, args: string[]): Promise<nu
     for (const result of report.skills) {
       console.log(
         `  ${color.bold(result.skill.name)} ${color.dim(`v${result.skill.version}`)}  ` +
-        formatGrade(result.score.grade, result.score.overall),
+          formatGrade(result.score.grade, result.score.overall),
       );
     }
     console.log();

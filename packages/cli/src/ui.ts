@@ -5,7 +5,7 @@
  * and the ASCII banner used on startup.
  */
 
-import type { AuditGrade, Severity, OutputFormat } from "@agent-audit/shared";
+import type { AuditGrade, Severity } from "@agent-audit/shared";
 
 // ---------------------------------------------------------------------------
 // Color support
@@ -21,22 +21,22 @@ function esc(code: string): ColorFn {
 }
 
 export const color = {
-  bold:    esc("1"),
-  dim:     esc("2"),
-  italic:  esc("3"),
+  bold: esc("1"),
+  dim: esc("2"),
+  italic: esc("3"),
   underline: esc("4"),
-  red:     esc("31"),
-  green:   esc("32"),
-  yellow:  esc("33"),
-  blue:    esc("34"),
+  red: esc("31"),
+  green: esc("32"),
+  yellow: esc("33"),
+  blue: esc("34"),
   magenta: esc("35"),
-  cyan:    esc("36"),
-  white:   esc("37"),
-  gray:    esc("90"),
-  bgRed:   esc("41"),
+  cyan: esc("36"),
+  white: esc("37"),
+  gray: esc("90"),
+  bgRed: esc("41"),
   bgGreen: esc("42"),
   bgYellow: esc("43"),
-  bgBlue:  esc("44"),
+  bgBlue: esc("44"),
   bgMagenta: esc("45"),
 } as const;
 
@@ -67,8 +67,25 @@ export function printBanner(version: string): void {
 // Spinner
 // ---------------------------------------------------------------------------
 
-const SPINNER_FRAMES = ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "];
-const BRAILLE_FRAMES = ["\u2801", "\u2803", "\u2807", "\u280f", "\u281f", "\u283f", "\u287f", "\u28ff", "\u28fe", "\u28fc", "\u28f8", "\u28f0", "\u28e0", "\u28c0", "\u2880", "\u2800"];
+const _SPINNER_FRAMES = ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "];
+const BRAILLE_FRAMES = [
+  "\u2801",
+  "\u2803",
+  "\u2807",
+  "\u280f",
+  "\u281f",
+  "\u283f",
+  "\u287f",
+  "\u28ff",
+  "\u28fe",
+  "\u28fc",
+  "\u28f8",
+  "\u28f0",
+  "\u28e0",
+  "\u28c0",
+  "\u2880",
+  "\u2800",
+];
 
 export interface Spinner {
   start(): void;
@@ -144,11 +161,16 @@ export function progressBar(current: number, total: number, width = 30): string 
 
 export function severityColor(severity: Severity): ColorFn {
   switch (severity) {
-    case "critical": return color.bgRed;
-    case "high":     return color.red;
-    case "medium":   return color.yellow;
-    case "low":      return color.cyan;
-    case "info":     return color.dim;
+    case "critical":
+      return color.bgRed;
+    case "high":
+      return color.red;
+    case "medium":
+      return color.yellow;
+    case "low":
+      return color.cyan;
+    case "info":
+      return color.dim;
   }
 }
 
@@ -159,11 +181,16 @@ export function severityBadge(severity: Severity): string {
 
 export function gradeColor(grade: AuditGrade): ColorFn {
   switch (grade) {
-    case "A": return color.green;
-    case "B": return color.cyan;
-    case "C": return color.yellow;
-    case "D": return color.red;
-    case "F": return color.bgRed;
+    case "A":
+      return color.green;
+    case "B":
+      return color.cyan;
+    case "C":
+      return color.yellow;
+    case "D":
+      return color.red;
+    case "F":
+      return color.bgRed;
   }
 }
 

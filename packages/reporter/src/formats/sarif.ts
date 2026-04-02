@@ -8,12 +8,7 @@
  * Spec: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
  */
 
-import type {
-  AuditReport,
-  SecurityFinding,
-  Severity,
-  SkillAuditResult,
-} from "@agent-audit/shared";
+import type { AuditReport, Severity, SkillAuditResult } from "@agent-audit/shared";
 
 // ── SARIF type definitions (subset) ───────────────────────────────────── //
 
@@ -147,9 +142,7 @@ const collectUniqueRules = (
             .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
             .join(""),
           shortDescription: { text: f.title },
-          fullDescription: f.description
-            ? { text: f.description }
-            : undefined,
+          fullDescription: f.description ? { text: f.description } : undefined,
           defaultConfiguration: {
             level: toSarifLevel(f.severity),
           },
@@ -180,9 +173,7 @@ const buildResults = (
         ruleIndex,
         level: toSarifLevel(f.severity),
         message: {
-          text: f.description
-            ? `${f.title}: ${f.description}`
-            : f.title,
+          text: f.description ? `${f.title}: ${f.description}` : f.title,
         },
         fingerprints: {
           "agent-audit/finding-id": f.id,

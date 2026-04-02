@@ -59,7 +59,7 @@ const TEST_FILE_PATTERNS = [
   /tests?\/.*\.[jt]sx?$/,
   /tests?\/.*\.py$/,
   /__tests__\//,
-  /\.stories\.[jt]sx?$/,  // Storybook stories serve as visual tests
+  /\.stories\.[jt]sx?$/, // Storybook stories serve as visual tests
 ];
 
 /** CI configuration file patterns */
@@ -87,7 +87,7 @@ const LINTER_CONFIGS = [
   "eslint.config.mjs",
   "eslint.config.cjs",
   ".pylintrc",
-  "pyproject.toml",  // Can contain pylint/ruff config
+  "pyproject.toml", // Can contain pylint/ruff config
   ".flake8",
   ".ruff.toml",
   "ruff.toml",
@@ -129,9 +129,13 @@ const LICENSE_PATTERNS: Array<{ pattern: RegExp; type: string }> = [
 /**
  * Check whether test files exist in the skill.
  */
-function detectTests(files: SkillFile[]): { hasTests: boolean; testFileCount: number; score: number } {
+function detectTests(files: SkillFile[]): {
+  hasTests: boolean;
+  testFileCount: number;
+  score: number;
+} {
   const testFiles = files.filter((f) =>
-    TEST_FILE_PATTERNS.some((pattern) => pattern.test(f.relativePath))
+    TEST_FILE_PATTERNS.some((pattern) => pattern.test(f.relativePath)),
   );
 
   const testFileCount = testFiles.length;
@@ -162,7 +166,7 @@ function detectTests(files: SkillFile[]): { hasTests: boolean; testFileCount: nu
   } else if (ratio >= 0.2) {
     score = 0.4 + ((ratio - 0.2) / 0.3) * 0.3;
   } else {
-    score = ratio / 0.2 * 0.4;
+    score = (ratio / 0.2) * 0.4;
   }
 
   return { hasTests: true, testFileCount, score: Math.min(1, score) };
@@ -179,7 +183,7 @@ function detectCI(files: SkillFile[]): {
   for (const ci of CI_CONFIGS) {
     const found = files.some((f) => {
       if (typeof ci.pattern === "string") {
-        return f.relativePath === ci.pattern || f.relativePath.startsWith(ci.pattern + "/");
+        return f.relativePath === ci.pattern || f.relativePath.startsWith(`${ci.pattern}/`);
       }
       return ci.pattern.test(f.relativePath);
     });
@@ -204,7 +208,7 @@ function detectTypes(files: SkillFile[]): { hasTypes: boolean; score: number } {
     (f) =>
       f.relativePath === "tsconfig.json" ||
       f.relativePath === "tsconfig.build.json" ||
-      f.relativePath.endsWith("/tsconfig.json")
+      f.relativePath.endsWith("/tsconfig.json"),
   );
 
   // Check for TypeScript source files
@@ -222,8 +226,10 @@ function detectTypes(files: SkillFile[]): { hasTypes: boolean; score: number } {
   // Check for Python type hints
   const hasPythonTypes = files.some((f) => {
     if (!f.relativePath.endsWith(".py")) return false;
-    return /:\s*(?:str|int|float|bool|list|dict|tuple|Optional|Union|List|Dict)/.test(f.content) ||
-      f.relativePath.endsWith(".pyi");
+    return (
+      /:\s*(?:str|int|float|bool|list|dict|tuple|Optional|Union|List|Dict)/.test(f.content) ||
+      f.relativePath.endsWith(".pyi")
+    );
   });
 
   const hasTypes = hasDtsFiles || hasTsConfig || hasTsSource || hasJSDocTypes || hasPythonTypes;
@@ -240,9 +246,11 @@ function detectTypes(files: SkillFile[]): { hasTypes: boolean; score: number } {
 /**
  * Detect license file and type.
  */
-function detectLicense(
-  skill: AgentSkill
-): { hasLicense: boolean; licenseType: string | null; score: number } {
+function detectLicense(skill: AgentSkill): {
+  hasLicense: boolean;
+  licenseType: string | null;
+  score: number;
+} {
   const files = skill.files;
 
   // Check for license file
@@ -337,7 +345,7 @@ function detectFormatter(files: SkillFile[]): { hasFormatter: boolean; score: nu
  */
 function detectGitignore(files: SkillFile[]): { hasGitignore: boolean; score: number } {
   const hasGitignore = files.some(
-    (f) => f.relativePath === ".gitignore" || f.relativePath.endsWith("/.gitignore")
+    (f) => f.relativePath === ".gitignore" || f.relativePath.endsWith("/.gitignore"),
   );
   return { hasGitignore, score: hasGitignore ? 1 : 0 };
 }

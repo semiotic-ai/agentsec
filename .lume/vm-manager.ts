@@ -96,9 +96,7 @@ class LumeAPIClient {
 
     if (!response.ok) {
       const text = await response.text().catch(() => "");
-      throw new Error(
-        `Lume API ${method} ${path} failed (${response.status}): ${text}`,
-      );
+      throw new Error(`Lume API ${method} ${path} failed (${response.status}): ${text}`);
     }
 
     const contentType = response.headers.get("content-type") ?? "";
@@ -152,9 +150,7 @@ class LumeAPIClient {
   ): Promise<unknown> {
     return this.request("POST", `/lume/vms/${name}/run`, {
       noDisplay: opts?.noDisplay ?? true,
-      ...(opts?.sharedDirectories
-        ? { sharedDirectories: opts.sharedDirectories }
-        : {}),
+      ...(opts?.sharedDirectories ? { sharedDirectories: opts.sharedDirectories } : {}),
       ...(opts?.storage ? { storage: opts.storage } : {}),
     });
   }
@@ -199,11 +195,7 @@ class LumeAPIClient {
 
   // -- Image Management ----------------------------------------------------
 
-  async pullImage(
-    image: string,
-    vmName?: string,
-    storage?: string,
-  ): Promise<unknown> {
+  async pullImage(image: string, vmName?: string, storage?: string): Promise<unknown> {
     return this.request("POST", "/lume/pull", {
       image,
       ...(vmName ? { name: vmName } : {}),
@@ -227,16 +219,24 @@ class LumeAPIClient {
 export class LumeVM {
   readonly name: string;
   private config: Required<
-    Pick<VMConfig, "apiUrl" | "cpu" | "memory" | "diskSize" | "display" | "sshUser" | "sshPassword" | "sshTimeout" | "headless">
+    Pick<
+      VMConfig,
+      | "apiUrl"
+      | "cpu"
+      | "memory"
+      | "diskSize"
+      | "display"
+      | "sshUser"
+      | "sshPassword"
+      | "sshTimeout"
+      | "headless"
+    >
   > &
     Pick<VMConfig, "sharedDirectories" | "storage">;
   private api: LumeAPIClient;
 
   constructor(nameOrConfig: string | VMConfig) {
-    const cfg: VMConfig =
-      typeof nameOrConfig === "string"
-        ? { name: nameOrConfig }
-        : nameOrConfig;
+    const cfg: VMConfig = typeof nameOrConfig === "string" ? { name: nameOrConfig } : nameOrConfig;
 
     this.name = cfg.name;
     this.config = {
@@ -374,9 +374,7 @@ export class LumeVM {
   async listSnapshots(): Promise<string[]> {
     const prefix = `${this.name}--snapshot-`;
     const vms = await this.api.listVMs();
-    return vms
-      .filter((vm) => vm.name.startsWith(prefix))
-      .map((vm) => vm.name.replace(prefix, ""));
+    return vms.filter((vm) => vm.name.startsWith(prefix)).map((vm) => vm.name.replace(prefix, ""));
   }
 
   // -----------------------------------------------------------------------
@@ -391,10 +389,15 @@ export class LumeVM {
   async exec(command: string, timeoutSeconds?: number): Promise<ExecResult> {
     const timeout = timeoutSeconds ?? this.config.sshTimeout;
     const args = [
-      "lume", "ssh", this.name,
-      "-u", this.config.sshUser,
-      "-p", this.config.sshPassword,
-      "-t", String(timeout),
+      "lume",
+      "ssh",
+      this.name,
+      "-u",
+      this.config.sshUser,
+      "-p",
+      this.config.sshPassword,
+      "-t",
+      String(timeout),
       ...(this.config.storage ? ["--storage", this.config.storage] : []),
       command,
     ];
@@ -434,13 +437,21 @@ export class LumeVM {
     const ip = info.ip;
     if (!ip) throw new Error("Cannot determine VM IP address");
 
-    const proc = Bun.spawn([
-      "sshpass", "-p", this.config.sshPassword,
-      "scp", "-o", "StrictHostKeyChecking=no",
-      "-o", "UserKnownHostsFile=/dev/null",
-      localPath,
-      `${this.config.sshUser}@${ip}:${remotePath}`,
-    ], { stdout: "pipe", stderr: "pipe" });
+    const proc = Bun.spawn(
+      [
+        "sshpass",
+        "-p",
+        this.config.sshPassword,
+        "scp",
+        "-o",
+        "StrictHostKeyChecking=no",
+        "-o",
+        "UserKnownHostsFile=/dev/null",
+        localPath,
+        `${this.config.sshUser}@${ip}:${remotePath}`,
+      ],
+      { stdout: "pipe", stderr: "pipe" },
+    );
 
     const exitCode = await proc.exited;
     if (exitCode !== 0) {
@@ -560,11 +571,12 @@ async function main() {
       }
       await vm.restore(args[2]);
       break;
-    case "snapshots":
+    case "snapshots": {
       const snaps = await vm.listSnapshots();
       console.log(snaps.length ? snaps.join("\n") : "(no snapshots)");
       break;
-    case "exec":
+    }
+    case "exec": {
       if (!args[2]) {
         console.error("Usage: vm-manager.ts exec <vmname> <command>");
         process.exit(1);
@@ -574,6 +586,7 @@ async function main() {
       if (result.stderr) console.error(result.stderr);
       process.exit(result.exitCode);
       break;
+    }
     default:
       console.log(`Usage: bun run vm-manager.ts <command> [vm-name] [args...]
 

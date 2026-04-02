@@ -1,15 +1,15 @@
-export { Scanner, type ScanOptions, type RuleFunction } from "./scanner";
-export { ALL_RULES, type RuleDefinition } from "./rules";
-
 export {
-  checkInjection,
-  checkPermissions,
+  ALL_RULES,
+  checkDenialOfService,
   checkDependencies,
+  checkErrorHandling,
+  checkInjection,
+  checkInsufficientLogging,
   checkOutputHandling,
+  checkPermissions,
   checkStorage,
   checkSupplyChain,
-  checkErrorHandling,
   checkUnsafeDeserialization,
-  checkDenialOfService,
-  checkInsufficientLogging,
+  type RuleDefinition,
 } from "./rules";
+export { type RuleFunction, Scanner, type ScanOptions } from "./scanner";

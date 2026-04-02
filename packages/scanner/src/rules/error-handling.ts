@@ -18,7 +18,8 @@ interface ErrorPattern {
 
 const ERROR_LEAKAGE_PATTERNS: ErrorPattern[] = [
   {
-    pattern: /res(?:ponse)?\s*\.\s*(?:send|json|write|end)\s*\([^)]*(?:\.stack|\.message|err\b|error\b)/gi,
+    pattern:
+      /res(?:ponse)?\s*\.\s*(?:send|json|write|end)\s*\([^)]*(?:\.stack|\.message|err\b|error\b)/gi,
     id: "ERR-001",
     title: "Error details exposed in HTTP response",
     description:
@@ -38,7 +39,8 @@ const ERROR_LEAKAGE_PATTERNS: ErrorPattern[] = [
       "Ensure stack traces are only used for server-side logging. Never include them in client-facing responses or external API calls.",
   },
   {
-    pattern: /(?:express|app)\s*\.\s*use\s*\([^)]*(?:err|error)[^)]*=>\s*\{[^}]*res\s*\.\s*(?:send|json)\s*\([^)]*(?:err|error|message|stack)/gs,
+    pattern:
+      /(?:express|app)\s*\.\s*use\s*\([^)]*(?:err|error)[^)]*=>\s*\{[^}]*res\s*\.\s*(?:send|json)\s*\([^)]*(?:err|error|message|stack)/gs,
     id: "ERR-003",
     title: "Express error handler leaks error details",
     description:
@@ -81,20 +83,21 @@ const EMPTY_CATCH_PATTERNS: ErrorPattern[] = [
       "Handle the rejection appropriately or log it. Never silently swallow promise rejections.",
   },
   {
-    pattern: /\.catch\s*\(\s*(?:\(\s*\)\s*=>\s*(?:null|undefined|void\s+0)|_\s*=>\s*(?:null|undefined|void\s+0))\s*\)/g,
+    pattern:
+      /\.catch\s*\(\s*(?:\(\s*\)\s*=>\s*(?:null|undefined|void\s+0)|_\s*=>\s*(?:null|undefined|void\s+0))\s*\)/g,
     id: "ERR-013",
     title: "Promise .catch returning null/undefined",
     description:
       "A promise catch handler discards the error and returns null/undefined. This suppresses errors and can lead to hard-to-debug issues.",
     severity: "low",
-    remediation:
-      "Log the error before discarding it, or propagate it.",
+    remediation: "Log the error before discarding it, or propagate it.",
   },
 ];
 
 const MISSING_ERROR_HANDLING_PATTERNS: ErrorPattern[] = [
   {
-    pattern: /process\s*\.\s*on\s*\(\s*["']uncaughtException["']\s*,\s*[^)]*(?:process\.exit|exit)\s*\(/g,
+    pattern:
+      /process\s*\.\s*on\s*\(\s*["']uncaughtException["']\s*,\s*[^)]*(?:process\.exit|exit)\s*\(/g,
     id: "ERR-020",
     title: "Uncaught exception handler exits without cleanup",
     description:
@@ -104,7 +107,8 @@ const MISSING_ERROR_HANDLING_PATTERNS: ErrorPattern[] = [
       "Log the error, perform graceful cleanup (close connections, flush buffers), then exit.",
   },
   {
-    pattern: /process\s*\.\s*on\s*\(\s*["']unhandledRejection["']\s*,\s*\(\s*\)\s*=>\s*\{\s*\}\s*\)/g,
+    pattern:
+      /process\s*\.\s*on\s*\(\s*["']unhandledRejection["']\s*,\s*\(\s*\)\s*=>\s*\{\s*\}\s*\)/g,
     id: "ERR-021",
     title: "Empty unhandled rejection handler",
     description:
@@ -117,7 +121,8 @@ const MISSING_ERROR_HANDLING_PATTERNS: ErrorPattern[] = [
 
 const CATCH_ALL_PATTERNS: ErrorPattern[] = [
   {
-    pattern: /catch\s*\(\s*(?:e|err|error|ex|exception)\s*\)\s*\{[^}]*(?:continue|return\s+(?:null|undefined|false|true|0|""|''))\s*;?\s*\}/gs,
+    pattern:
+      /catch\s*\(\s*(?:e|err|error|ex|exception)\s*\)\s*\{[^}]*(?:continue|return\s+(?:null|undefined|false|true|0|""|''))\s*;?\s*\}/gs,
     id: "ERR-030",
     title: "Catch-all with generic return",
     description:
@@ -201,8 +206,7 @@ function checkMissingPromiseCatch(file: SkillFile, findings: SecurityFinding[]):
       description:
         "Multiple promise chains lack error handling. Unhandled rejections can crash the process or leave the system in an inconsistent state.",
       file: file.relativePath,
-      remediation:
-        "Add .catch() to all promise chains or use async/await with try/catch blocks.",
+      remediation: "Add .catch() to all promise chains or use async/await with try/catch blocks.",
     });
   }
 }
@@ -234,10 +238,9 @@ function checkGlobalErrorHandlers(file: SkillFile, findings: SecurityFinding[]):
 }
 
 function isCodeFile(ext: string): boolean {
-  return [
-    "ts", "tsx", "js", "jsx", "mjs", "cjs",
-    "py", "rb", "go", "rs", "java", "kt",
-  ].includes(ext);
+  return ["ts", "tsx", "js", "jsx", "mjs", "cjs", "py", "rb", "go", "rs", "java", "kt"].includes(
+    ext,
+  );
 }
 
 function getLineNumber(content: string, index: number): number {

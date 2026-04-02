@@ -1,12 +1,12 @@
 import type { AgentSkill, QualityMetrics } from "@agent-audit/shared";
-import { calculateComplexity, countTotalLinesOfCode } from "./complexity";
 import type { ComplexityResult } from "./complexity";
-import { scoreDocumentation } from "./documentation";
-import type { DocumentationResult } from "./documentation";
-import { analyzeDependencies } from "./dependencies";
+import { calculateComplexity, countTotalLinesOfCode } from "./complexity";
 import type { DependencyResult } from "./dependencies";
-import { scoreMaintenanceHealth } from "./maintenance";
+import { analyzeDependencies } from "./dependencies";
+import type { DocumentationResult } from "./documentation";
+import { scoreDocumentation } from "./documentation";
 import type { MaintenanceResult } from "./maintenance";
+import { scoreMaintenanceHealth } from "./maintenance";
 
 /**
  * Extended metrics result including detailed breakdowns from each analyzer.

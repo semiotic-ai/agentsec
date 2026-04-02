@@ -5,8 +5,8 @@
  * and exit codes. Fixture skills under e2e/fixtures/ serve as scan targets.
  */
 
-import { describe, test, expect, beforeAll } from "bun:test";
-import { resolve, join } from "path";
+import { beforeAll, describe, expect, test } from "bun:test";
+import { join, resolve } from "node:path";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -26,7 +26,7 @@ interface RunResult {
  * Run the agent-audit CLI with the given arguments and return captured output.
  * Uses Bun.spawn so the binary runs in a child process just like a real user.
  */
-async function runCli(args: string[], timeoutMs = 30_000): Promise<RunResult> {
+async function runCli(args: string[], _timeoutMs = 30_000): Promise<RunResult> {
   const proc = Bun.spawn(["bun", "run", CLI_BIN, ...args], {
     cwd: ROOT_DIR,
     stdout: "pipe",
@@ -53,7 +53,7 @@ async function runCli(args: string[], timeoutMs = 30_000): Promise<RunResult> {
 // ---------------------------------------------------------------------------
 
 beforeAll(() => {
-  const file = Bun.file(CLI_BIN);
+  const _file = Bun.file(CLI_BIN);
   // We don't await here because beforeAll in bun:test supports sync checks.
   // If the binary is missing the tests will fail with a clear spawn error.
 });
@@ -150,9 +150,7 @@ describe("agent-audit CLI", () => {
       // Should detect excessive or dangerous permissions
       expect(output).toMatch(/permission|privilege|over-privileged|excessive/i);
       // The fixture requests shell:execute, credentials:access, etc.
-      expect(output).toMatch(
-        /shell:execute|credentials:access|network:unrestricted|system:admin/i,
-      );
+      expect(output).toMatch(/shell:execute|credentials:access|network:unrestricted|system:admin/i);
     });
   });
 

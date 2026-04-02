@@ -1,18 +1,8 @@
 import type { AgentPlatform } from "./types";
 
 export const OPENCLAW_SKILL_DIRS: Record<string, string[]> = {
-  darwin: [
-    "~/.openclaw/skills",
-    "~/.agents/skills",
-    "./skills",
-    "./.agents/skills",
-  ],
-  linux: [
-    "~/.openclaw/skills",
-    "~/.agents/skills",
-    "./skills",
-    "./.agents/skills",
-  ],
+  darwin: ["~/.openclaw/skills", "~/.agents/skills", "./skills", "./.agents/skills"],
+  linux: ["~/.openclaw/skills", "~/.agents/skills", "./skills", "./.agents/skills"],
   win32: [
     "%APPDATA%/openclaw/skills",
     "%LOCALAPPDATA%/openclaw/skills",
@@ -30,14 +20,11 @@ export const OPENCLAW_CONFIG_FILES = {
 };
 
 export const CLAUDE_SKILL_DIRS: Record<string, string[]> = {
-  darwin: [
-    "~/.claude/commands",
-    ".claude/commands",
-  ],
+  darwin: ["~/.claude/commands", ".claude/commands"],
 };
 
 export const SKILL_MANIFEST_FILES = [
-  "SKILL.md",       // Primary format for OpenClaw/ClawHub skills
+  "SKILL.md", // Primary format for OpenClaw/ClawHub skills
   "skill.json",
   "skill.yaml",
   "skill.yml",
@@ -57,10 +44,6 @@ export const DANGEROUS_PERMISSIONS = [
   "clipboard:write",
 ];
 
-export const SUPPORTED_PLATFORMS: AgentPlatform[] = [
-  "openclaw",
-  "claude",
-  "codex",
-];
+export const SUPPORTED_PLATFORMS: AgentPlatform[] = ["openclaw", "claude", "codex"];
 
 export const AUDIT_VERSION = "0.1.0";

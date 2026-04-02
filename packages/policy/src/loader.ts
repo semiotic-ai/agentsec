@@ -23,9 +23,7 @@ export async function loadPolicyFile(filePath: string): Promise<PolicyConfig> {
   } else if (ext === ".yml" || ext === ".yaml") {
     parsed = parseSimpleYaml(raw);
   } else {
-    throw new Error(
-      `Unsupported policy file extension "${ext}". Use .json, .yml, or .yaml.`,
-    );
+    throw new Error(`Unsupported policy file extension "${ext}". Use .json, .yml, or .yaml.`);
   }
 
   if (!parsed || typeof parsed !== "object") {

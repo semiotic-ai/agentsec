@@ -67,10 +67,8 @@ export const bg256 = (code: number) => wrap(`48;5;${code}`, "49");
 
 // --- RGB helpers --------------------------------------------------------- //
 
-export const rgb = (r: number, g: number, b: number) =>
-  wrap(`38;2;${r};${g};${b}`, "39");
-export const bgRgb = (r: number, g: number, b: number) =>
-  wrap(`48;2;${r};${g};${b}`, "49");
+export const rgb = (r: number, g: number, b: number) => wrap(`38;2;${r};${g};${b}`, "39");
+export const bgRgb = (r: number, g: number, b: number) => wrap(`48;2;${r};${g};${b}`, "49");
 
 // --- Brand colors -------------------------------------------------------- //
 
@@ -135,12 +133,10 @@ export const gradeColor = (grade: AuditGrade): ((text: string) => string) => {
 // --- Utility ------------------------------------------------------------- //
 
 /** Strip all ANSI escape sequences from a string. */
-export const stripAnsi = (text: string): string =>
-  text.replace(/\x1b\[[0-9;]*m/g, "");
+export const stripAnsi = (text: string): string => text.replace(/\x1b\[[0-9;]*m/g, "");
 
 /** Visible length of a string (ignoring ANSI codes). */
-export const visibleLength = (text: string): number =>
-  stripAnsi(text).length;
+export const visibleLength = (text: string): number => stripAnsi(text).length;
 
 /** Pad a string to `width` visible characters, ignoring ANSI codes. */
 export const padEnd = (text: string, width: number): string => {
@@ -212,11 +208,7 @@ export const box = {
 
 // --- Progress bar -------------------------------------------------------- //
 
-export const progressBar = (
-  value: number,
-  max: number,
-  width: number = 20,
-): string => {
+export const progressBar = (value: number, max: number, width: number = 20): string => {
   const ratio = Math.max(0, Math.min(1, value / max));
   const filled = Math.round(ratio * width);
   const empty = width - filled;

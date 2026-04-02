@@ -38,8 +38,7 @@ const UNBOUNDED_LOOP_PATTERNS: DosPattern[] = [
     description:
       "An infinite for loop without a termination condition. If reached with certain inputs, the process will hang indefinitely.",
     severity: "high",
-    remediation:
-      "Add explicit loop bounds and a maximum iteration count.",
+    remediation: "Add explicit loop bounds and a maximum iteration count.",
     checkMitigation: true,
   },
   {
@@ -49,8 +48,7 @@ const UNBOUNDED_LOOP_PATTERNS: DosPattern[] = [
     description:
       "An infinite loop using while(1), while(!0), or while(!false). Equivalent to while(true).",
     severity: "high",
-    remediation:
-      "Add a bounded termination condition.",
+    remediation: "Add a bounded termination condition.",
     checkMitigation: true,
   },
 ];
@@ -100,24 +98,24 @@ const RESOURCE_EXHAUSTION_PATTERNS: DosPattern[] = [
       "Validate file paths and check file size before reading. Set a maximum file size limit. Use streaming for large files.",
   },
   {
-    pattern: /Buffer\s*\.\s*alloc\s*\(\s*(?:user|input|query|req|data|param|arg|body|size|len|length)\b/gi,
+    pattern:
+      /Buffer\s*\.\s*alloc\s*\(\s*(?:user|input|query|req|data|param|arg|body|size|len|length)\b/gi,
     id: "DOS-021",
     title: "Buffer allocation with user-controlled size",
     description:
       "A buffer is allocated with a size from user input. An attacker can specify a very large size to exhaust available memory (OOM).",
     severity: "high",
-    remediation:
-      "Validate and cap the buffer size. Set a maximum allocation limit (e.g., 10MB).",
+    remediation: "Validate and cap the buffer size. Set a maximum allocation limit (e.g., 10MB).",
   },
   {
-    pattern: /new\s+Array\s*\(\s*(?:user|input|query|req|data|param|arg|body|size|len|length|count|num)\b/gi,
+    pattern:
+      /new\s+Array\s*\(\s*(?:user|input|query|req|data|param|arg|body|size|len|length|count|num)\b/gi,
     id: "DOS-022",
     title: "Array allocation with user-controlled size",
     description:
       "An array is allocated with a size derived from user input. Very large values can exhaust memory.",
     severity: "medium",
-    remediation:
-      "Validate and cap the array size before allocation. Set reasonable limits.",
+    remediation: "Validate and cap the array size before allocation. Set reasonable limits.",
   },
   {
     pattern: /\.repeat\s*\(\s*(?:user|input|query|req|data|param|arg|body|count|num|times)\b/gi,
@@ -126,8 +124,7 @@ const RESOURCE_EXHAUSTION_PATTERNS: DosPattern[] = [
     description:
       "String.prototype.repeat with a user-controlled count can create extremely large strings that exhaust memory.",
     severity: "high",
-    remediation:
-      "Validate and cap the repeat count. Set a maximum output length.",
+    remediation: "Validate and cap the repeat count. Set a maximum output length.",
   },
   {
     pattern: /setInterval\s*\([^,]+,\s*(?:0|1)\s*\)/g,
@@ -223,8 +220,7 @@ function checkMissingFetchTimeout(file: SkillFile, findings: SecurityFinding[]):
   const hasFetch = /\bfetch\s*\(/.test(file.content);
   if (!hasFetch) return;
 
-  const hasTimeout =
-    /AbortController|signal\s*:|timeout\s*:/i.test(file.content);
+  const hasTimeout = /AbortController|signal\s*:|timeout\s*:/i.test(file.content);
 
   if (!hasTimeout) {
     findings.push({
@@ -243,10 +239,9 @@ function checkMissingFetchTimeout(file: SkillFile, findings: SecurityFinding[]):
 }
 
 function isCodeFile(ext: string): boolean {
-  return [
-    "ts", "tsx", "js", "jsx", "mjs", "cjs",
-    "py", "rb", "go", "rs", "java", "kt",
-  ].includes(ext);
+  return ["ts", "tsx", "js", "jsx", "mjs", "cjs", "py", "rb", "go", "rs", "java", "kt"].includes(
+    ext,
+  );
 }
 
 function getLineNumber(content: string, index: number): number {

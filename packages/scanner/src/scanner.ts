@@ -1,4 +1,4 @@
-import type { AgentSkill, SecurityFinding, ScannerPlugin } from "@agent-audit/shared";
+import type { AgentSkill, ScannerPlugin, SecurityFinding } from "@agent-audit/shared";
 import { ALL_RULES, type RuleDefinition } from "./rules";
 
 export type RuleFunction = (skill: AgentSkill) => SecurityFinding[];
@@ -65,7 +65,7 @@ export class Scanner {
 
         if (this.verbose) {
           process.stderr.write(
-            `  Rule ${rule.name} completed: ${ruleFindings.length} findings in ${elapsed.toFixed(1)}ms\n`
+            `  Rule ${rule.name} completed: ${ruleFindings.length} findings in ${elapsed.toFixed(1)}ms\n`,
           );
         }
 
@@ -85,7 +85,8 @@ export class Scanner {
           category: "skill-injection",
           title: `Scanner rule '${rule.name}' threw an error`,
           description: `The '${rule.name}' rule encountered an error during scanning: ${message}. Some findings may be missing.`,
-          remediation: "This is a scanner issue, not a skill issue. Report this to the scanner maintainers.",
+          remediation:
+            "This is a scanner issue, not a skill issue. Report this to the scanner maintainers.",
         });
       }
     }
@@ -103,7 +104,7 @@ export class Scanner {
 
         if (this.verbose) {
           process.stderr.write(
-            `  Plugin ${plugin.name} completed: ${pluginFindings.length} findings in ${elapsed.toFixed(1)}ms\n`
+            `  Plugin ${plugin.name} completed: ${pluginFindings.length} findings in ${elapsed.toFixed(1)}ms\n`,
           );
         }
 

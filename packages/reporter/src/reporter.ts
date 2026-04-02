@@ -6,11 +6,10 @@
  */
 
 import type { AuditReport, OutputFormat } from "@agent-audit/shared";
-
-import { formatText } from "./formats/text.js";
+import { formatHtml } from "./formats/html.js";
 import { formatJson } from "./formats/json.js";
 import { formatSarif } from "./formats/sarif.js";
-import { formatHtml } from "./formats/html.js";
+import { formatText } from "./formats/text.js";
 
 export class ReportGenerator {
   /**

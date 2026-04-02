@@ -1,8 +1,8 @@
 import type {
-  PolicyCondition,
-  SkillAuditResult,
   OWASPCategory,
+  PolicyCondition,
   Severity,
+  SkillAuditResult,
 } from "@agent-audit/shared";
 
 /**
@@ -18,10 +18,7 @@ export interface ConditionResult {
  * A condition evaluator receives the typed value from a PolicyCondition
  * and the audit result to test, returning whether the condition is met.
  */
-export type ConditionEvaluator = (
-  value: unknown,
-  result: SkillAuditResult,
-) => ConditionResult;
+export type ConditionEvaluator = (value: unknown, result: SkillAuditResult) => ConditionResult;
 
 // ---------------------------------------------------------------------------
 // score-below
@@ -34,10 +31,7 @@ export interface ScoreBelowValue {
   threshold: number;
 }
 
-function evaluateScoreBelow(
-  value: unknown,
-  result: SkillAuditResult,
-): ConditionResult {
+function evaluateScoreBelow(value: unknown, result: SkillAuditResult): ConditionResult {
   const v = value as ScoreBelowValue;
   const field = v.field ?? "overall";
   const threshold = v.threshold;
@@ -72,10 +66,7 @@ export interface FindingExistsValue {
   withCve?: boolean;
 }
 
-function evaluateFindingExists(
-  value: unknown,
-  result: SkillAuditResult,
-): ConditionResult {
+function evaluateFindingExists(value: unknown, result: SkillAuditResult): ConditionResult {
   const v = value as FindingExistsValue;
   const findings = result.securityFindings;
 
@@ -116,10 +107,7 @@ export interface PermissionUsedValue {
   banned: string[];
 }
 
-function evaluatePermissionUsed(
-  value: unknown,
-  result: SkillAuditResult,
-): ConditionResult {
+function evaluatePermissionUsed(value: unknown, result: SkillAuditResult): ConditionResult {
   const v = value as PermissionUsedValue;
   const permissions = result.skill.manifest.permissions ?? [];
   const violations = permissions.filter((p) => v.banned.includes(p));
@@ -143,10 +131,7 @@ export interface DependencyBannedValue {
   banned: string[];
 }
 
-function evaluateDependencyBanned(
-  value: unknown,
-  result: SkillAuditResult,
-): ConditionResult {
+function evaluateDependencyBanned(value: unknown, result: SkillAuditResult): ConditionResult {
   const v = value as DependencyBannedValue;
   const deps = Object.keys(result.skill.manifest.dependencies ?? {});
   const violations = deps.filter((d) => v.banned.includes(d));
@@ -177,10 +162,7 @@ export interface CustomConditionValue {
   label?: string;
 }
 
-function evaluateCustom(
-  value: unknown,
-  result: SkillAuditResult,
-): ConditionResult {
+function evaluateCustom(value: unknown, result: SkillAuditResult): ConditionResult {
   const v = value as CustomConditionValue;
 
   if (!v.expression || typeof v.expression !== "string") {
@@ -194,9 +176,7 @@ function evaluateCustom(
     const label = v.label ?? v.expression;
     return {
       met,
-      reason: met
-        ? `Custom condition met: ${label}`
-        : `Custom condition not met: ${label}`,
+      reason: met ? `Custom condition met: ${label}` : `Custom condition not met: ${label}`,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

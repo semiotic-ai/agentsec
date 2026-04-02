@@ -4,11 +4,11 @@
  */
 
 import { readdir } from "node:fs/promises";
-import { join, resolve } from "node:path";
 import { homedir, platform } from "node:os";
+import { join, resolve } from "node:path";
 import type { AgentSkill } from "@agent-audit/shared";
 import { OPENCLAW_SKILL_DIRS } from "@agent-audit/shared";
-import { SkillParser, type ParseOptions } from "./parser";
+import { type ParseOptions, SkillParser } from "./parser";
 
 export interface DiscoveryConfig {
   /**
@@ -123,13 +123,16 @@ export class SkillDiscovery {
       }
 
       parsePromises.push(
-        this.parser.parse(skillDir, parseOptions).then((skill) => {
-          if (skill) {
-            skills.push(skill);
-          }
-        }).catch(() => {
-          // Silently skip directories that fail to parse
-        }),
+        this.parser
+          .parse(skillDir, parseOptions)
+          .then((skill) => {
+            if (skill) {
+              skills.push(skill);
+            }
+          })
+          .catch(() => {
+            // Silently skip directories that fail to parse
+          }),
       );
     }
 
@@ -160,13 +163,16 @@ export class SkillDiscovery {
 
       const skillDir = join(scopedDir, entry.name);
       promises.push(
-        this.parser.parse(skillDir, parseOptions).then((skill) => {
-          if (skill) {
-            skills.push(skill);
-          }
-        }).catch(() => {
-          // skip
-        }),
+        this.parser
+          .parse(skillDir, parseOptions)
+          .then((skill) => {
+            if (skill) {
+              skills.push(skill);
+            }
+          })
+          .catch(() => {
+            // skip
+          }),
       );
     }
 

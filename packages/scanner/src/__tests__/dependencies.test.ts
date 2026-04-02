@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { checkDependencies } from "../rules/dependencies";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill } from "@agent-audit/shared";
+import { checkDependencies } from "../rules/dependencies";
 
 /**
  * Helper to create a mock AgentSkill with specified manifest dependencies
@@ -8,7 +8,7 @@ import type { AgentSkill } from "@agent-audit/shared";
  */
 function mockSkill(
   deps: Record<string, string>,
-  files?: { name: string; code: string }[]
+  files?: { name: string; code: string }[],
 ): AgentSkill {
   const skillFiles = (files ?? []).map((f) => ({
     path: `/tmp/dep-test-skill/${f.name}`,
@@ -39,7 +39,7 @@ function mockSkill(
 // ---------------------------------------------------------------------------
 describe("Dependencies: typosquatting detection", () => {
   test("detects typosquat of lodash (l0dash)", () => {
-    const skill = mockSkill({ "l0dash": "^4.17.21" });
+    const skill = mockSkill({ l0dash: "^4.17.21" });
     const findings = checkDependencies(skill);
     const typoFindings = findings.filter((f) => f.id.startsWith("DEP-TYPO"));
     expect(typoFindings.length).toBeGreaterThanOrEqual(1);
@@ -48,7 +48,7 @@ describe("Dependencies: typosquatting detection", () => {
   });
 
   test("detects typosquat of express (expres)", () => {
-    const skill = mockSkill({ "expres": "^4.18.0" });
+    const skill = mockSkill({ expres: "^4.18.0" });
     const findings = checkDependencies(skill);
     const typoFindings = findings.filter((f) => f.id.startsWith("DEP-TYPO"));
     expect(typoFindings.length).toBeGreaterThanOrEqual(1);
@@ -56,21 +56,21 @@ describe("Dependencies: typosquatting detection", () => {
   });
 
   test("detects typosquat of react (raect)", () => {
-    const skill = mockSkill({ "raect": "^18.2.0" });
+    const skill = mockSkill({ raect: "^18.2.0" });
     const findings = checkDependencies(skill);
     const typoFindings = findings.filter((f) => f.id.startsWith("DEP-TYPO"));
     expect(typoFindings.length).toBeGreaterThanOrEqual(1);
   });
 
   test("detects typosquat of axios (axois)", () => {
-    const skill = mockSkill({ "axois": "^1.6.0" });
+    const skill = mockSkill({ axois: "^1.6.0" });
     const findings = checkDependencies(skill);
     const typoFindings = findings.filter((f) => f.id.startsWith("DEP-TYPO"));
     expect(typoFindings.length).toBeGreaterThanOrEqual(1);
   });
 
   test("detects typosquat of chalk (chalks)", () => {
-    const skill = mockSkill({ "chalks": "^5.0.0" });
+    const skill = mockSkill({ chalks: "^5.0.0" });
     const findings = checkDependencies(skill);
     const typoFindings = findings.filter((f) => f.id.startsWith("DEP-TYPO"));
     expect(typoFindings.length).toBeGreaterThanOrEqual(1);
@@ -84,7 +84,7 @@ describe("Dependencies: typosquatting detection", () => {
   });
 
   test("detects typosquat of typescript (typscript)", () => {
-    const skill = mockSkill({ "typscript": "^5.0.0" });
+    const skill = mockSkill({ typscript: "^5.0.0" });
     const findings = checkDependencies(skill);
     const typoFindings = findings.filter((f) => f.id.startsWith("DEP-TYPO"));
     expect(typoFindings.length).toBeGreaterThanOrEqual(1);
@@ -149,7 +149,7 @@ describe("Dependencies: unpinned version detection", () => {
     const skill = mockSkill({ lodash: "4.17.21", express: "4.18.2" });
     const findings = checkDependencies(skill);
     const unpinnedFindings = findings.filter(
-      (f) => f.id.startsWith("DEP-WILD") || f.id.startsWith("DEP-GIT")
+      (f) => f.id.startsWith("DEP-WILD") || f.id.startsWith("DEP-GIT"),
     );
     expect(unpinnedFindings.length).toBe(0);
   });
@@ -198,7 +198,7 @@ describe("Dependencies: known vulnerable package detection", () => {
     });
     const findings = checkDependencies(skill);
     const vulnFindings = findings.filter(
-      (f) => f.id.startsWith("DEP-VULN") || f.id.startsWith("DEP-DEPR")
+      (f) => f.id.startsWith("DEP-VULN") || f.id.startsWith("DEP-DEPR"),
     );
     expect(vulnFindings.length).toBe(0);
   });
@@ -237,15 +237,12 @@ describe("Dependencies: excessive dependency count", () => {
 // ---------------------------------------------------------------------------
 describe("Dependencies: undeclared dependency detection", () => {
   test("detects import of undeclared dependency", () => {
-    const skill = mockSkill(
-      { lodash: "4.17.21" },
-      [
-        {
-          name: "index.ts",
-          code: 'import express from "express";\nimport _ from "lodash";',
-        },
-      ]
-    );
+    const skill = mockSkill({ lodash: "4.17.21" }, [
+      {
+        name: "index.ts",
+        code: 'import express from "express";\nimport _ from "lodash";',
+      },
+    ]);
     const findings = checkDependencies(skill);
     const undeclFindings = findings.filter((f) => f.id.startsWith("DEP-UNDECL"));
     expect(undeclFindings.length).toBeGreaterThanOrEqual(1);
@@ -253,30 +250,24 @@ describe("Dependencies: undeclared dependency detection", () => {
   });
 
   test("does not flag node built-in imports as undeclared", () => {
-    const skill = mockSkill(
-      {},
-      [
-        {
-          name: "index.ts",
-          code: 'import fs from "fs";\nimport path from "path";\nimport { createServer } from "http";',
-        },
-      ]
-    );
+    const skill = mockSkill({}, [
+      {
+        name: "index.ts",
+        code: 'import fs from "fs";\nimport path from "path";\nimport { createServer } from "http";',
+      },
+    ]);
     const findings = checkDependencies(skill);
     const undeclFindings = findings.filter((f) => f.id.startsWith("DEP-UNDECL"));
     expect(undeclFindings.length).toBe(0);
   });
 
   test("does not flag declared dependencies as undeclared", () => {
-    const skill = mockSkill(
-      { express: "4.18.2", lodash: "4.17.21" },
-      [
-        {
-          name: "index.ts",
-          code: 'import express from "express";\nimport _ from "lodash";',
-        },
-      ]
-    );
+    const skill = mockSkill({ express: "4.18.2", lodash: "4.17.21" }, [
+      {
+        name: "index.ts",
+        code: 'import express from "express";\nimport _ from "lodash";',
+      },
+    ]);
     const findings = checkDependencies(skill);
     const undeclFindings = findings.filter((f) => f.id.startsWith("DEP-UNDECL"));
     expect(undeclFindings.length).toBe(0);
@@ -309,11 +300,11 @@ describe("Dependencies: finding structure", () => {
   test("every finding has required fields", () => {
     const skill = mockSkill(
       {
-        "l0dash": "*",
+        l0dash: "*",
         "event-stream": "3.3.6",
         request: "^2.88.2",
       },
-      [{ name: "index.ts", code: 'import chalk from "chalk";' }]
+      [{ name: "index.ts", code: 'import chalk from "chalk";' }],
     );
     const findings = checkDependencies(skill);
     expect(findings.length).toBeGreaterThanOrEqual(1);
@@ -344,7 +335,7 @@ describe("Dependencies: finding structure", () => {
 describe("Dependencies: multiple issues in a single skill", () => {
   test("detects typosquat + unpinned version + known vulnerable in same skill", () => {
     const skill = mockSkill({
-      "l0dash": "*",
+      l0dash: "*",
       "node-ipc": "latest",
       request: "^2.88.2",
       "safe-lib": "1.0.0",

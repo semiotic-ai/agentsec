@@ -16,37 +16,34 @@ import type {
 
 import {
   bold,
-  dim,
-  italic,
-  underline,
-  cyan,
-  gray,
-  white,
-  brightWhite,
-  teal,
-  red,
-  green,
+  box,
   brightGreen,
   brightRed,
-  yellow,
-  severityColor,
+  center,
+  cyan,
+  dim,
   gradeColor,
+  gray,
+  green,
+  italic,
   padEnd,
   padStart,
-  center,
-  visibleLength,
-  box,
-  symbols,
-  progressBar,
+  red,
   scoreGauge,
+  severityColor,
+  symbols,
+  teal,
+  underline,
+  visibleLength,
+  white,
+  yellow,
 } from "../colors.js";
 
 // ── Helpers ──────────────────────────────────────────────────────────────── //
 
 const TERM_WIDTH = Math.min(process.stdout.columns ?? 100, 120);
 
-const hr = (char = box.horizontal, width = TERM_WIDTH): string =>
-  dim(char.repeat(width));
+const hr = (char = box.horizontal, width = TERM_WIDTH): string => dim(char.repeat(width));
 
 const heading = (text: string): string => {
   const line = box.heavyHorizontal.repeat(TERM_WIDTH);
@@ -95,8 +92,7 @@ interface Column {
 
 const renderTable = (columns: Column[], rows: string[][]): string => {
   const lines: string[] = [];
-  const totalWidth =
-    columns.reduce((sum, c) => sum + c.width, 0) + columns.length + 1;
+  const _totalWidth = columns.reduce((sum, c) => sum + c.width, 0) + columns.length + 1;
 
   // Top border
   const topBorder =
@@ -109,11 +105,7 @@ const renderTable = (columns: Column[], rows: string[][]): string => {
   const headerCells = columns.map((col) => {
     return center(bold(col.header), col.width);
   });
-  lines.push(
-    dim(box.vertical) +
-      headerCells.join(dim(box.vertical)) +
-      dim(box.vertical),
-  );
+  lines.push(dim(box.vertical) + headerCells.join(dim(box.vertical)) + dim(box.vertical));
 
   // Header separator
   const sep =
@@ -131,11 +123,7 @@ const renderTable = (columns: Column[], rows: string[][]): string => {
       if (align === "center") return center(cell, col.width);
       return padEnd(cell, col.width);
     });
-    lines.push(
-      dim(box.vertical) +
-        cells.join(dim(box.vertical)) +
-        dim(box.vertical),
-    );
+    lines.push(dim(box.vertical) + cells.join(dim(box.vertical)) + dim(box.vertical));
   }
 
   // Bottom border
@@ -162,7 +150,7 @@ const banner = (): string => {
 
   return (
     "\n" +
-    art.map((line) => "  " + teal(line)).join("\n") +
+    art.map((line) => `  ${teal(line)}`).join("\n") +
     "\n" +
     center(dim("Security & Quality Auditing for AI Agent Skills"), TERM_WIDTH) +
     "\n"
@@ -178,7 +166,7 @@ const renderSummary = (summary: AuditSummary): string => {
   lines.push("");
 
   // Key metrics in a compact grid
-  const scoreColor =
+  const _scoreColor =
     summary.averageScore >= 80
       ? brightGreen
       : summary.averageScore >= 60
@@ -234,18 +222,10 @@ const renderSkillTable = (results: SkillAuditResult[]): string => {
   const rows: string[][] = results.map((r) => {
     const name =
       " " +
-      (r.skill.name.length > 28
-        ? r.skill.name.slice(0, 27) + symbols.ellipsis
-        : r.skill.name);
+      (r.skill.name.length > 28 ? r.skill.name.slice(0, 27) + symbols.ellipsis : r.skill.name);
     const scoreVal = (score: number) => {
       const color =
-        score >= 80
-          ? brightGreen
-          : score >= 60
-            ? green
-            : score >= 40
-              ? yellow
-              : brightRed;
+        score >= 80 ? brightGreen : score >= 60 ? green : score >= 40 ? yellow : brightRed;
       return color(String(score));
     };
     const grade = gradeColor(r.score.grade)(bold(r.score.grade));
@@ -297,15 +277,14 @@ const renderFindings = (results: SkillAuditResult[]): string => {
     lines.push(heading("Security Findings"));
     lines.push("");
     lines.push(
-      indent(`${brightGreen(symbols.check)} ${brightGreen("No security findings detected. Great job!")}`),
+      indent(
+        `${brightGreen(symbols.check)} ${brightGreen("No security findings detected. Great job!")}`,
+      ),
     );
     return lines.join("\n");
   }
 
-  allFindings.sort(
-    (a, b) =>
-      severityOrder[a.finding.severity] - severityOrder[b.finding.severity],
-  );
+  allFindings.sort((a, b) => severityOrder[a.finding.severity] - severityOrder[b.finding.severity]);
 
   lines.push(heading("Security Findings"));
   lines.push("");
@@ -333,9 +312,7 @@ const renderFindings = (results: SkillAuditResult[]): string => {
     }
 
     if (finding.remediation) {
-      lines.push(
-        `    ${dim("Fix:")} ${green(finding.remediation)}`,
-      );
+      lines.push(`    ${dim("Fix:")} ${green(finding.remediation)}`);
     }
 
     lines.push("");
@@ -356,10 +333,18 @@ const renderQualityDetails = (results: SkillAuditResult[]): string => {
 
     const metrics = [
       ["Code complexity", String(m.codeComplexity), m.codeComplexity <= 10],
-      ["Test coverage", m.testCoverage !== null ? `${m.testCoverage}%` : dim("n/a"), (m.testCoverage ?? 0) >= 60],
+      [
+        "Test coverage",
+        m.testCoverage !== null ? `${m.testCoverage}%` : dim("n/a"),
+        (m.testCoverage ?? 0) >= 60,
+      ],
       ["Documentation", `${m.documentationScore}%`, m.documentationScore >= 50],
       ["Maintenance health", `${m.maintenanceHealth}%`, m.maintenanceHealth >= 60],
-      ["Dependencies", `${m.dependencyCount} (${m.outdatedDependencies} outdated)`, m.outdatedDependencies === 0],
+      [
+        "Dependencies",
+        `${m.dependencyCount} (${m.outdatedDependencies} outdated)`,
+        m.outdatedDependencies === 0,
+      ],
       ["Lines of code", String(m.linesOfCode), true],
     ] as const;
 
@@ -480,22 +465,11 @@ const renderFooter = (report: AuditReport): string => {
   lines.push("");
 
   const ts = new Date(report.timestamp).toLocaleString();
-  lines.push(
-    `  ${dim("Report ID:")}   ${dim(report.id)}`,
-  );
-  lines.push(
-    `  ${dim("Generated:")}   ${dim(ts)}`,
-  );
-  lines.push(
-    `  ${dim("Platform:")}    ${dim(report.platform)}`,
-  );
+  lines.push(`  ${dim("Report ID:")}   ${dim(report.id)}`);
+  lines.push(`  ${dim("Generated:")}   ${dim(ts)}`);
+  lines.push(`  ${dim("Platform:")}    ${dim(report.platform)}`);
   lines.push("");
-  lines.push(
-    center(
-      dim("Generated by ") + teal(bold("Agent Audit")),
-      TERM_WIDTH,
-    ),
-  );
+  lines.push(center(dim("Generated by ") + teal(bold("Agent Audit")), TERM_WIDTH));
   lines.push("");
 
   return lines.join("\n");

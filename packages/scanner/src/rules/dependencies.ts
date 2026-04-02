@@ -31,60 +31,73 @@ const TYPOSQUAT_TARGETS: Record<string, string[]> = {
 };
 
 // Packages with known security issues (simplified for static analysis)
-const KNOWN_VULNERABLE_PACKAGES: Record<string, { severity: SecurityFinding["severity"]; description: string; remediation: string }> = {
+const KNOWN_VULNERABLE_PACKAGES: Record<
+  string,
+  { severity: SecurityFinding["severity"]; description: string; remediation: string }
+> = {
   "event-stream": {
     severity: "critical",
-    description: "Event-stream was compromised in a supply chain attack (flatmap-stream incident). Malicious code was injected to steal cryptocurrency.",
+    description:
+      "Event-stream was compromised in a supply chain attack (flatmap-stream incident). Malicious code was injected to steal cryptocurrency.",
     remediation: "Remove event-stream and use native Node.js streams or a maintained alternative.",
   },
   "ua-parser-js": {
     severity: "high",
-    description: "ua-parser-js was hijacked to include cryptomining and credential-stealing malware in versions 0.7.29, 0.8.0, and 1.0.0.",
-    remediation: "Ensure you are using a version after the compromised releases (>=0.7.30, >=0.8.1, >=1.0.1).",
+    description:
+      "ua-parser-js was hijacked to include cryptomining and credential-stealing malware in versions 0.7.29, 0.8.0, and 1.0.0.",
+    remediation:
+      "Ensure you are using a version after the compromised releases (>=0.7.30, >=0.8.1, >=1.0.1).",
   },
-  "coa": {
+  coa: {
     severity: "high",
-    description: "The coa package was compromised to inject malicious code targeting CI/CD environments.",
+    description:
+      "The coa package was compromised to inject malicious code targeting CI/CD environments.",
     remediation: "Verify you are using a non-compromised version. Pin to a known-safe version.",
   },
-  "rc": {
+  rc: {
     severity: "high",
     description: "The rc package was compromised in a supply chain attack.",
     remediation: "Verify you are using a non-compromised version. Pin to a known-safe version.",
   },
-  "colors": {
+  colors: {
     severity: "medium",
-    description: "The colors package was sabotaged by its maintainer, introducing infinite loops in versions >1.4.0.",
+    description:
+      "The colors package was sabotaged by its maintainer, introducing infinite loops in versions >1.4.0.",
     remediation: "Pin colors to version 1.4.0 or use chalk as an alternative.",
   },
-  "faker": {
+  faker: {
     severity: "medium",
-    description: "The faker package was sabotaged by its maintainer, removing all functionality. Use the community fork @faker-js/faker.",
+    description:
+      "The faker package was sabotaged by its maintainer, removing all functionality. Use the community fork @faker-js/faker.",
     remediation: "Replace faker with @faker-js/faker.",
   },
   "node-ipc": {
     severity: "critical",
-    description: "node-ipc was weaponized to include destructive code targeting specific geolocations (protestware).",
+    description:
+      "node-ipc was weaponized to include destructive code targeting specific geolocations (protestware).",
     remediation: "Remove node-ipc and use an alternative IPC mechanism.",
   },
-  "minimist": {
+  minimist: {
     severity: "medium",
     description: "Minimist has a prototype pollution vulnerability in versions <1.2.6.",
-    remediation: "Update minimist to >=1.2.6 or switch to a maintained alternative like yargs-parser.",
+    remediation:
+      "Update minimist to >=1.2.6 or switch to a maintained alternative like yargs-parser.",
   },
-  "qs": {
+  qs: {
     severity: "medium",
     description: "Older versions of qs are vulnerable to prototype pollution.",
     remediation: "Update qs to the latest version.",
   },
-  "tar": {
+  tar: {
     severity: "high",
-    description: "Older versions of tar have path traversal vulnerabilities that allow arbitrary file writes.",
+    description:
+      "Older versions of tar have path traversal vulnerabilities that allow arbitrary file writes.",
     remediation: "Update tar to >=6.1.9.",
   },
   "glob-parent": {
     severity: "medium",
-    description: "glob-parent versions <5.1.2 are vulnerable to ReDoS (Regular Expression Denial of Service).",
+    description:
+      "glob-parent versions <5.1.2 are vulnerable to ReDoS (Regular Expression Denial of Service).",
     remediation: "Update glob-parent to >=5.1.2.",
   },
   "path-parse": {
@@ -101,11 +114,11 @@ const DEPRECATED_PACKAGES: Record<string, string> = {
   mkdirp: "Use fs.mkdir with { recursive: true } (Node 10+).",
   rimraf: "Use fs.rm with { recursive: true } (Node 14.14+).",
   "left-pad": "Use String.prototype.padStart().",
-  "querystring": "Use URLSearchParams instead.",
-  "nomnom": "Use commander, yargs, or meow instead.",
-  "optimist": "Use yargs or commander instead.",
+  querystring: "Use URLSearchParams instead.",
+  nomnom: "Use commander, yargs, or meow instead.",
+  optimist: "Use yargs or commander instead.",
   "coffee-script": "Use CoffeeScript 2+ or migrate to TypeScript.",
-  "natives": "This package is deprecated and should not be used.",
+  natives: "This package is deprecated and should not be used.",
 };
 
 export function checkDependencies(skill: AgentSkill): SecurityFinding[] {
@@ -162,7 +175,8 @@ export function checkDependencies(skill: AgentSkill): SecurityFinding[] {
         description: `The dependency '${name}' uses '${version}' which will install whatever the latest version is. This is unpredictable and could pull in a compromised version.`,
         file: "package.json",
         evidence: `"${name}": "${version}"`,
-        remediation: "Pin to a specific version or use a version range with upper bound (e.g., ^1.2.3).",
+        remediation:
+          "Pin to a specific version or use a version range with upper bound (e.g., ^1.2.3).",
       });
     }
 
@@ -210,11 +224,7 @@ export function checkDependencies(skill: AgentSkill): SecurityFinding[] {
   return findings;
 }
 
-function checkTyposquatting(
-  name: string,
-  version: string,
-  findings: SecurityFinding[]
-): void {
+function checkTyposquatting(name: string, version: string, findings: SecurityFinding[]): void {
   // Check against known typosquatting variants
   for (const [legitimate, typos] of Object.entries(TYPOSQUAT_TARGETS)) {
     for (const typo of typos) {
@@ -261,10 +271,7 @@ function checkTyposquatting(
   }
 }
 
-function checkCodeImports(
-  skill: AgentSkill,
-  findings: SecurityFinding[]
-): void {
+function checkCodeImports(skill: AgentSkill, findings: SecurityFinding[]): void {
   const declaredDeps = new Set(Object.keys(skill.manifest.dependencies ?? {}));
   const importPattern = /(?:require\s*\(\s*["']|from\s+["']|import\s+["'])([^"'./][^"']*?)["']/g;
 
@@ -310,19 +317,77 @@ function checkCodeImports(
 
 function isNodeBuiltin(name: string): boolean {
   const builtins = new Set([
-    "assert", "buffer", "child_process", "cluster", "console", "constants",
-    "crypto", "dgram", "dns", "domain", "events", "fs", "http", "https",
-    "module", "net", "os", "path", "punycode", "querystring", "readline",
-    "repl", "stream", "string_decoder", "sys", "timers", "tls", "tty",
-    "url", "util", "v8", "vm", "worker_threads", "zlib",
-    "node:assert", "node:buffer", "node:child_process", "node:cluster",
-    "node:console", "node:constants", "node:crypto", "node:dgram",
-    "node:dns", "node:domain", "node:events", "node:fs", "node:http",
-    "node:https", "node:module", "node:net", "node:os", "node:path",
-    "node:punycode", "node:querystring", "node:readline", "node:repl",
-    "node:stream", "node:string_decoder", "node:sys", "node:timers",
-    "node:tls", "node:tty", "node:url", "node:util", "node:v8", "node:vm",
-    "node:worker_threads", "node:zlib", "bun", "bun:test", "bun:ffi",
+    "assert",
+    "buffer",
+    "child_process",
+    "cluster",
+    "console",
+    "constants",
+    "crypto",
+    "dgram",
+    "dns",
+    "domain",
+    "events",
+    "fs",
+    "http",
+    "https",
+    "module",
+    "net",
+    "os",
+    "path",
+    "punycode",
+    "querystring",
+    "readline",
+    "repl",
+    "stream",
+    "string_decoder",
+    "sys",
+    "timers",
+    "tls",
+    "tty",
+    "url",
+    "util",
+    "v8",
+    "vm",
+    "worker_threads",
+    "zlib",
+    "node:assert",
+    "node:buffer",
+    "node:child_process",
+    "node:cluster",
+    "node:console",
+    "node:constants",
+    "node:crypto",
+    "node:dgram",
+    "node:dns",
+    "node:domain",
+    "node:events",
+    "node:fs",
+    "node:http",
+    "node:https",
+    "node:module",
+    "node:net",
+    "node:os",
+    "node:path",
+    "node:punycode",
+    "node:querystring",
+    "node:readline",
+    "node:repl",
+    "node:stream",
+    "node:string_decoder",
+    "node:sys",
+    "node:timers",
+    "node:tls",
+    "node:tty",
+    "node:url",
+    "node:util",
+    "node:v8",
+    "node:vm",
+    "node:worker_threads",
+    "node:zlib",
+    "bun",
+    "bun:test",
+    "bun:ffi",
     "bun:sqlite",
   ]);
   return builtins.has(name);

@@ -7,11 +7,9 @@
  */
 
 import type {
-  AgentPlatform,
   AgentSkill,
   AuditReport,
   AuditSummary,
-  OutputFormat,
   PolicyConfig,
   PolicyViolation,
   QualityMetrics,
@@ -19,19 +17,12 @@ import type {
   SecurityFinding,
   SkillAuditResult,
 } from "@agent-audit/shared";
-import {
-  AUDIT_VERSION,
-  buildAuditScore,
-  compareSeverity,
-  isBlockingSeverity,
-} from "@agent-audit/shared";
+import { buildAuditScore, compareSeverity } from "@agent-audit/shared";
 
 import type { AuditConfig } from "../config";
 import {
   color,
   createSpinner,
-  divider,
-  error,
   formatGrade,
   heading,
   info,
@@ -135,7 +126,7 @@ async function loadPolicy(nameOrPath: string | null): Promise<PolicyConfig | nul
     const policy = await import("@agent-audit/policy");
 
     // Try loading as a preset name first, then as a file path
-    const getFn  = policy.getPreset      ?? policy.default?.getPreset;
+    const getFn = policy.getPreset ?? policy.default?.getPreset;
     const loadFn = policy.loadPolicyFile ?? policy.default?.loadPolicyFile;
 
     if (typeof getFn === "function") {
@@ -232,7 +223,8 @@ function generateRecommendations(
       category: "quality",
       priority: "medium",
       title: "Add automated tests",
-      description: "No test files were detected. Adding tests improves reliability and prevents regressions.",
+      description:
+        "No test files were detected. Adding tests improves reliability and prevents regressions.",
       effort: "medium",
     });
   }
@@ -242,7 +234,8 @@ function generateRecommendations(
       category: "quality",
       priority: "low",
       title: "Add type definitions",
-      description: "No type definitions found. Type checking catches bugs early and improves developer experience.",
+      description:
+        "No type definitions found. Type checking catches bugs early and improves developer experience.",
       effort: "low",
     });
   }
@@ -274,10 +267,7 @@ function generateRecommendations(
 // Report generation
 // ---------------------------------------------------------------------------
 
-async function writeReport(
-  report: AuditReport,
-  config: AuditConfig,
-): Promise<void> {
+async function writeReport(report: AuditReport, config: AuditConfig): Promise<void> {
   try {
     const reporter = await import("@agent-audit/reporter");
 
@@ -287,7 +277,10 @@ async function writeReport(
       const generator = new ReportGenerator();
       const output = await generator.generate(report, config.format);
       if (config.output) {
-        await Bun.write(config.output, typeof output === "string" ? output : JSON.stringify(output, null, 2));
+        await Bun.write(
+          config.output,
+          typeof output === "string" ? output : JSON.stringify(output, null, 2),
+        );
         info(`Report written to ${color.underline(config.output)}`);
       }
       return;
@@ -327,51 +320,56 @@ async function writeReport(
 function printSummary(summary: AuditSummary): void {
   heading("Audit Summary");
 
-  keyValue("Skills scanned",    String(summary.totalSkills));
-  keyValue("Average score",     String(summary.averageScore));
-  keyValue("Certified skills",  color.green(String(summary.certifiedSkills)));
-  keyValue("Blocked skills",    summary.blockedSkills > 0
-    ? color.red(String(summary.blockedSkills))
-    : color.green("0"));
+  keyValue("Skills scanned", String(summary.totalSkills));
+  keyValue("Average score", String(summary.averageScore));
+  keyValue("Certified skills", color.green(String(summary.certifiedSkills)));
+  keyValue(
+    "Blocked skills",
+    summary.blockedSkills > 0 ? color.red(String(summary.blockedSkills)) : color.green("0"),
+  );
 
   console.log();
-  keyValue("Critical findings", summary.criticalFindings > 0
-    ? color.red(String(summary.criticalFindings))
-    : color.dim("0"));
-  keyValue("High findings",     summary.highFindings > 0
-    ? color.red(String(summary.highFindings))
-    : color.dim("0"));
-  keyValue("Medium findings",   summary.mediumFindings > 0
-    ? color.yellow(String(summary.mediumFindings))
-    : color.dim("0"));
-  keyValue("Low findings",      summary.lowFindings > 0
-    ? color.cyan(String(summary.lowFindings))
-    : color.dim("0"));
+  keyValue(
+    "Critical findings",
+    summary.criticalFindings > 0 ? color.red(String(summary.criticalFindings)) : color.dim("0"),
+  );
+  keyValue(
+    "High findings",
+    summary.highFindings > 0 ? color.red(String(summary.highFindings)) : color.dim("0"),
+  );
+  keyValue(
+    "Medium findings",
+    summary.mediumFindings > 0 ? color.yellow(String(summary.mediumFindings)) : color.dim("0"),
+  );
+  keyValue(
+    "Low findings",
+    summary.lowFindings > 0 ? color.cyan(String(summary.lowFindings)) : color.dim("0"),
+  );
 }
 
 function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
   console.log();
   console.log(
     `  ${color.bold(result.skill.name)} ${color.dim(`v${result.skill.version}`)}  ` +
-    formatGrade(result.score.grade, result.score.overall),
+      formatGrade(result.score.grade, result.score.overall),
   );
   console.log(`  ${color.dim(result.skill.path)}`);
 
   // Score breakdown
-  keyValue("  Security",    `${result.score.security}/100`);
-  keyValue("  Quality",     `${result.score.quality}/100`);
+  keyValue("  Security", `${result.score.security}/100`);
+  keyValue("  Quality", `${result.score.quality}/100`);
   keyValue("  Maintenance", `${result.score.maintenance}/100`);
 
   // Findings
   if (result.securityFindings.length > 0) {
     console.log();
-    const sorted = [...result.securityFindings].sort((a, b) => compareSeverity(a.severity, b.severity));
+    const sorted = [...result.securityFindings].sort((a, b) =>
+      compareSeverity(a.severity, b.severity),
+    );
     const toShow = verbose ? sorted : sorted.slice(0, 5);
 
     for (const finding of toShow) {
-      console.log(
-        `    ${severityBadge(finding.severity)} ${finding.title}`,
-      );
+      console.log(`    ${severityBadge(finding.severity)} ${finding.title}`);
       if (verbose && finding.description) {
         console.log(`      ${color.dim(finding.description)}`);
       }
@@ -400,7 +398,9 @@ function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
     console.log();
     console.log(color.dim("    Recommendations:"));
     for (const rec of result.recommendations) {
-      console.log(`    ${color.cyan("\u2192")} ${rec.title} ${color.dim(`[${rec.effort} effort]`)}`);
+      console.log(
+        `    ${color.cyan("\u2192")} ${rec.title} ${color.dim(`[${rec.effort} effort]`)}`,
+      );
     }
   }
 }
@@ -411,9 +411,7 @@ function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
 
 export async function runAudit(config: AuditConfig): Promise<number> {
   // 1. Discover skills
-  const discoverSpinner = createSpinner(
-    `Discovering ${config.platform} skills...`,
-  );
+  const discoverSpinner = createSpinner(`Discovering ${config.platform} skills...`);
   discoverSpinner.start();
 
   const skills = await discoverSkills(config);
@@ -421,7 +419,9 @@ export async function runAudit(config: AuditConfig): Promise<number> {
   if (skills.length === 0) {
     discoverSpinner.fail("No agent skills found");
     console.log();
-    info(`Looked for ${color.bold(config.platform)} skills${config.path ? ` in ${config.path}` : ""}`);
+    info(
+      `Looked for ${color.bold(config.platform)} skills${config.path ? ` in ${config.path}` : ""}`,
+    );
     info("Use --platform to target a different agent platform");
     info("Use --path to specify a custom skill directory");
     console.log();
@@ -487,13 +487,13 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     if (isBlocked) {
       scanSpinner.fail(
         `${skill.name} ${color.dim(`v${skill.version}`)} ` +
-        formatGrade(score.grade, score.overall) +
-        ` ${color.red("BLOCKED")}`,
+          formatGrade(score.grade, score.overall) +
+          ` ${color.red("BLOCKED")}`,
       );
     } else {
       scanSpinner.succeed(
         `${skill.name} ${color.dim(`v${skill.version}`)} ` +
-        formatGrade(score.grade, score.overall),
+          formatGrade(score.grade, score.overall),
       );
     }
 
@@ -511,9 +511,7 @@ export async function runAudit(config: AuditConfig): Promise<number> {
   // 4. Build summary
   const summary: AuditSummary = {
     totalSkills: results.length,
-    averageScore: Math.round(
-      results.reduce((sum, r) => sum + r.score.overall, 0) / results.length,
-    ),
+    averageScore: Math.round(results.reduce((sum, r) => sum + r.score.overall, 0) / results.length),
     criticalFindings: results.reduce(
       (sum, r) => sum + r.securityFindings.filter((f) => f.severity === "critical").length,
       0,
@@ -572,7 +570,7 @@ export async function runAudit(config: AuditConfig): Promise<number> {
   if (blockedCount > 0) {
     console.log(
       color.bgRed(color.bold(` FAIL `)) +
-      ` ${blockedCount} skill${blockedCount === 1 ? "" : "s"} blocked by policy`,
+        ` ${blockedCount} skill${blockedCount === 1 ? "" : "s"} blocked by policy`,
     );
     console.log();
     return 1;
@@ -581,10 +579,10 @@ export async function runAudit(config: AuditConfig): Promise<number> {
   if (summary.criticalFindings > 0 || summary.highFindings > 0) {
     console.log(
       color.yellow(color.bold(` WARN `)) +
-      ` ${summary.criticalFindings + summary.highFindings} high/critical finding(s) detected`,
+        ` ${summary.criticalFindings + summary.highFindings} high/critical finding(s) detected`,
     );
   } else {
-    console.log(color.bgGreen(color.bold(` PASS `)) + " All skills passed audit");
+    console.log(`${color.bgGreen(color.bold(` PASS `))} All skills passed audit`);
   }
   console.log();
 

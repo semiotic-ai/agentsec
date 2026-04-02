@@ -8,7 +8,7 @@ const BRANCH_WEIGHTS: Record<string, number> = {
   if: 1,
   else: 1,
   "else if": 1,
-  elif: 1,        // Python
+  elif: 1, // Python
   switch: 1,
   case: 0.5,
   for: 2,

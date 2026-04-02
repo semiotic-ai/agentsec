@@ -24,7 +24,7 @@ export interface DocumentationResult {
 /** Weight each component contributes to the final score */
 const WEIGHTS = {
   readme: 0.35,
-  comments: 0.30,
+  comments: 0.3,
   docstrings: 0.35,
 };
 
@@ -36,9 +36,14 @@ const README_EXCELLENT_LENGTH = 1000;
 /**
  * Score README quality based on presence, length, and content signals.
  */
-function scoreReadme(files: SkillFile[]): { hasReadme: boolean; readmeLength: number; score: number } {
+function scoreReadme(files: SkillFile[]): {
+  hasReadme: boolean;
+  readmeLength: number;
+  score: number;
+} {
   const readme = files.find(
-    (f) => f.relativePath.toLowerCase() === "readme.md" || f.relativePath.toLowerCase() === "readme"
+    (f) =>
+      f.relativePath.toLowerCase() === "readme.md" || f.relativePath.toLowerCase() === "readme",
   );
 
   if (!readme) {
@@ -137,12 +142,12 @@ function analyzeComments(files: SkillFile[]): { ratio: number; score: number } {
   // Ideal comment ratio is 10-25%. Too low = undocumented, too high = excessive.
   let score: number;
   if (ratio < 0.03) {
-    score = ratio / 0.03 * 0.3; // Very few comments
-  } else if (ratio < 0.10) {
+    score = (ratio / 0.03) * 0.3; // Very few comments
+  } else if (ratio < 0.1) {
     score = 0.3 + ((ratio - 0.03) / 0.07) * 0.4; // Building up
   } else if (ratio <= 0.25) {
-    score = 0.7 + ((ratio - 0.10) / 0.15) * 0.3; // Sweet spot
-  } else if (ratio <= 0.40) {
+    score = 0.7 + ((ratio - 0.1) / 0.15) * 0.3; // Sweet spot
+  } else if (ratio <= 0.4) {
     score = 1.0 - ((ratio - 0.25) / 0.15) * 0.2; // Slightly too many
   } else {
     score = 0.6; // Excessive comments, might indicate commented-out code
@@ -183,13 +188,13 @@ function analyzeDocstrings(files: SkillFile[]): {
 
       // Count functions/methods/classes
       const funcMatches = content.match(
-        /\b(?:function|class|const\s+\w+\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_]\w*)\s*=>|(?:async\s+)?(?:get|set|static)?\s*(?:[a-zA-Z_]\w*)\s*\([^)]*\)\s*[:{])/g
+        /\b(?:function|class|const\s+\w+\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_]\w*)\s*=>|(?:async\s+)?(?:get|set|static)?\s*(?:[a-zA-Z_]\w*)\s*\([^)]*\)\s*[:{])/g,
       );
       functionCount += funcMatches?.length ?? 0;
     } else if (lang === "python" || lang === "py") {
       // Count Python docstrings (triple-quoted strings after def/class)
       const docstringMatches = content.match(
-        /(?:def|class)\s+\w+[^:]*:\s*\n\s*(?:"""[\s\S]*?"""|'''[\s\S]*?''')/g
+        /(?:def|class)\s+\w+[^:]*:\s*\n\s*(?:"""[\s\S]*?"""|'''[\s\S]*?''')/g,
       );
       docstringCount += docstringMatches?.length ?? 0;
 
@@ -218,7 +223,7 @@ function analyzeDocstrings(files: SkillFile[]): {
   } else if (coverage >= 0.2) {
     score = 0.3 + ((coverage - 0.2) / 0.3) * 0.3;
   } else {
-    score = coverage / 0.2 * 0.3;
+    score = (coverage / 0.2) * 0.3;
   }
 
   return {

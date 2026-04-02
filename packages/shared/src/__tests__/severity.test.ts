@@ -1,9 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  severityWeight,
-  compareSeverity,
-  isBlockingSeverity,
-} from "../severity";
+import { compareSeverity, isBlockingSeverity, severityWeight } from "../severity";
 import type { Severity } from "../types";
 
 // ---------------------------------------------------------------------------

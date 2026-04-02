@@ -5,8 +5,8 @@
  * and parent directories, then merges with CLI flags.
  */
 
-import { resolve, join } from "path";
-import type { AgentPlatform, OutputFormat, PolicyConfig } from "@agent-audit/shared";
+import { join, resolve } from "node:path";
+import type { AgentPlatform, OutputFormat } from "@agent-audit/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,11 +46,7 @@ export interface AuditConfig {
 // Config file search
 // ---------------------------------------------------------------------------
 
-const CONFIG_FILENAMES = [
-  ".agentauditrc",
-  ".agentauditrc.json",
-  "agent-audit.config.json",
-];
+const CONFIG_FILENAMES = [".agentauditrc", ".agentauditrc.json", "agent-audit.config.json"];
 
 async function findConfigFile(startDir: string): Promise<string | null> {
   let dir = resolve(startDir);
@@ -72,7 +68,9 @@ async function findConfigFile(startDir: string): Promise<string | null> {
   return null;
 }
 
-export async function loadConfigFile(startDir: string = process.cwd()): Promise<Partial<AuditConfig>> {
+export async function loadConfigFile(
+  startDir: string = process.cwd(),
+): Promise<Partial<AuditConfig>> {
   const configPath = await findConfigFile(startDir);
   if (!configPath) return {};
 
@@ -184,11 +182,11 @@ export async function resolveConfig(flags: CliFlags): Promise<AuditConfig> {
   const fileConfig = await loadConfigFile();
 
   return {
-    format:  flags.format  !== "text"    ? flags.format  : (fileConfig.format   ?? "text"),
-    output:  flags.output                ?? fileConfig.output  ?? null,
-    policy:  flags.policy                ?? fileConfig.policy  ?? null,
+    format: flags.format !== "text" ? flags.format : (fileConfig.format ?? "text"),
+    output: flags.output ?? fileConfig.output ?? null,
+    policy: flags.policy ?? fileConfig.policy ?? null,
     platform: flags.platform !== "openclaw" ? flags.platform : (fileConfig.platform ?? "openclaw"),
-    path:    flags.path                  ?? fileConfig.path    ?? null,
-    verbose: flags.verbose               || fileConfig.verbose || false,
+    path: flags.path ?? fileConfig.path ?? null,
+    verbose: flags.verbose || fileConfig.verbose || false,
   };
 }

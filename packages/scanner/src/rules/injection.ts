@@ -95,7 +95,8 @@ const TEMPLATE_INJECTION_PATTERNS: PatternDef[] = [
 
 const PROMPT_INJECTION_PATTERNS: PatternDef[] = [
   {
-    pattern: /(?:prompt|system_prompt|system_message|instruction)\s*[=+]\s*.*?\b(?:user|input|query|request|message|data)\b/gi,
+    pattern:
+      /(?:prompt|system_prompt|system_message|instruction)\s*[=+]\s*.*?\b(?:user|input|query|request|message|data)\b/gi,
     id: "INJ-020",
     title: "User input concatenated into prompt",
     description:
@@ -115,7 +116,8 @@ const PROMPT_INJECTION_PATTERNS: PatternDef[] = [
       "Use structured message arrays with separate system/user roles. Never concatenate user data into the system prompt.",
   },
   {
-    pattern: /(?:messages|conversation)\s*\.\s*(?:push|unshift|splice)\s*\([^)]*role\s*:\s*["']system["']/g,
+    pattern:
+      /(?:messages|conversation)\s*\.\s*(?:push|unshift|splice)\s*\([^)]*role\s*:\s*["']system["']/g,
     id: "INJ-022",
     title: "Dynamic system message injection",
     description:
@@ -252,11 +254,28 @@ function isInString(content: string, index: number): boolean {
 }
 
 const SCANNABLE_EXTENSIONS = new Set([
-  "ts", "tsx", "js", "jsx", "mjs", "cjs",
-  "py", "rb", "go", "rs", "java", "kt",
-  "sh", "bash", "zsh", "fish",
-  "yaml", "yml", "json", "toml",
-  "md", "mdx",
+  "ts",
+  "tsx",
+  "js",
+  "jsx",
+  "mjs",
+  "cjs",
+  "py",
+  "rb",
+  "go",
+  "rs",
+  "java",
+  "kt",
+  "sh",
+  "bash",
+  "zsh",
+  "fish",
+  "yaml",
+  "yml",
+  "json",
+  "toml",
+  "md",
+  "mdx",
 ]);
 
 function shouldScanFile(file: SkillFile): boolean {
@@ -307,14 +326,15 @@ export function checkInjection(skill: AgentSkill): SecurityFinding[] {
 function checkDataFlowPatterns(
   file: SkillFile,
   findings: SecurityFinding[],
-  _counter: number
+  _counter: number,
 ): void {
   const lines = file.content.split("\n");
   let findingCount = _counter;
 
   // Track variables assigned from user input
   const taintedVars = new Set<string>();
-  const inputPatterns = /(?:const|let|var)\s+(\w+)\s*=\s*(?:req\.(?:body|query|params|headers)|process\.env|input|args|argv|userInput|request\.|ctx\.(?:body|query|params))/;
+  const inputPatterns =
+    /(?:const|let|var)\s+(\w+)\s*=\s*(?:req\.(?:body|query|params|headers)|process\.env|input|args|argv|userInput|request\.|ctx\.(?:body|query|params))/;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];

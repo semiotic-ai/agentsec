@@ -8,7 +8,12 @@
 import type { SkillManifest } from "@agent-audit/shared";
 
 /** Manifest source format as detected from filename. */
-export type ManifestFormat = "skill-json" | "skill-yaml" | "skill-md" | "package-json" | "manifest-json";
+export type ManifestFormat =
+  | "skill-json"
+  | "skill-yaml"
+  | "skill-md"
+  | "package-json"
+  | "manifest-json";
 
 /** Map from file extension (without dot) to language name. */
 const EXTENSION_LANGUAGE_MAP: Record<string, string> = {
@@ -139,8 +144,17 @@ function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
     entrypoint: asOptionalString(raw.entrypoint ?? raw.main ?? raw.entry),
     hooks: asStringRecord(raw.hooks),
     ...extractExtras(raw, [
-      "name", "version", "description", "author", "license",
-      "permissions", "dependencies", "entrypoint", "main", "entry", "hooks",
+      "name",
+      "version",
+      "description",
+      "author",
+      "license",
+      "permissions",
+      "dependencies",
+      "entrypoint",
+      "main",
+      "entry",
+      "hooks",
     ]),
   };
 }
@@ -160,8 +174,16 @@ function normalizeFromPackageJson(raw: Record<string, unknown>): SkillManifest {
     entrypoint: asOptionalString(skillMeta.entrypoint ?? skillMeta.main ?? raw.main),
     hooks: asStringRecord(skillMeta.hooks),
     ...extractExtras(skillMeta, [
-      "name", "version", "description", "author", "license",
-      "permissions", "dependencies", "entrypoint", "main", "hooks",
+      "name",
+      "version",
+      "description",
+      "author",
+      "license",
+      "permissions",
+      "dependencies",
+      "entrypoint",
+      "main",
+      "hooks",
     ]),
   };
 }
@@ -201,10 +223,7 @@ function asStringRecord(value: unknown): Record<string, string> | undefined {
  * Extract any extra keys from the raw object that aren't in the known set.
  * These get passed through as additional manifest properties.
  */
-function extractExtras(
-  raw: Record<string, unknown>,
-  knownKeys: string[],
-): Record<string, unknown> {
+function extractExtras(raw: Record<string, unknown>, knownKeys: string[]): Record<string, unknown> {
   const extras: Record<string, unknown> = {};
   const known = new Set(knownKeys);
   for (const [key, value] of Object.entries(raw)) {

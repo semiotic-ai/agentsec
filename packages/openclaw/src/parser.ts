@@ -58,7 +58,7 @@ export class SkillParser {
     if (!skill) {
       throw new Error(
         `No valid skill manifest found in ${skillDir}. ` +
-        `Expected one of: skill.json, skill.yaml, skill.yml, SKILL.md, package.json, manifest.json`,
+          `Expected one of: skill.json, skill.yaml, skill.yml, SKILL.md, package.json, manifest.json`,
       );
     }
     return skill;

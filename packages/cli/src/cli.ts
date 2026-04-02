@@ -18,12 +18,12 @@
  */
 
 import { AUDIT_VERSION } from "@agent-audit/shared";
-import { parseFlags, resolveConfig } from "./config";
-import { printBanner, color, error, info } from "./ui";
 import { runAudit } from "./commands/audit";
-import { runScan } from "./commands/scan";
-import { runReport } from "./commands/report";
 import { runPolicy } from "./commands/policy";
+import { runReport } from "./commands/report";
+import { runScan } from "./commands/scan";
+import { parseFlags, resolveConfig } from "./config";
+import { color, error, info, printBanner } from "./ui";
 
 // ---------------------------------------------------------------------------
 // Help text
@@ -46,10 +46,14 @@ function printHelp(): void {
   console.log();
 
   console.log(color.bold("OPTIONS"));
-  console.log(`  ${color.cyan("-f, --format")}     Output format: text, json, sarif, html ${color.dim("(default: text)")}`);
+  console.log(
+    `  ${color.cyan("-f, --format")}     Output format: text, json, sarif, html ${color.dim("(default: text)")}`,
+  );
   console.log(`  ${color.cyan("-o, --output")}     Write report to file`);
   console.log(`  ${color.cyan("-p, --policy")}     Policy preset name or path to config file`);
-  console.log(`  ${color.cyan("    --platform")}   Agent platform: openclaw, claude, codex ${color.dim("(default: openclaw)")}`);
+  console.log(
+    `  ${color.cyan("    --platform")}   Agent platform: openclaw, claude, codex ${color.dim("(default: openclaw)")}`,
+  );
   console.log(`  ${color.cyan("    --path")}       Custom skill directory to scan`);
   console.log(`  ${color.cyan("-v, --verbose")}    Show detailed output`);
   console.log(`  ${color.cyan("    --no-color")}   Disable colored output`);

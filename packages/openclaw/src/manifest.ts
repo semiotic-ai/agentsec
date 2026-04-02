@@ -12,9 +12,9 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { SkillManifest } from "@agent-audit/shared";
 import {
-  type ManifestFormat,
-  MANIFEST_FILENAMES,
   detectManifestFormat,
+  MANIFEST_FILENAMES,
+  type ManifestFormat,
   normalizeManifest,
 } from "./formats";
 
@@ -34,9 +34,7 @@ export interface ManifestResult {
  * one that exists and parses successfully. Returns null if no manifest
  * is found or all candidates fail to parse.
  */
-export async function findAndParseManifest(
-  skillDir: string,
-): Promise<ManifestResult | null> {
+export async function findAndParseManifest(skillDir: string): Promise<ManifestResult | null> {
   for (const filename of MANIFEST_FILENAMES) {
     const filePath = join(skillDir, filename);
     try {
@@ -52,10 +50,7 @@ export async function findAndParseManifest(
 
       const manifest = normalizeManifest(raw, format);
       return { manifest, format, filename, raw };
-    } catch {
-      // File doesn't exist or can't be read -- try the next candidate.
-      continue;
-    }
+    } catch {}
   }
   return null;
 }
@@ -148,7 +143,12 @@ function parseYaml(content: string): Record<string, unknown> | null {
         if (!currentArray) {
           currentArray = [];
         }
-        currentArray.push(trimmed.slice(2).trim().replace(/^["']|["']$/g, ""));
+        currentArray.push(
+          trimmed
+            .slice(2)
+            .trim()
+            .replace(/^["']|["']$/g, ""),
+        );
         continue;
       }
 
@@ -163,7 +163,10 @@ function parseYaml(content: string): Record<string, unknown> | null {
         }
         const colonIdx = trimmed.indexOf(":");
         const nestedKey = trimmed.slice(0, colonIdx).trim();
-        const nestedValue = trimmed.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, "");
+        const nestedValue = trimmed
+          .slice(colonIdx + 1)
+          .trim()
+          .replace(/^["']|["']$/g, "");
         currentObject[nestedKey] = nestedValue;
         continue;
       }

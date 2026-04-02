@@ -35,8 +35,7 @@ const XSS_PATTERNS: OutputPattern[] = [
     description:
       "outerHTML replacement with dynamic content is an XSS vector similar to innerHTML.",
     severity: "high",
-    remediation:
-      "Avoid outerHTML assignment with dynamic data. Use safe DOM APIs.",
+    remediation: "Avoid outerHTML assignment with dynamic data. Use safe DOM APIs.",
   },
   {
     pattern: /\.insertAdjacentHTML\s*\(/g,
@@ -52,11 +51,9 @@ const XSS_PATTERNS: OutputPattern[] = [
     pattern: /document\.write\s*\(|document\.writeln\s*\(/g,
     id: "OUT-004",
     title: "document.write/writeln detected",
-    description:
-      "document.write injects raw HTML into the page and is a classic XSS vector.",
+    description: "document.write injects raw HTML into the page and is a classic XSS vector.",
     severity: "high",
-    remediation:
-      "Replace document.write with DOM manipulation methods.",
+    remediation: "Replace document.write with DOM manipulation methods.",
   },
   {
     pattern: /dangerouslySetInnerHTML\s*=\s*\{/g,
@@ -102,7 +99,8 @@ const XSS_PATTERNS: OutputPattern[] = [
 
 const PATH_TRAVERSAL_PATTERNS: OutputPattern[] = [
   {
-    pattern: /(?:writeFile|writeFileSync|createWriteStream|appendFile|appendFileSync)\s*\(\s*(?:`[^`]*\$\{|[^,)]*\+)/g,
+    pattern:
+      /(?:writeFile|writeFileSync|createWriteStream|appendFile|appendFileSync)\s*\(\s*(?:`[^`]*\$\{|[^,)]*\+)/g,
     id: "OUT-020",
     title: "Dynamic file path in write operation",
     description:
@@ -122,7 +120,8 @@ const PATH_TRAVERSAL_PATTERNS: OutputPattern[] = [
       "After path.join, use path.resolve() and verify the result starts with the intended base directory. Use path.normalize() and reject '..' sequences.",
   },
   {
-    pattern: /(?:Content-Disposition|filename)\s*[=:]\s*(?:`[^`]*\$\{|[^;,\n]*\+\s*(?:user|input|query|req|data|param|arg|body|name)\b)/gi,
+    pattern:
+      /(?:Content-Disposition|filename)\s*[=:]\s*(?:`[^`]*\$\{|[^;,\n]*\+\s*(?:user|input|query|req|data|param|arg|body|name)\b)/gi,
     id: "OUT-022",
     title: "User input in Content-Disposition filename",
     description:
@@ -135,7 +134,8 @@ const PATH_TRAVERSAL_PATTERNS: OutputPattern[] = [
 
 const RESPONSE_INJECTION_PATTERNS: OutputPattern[] = [
   {
-    pattern: /res\.(?:send|json|write|end)\s*\(\s*(?:user|input|query|req|data|param|arg|body|err|error)\b/gi,
+    pattern:
+      /res\.(?:send|json|write|end)\s*\(\s*(?:user|input|query|req|data|param|arg|body|err|error)\b/gi,
     id: "OUT-030",
     title: "Unsanitized data in HTTP response",
     description:
@@ -145,7 +145,8 @@ const RESPONSE_INJECTION_PATTERNS: OutputPattern[] = [
       "Sanitize all response data. Remove internal error details, stack traces, and system information before sending responses.",
   },
   {
-    pattern: /res\.setHeader\s*\(\s*(?:`[^`]*\$\{|[^,)]*\+\s*(?:user|input|query|req|data|param)\b)/gi,
+    pattern:
+      /res\.setHeader\s*\(\s*(?:`[^`]*\$\{|[^,)]*\+\s*(?:user|input|query|req|data|param)\b)/gi,
     id: "OUT-031",
     title: "User input in HTTP response headers",
     description:
@@ -174,8 +175,7 @@ const TEMPLATE_OUTPUT_PATTERNS: OutputPattern[] = [
     description:
       "EJS templates using <%- %> output raw HTML without escaping. If the data contains user input or agent output, this is an XSS vulnerability.",
     severity: "high",
-    remediation:
-      "Use <%= %> (with escaping) instead of <%- %> for all user-controlled data.",
+    remediation: "Use <%= %> (with escaping) instead of <%- %> for all user-controlled data.",
   },
   {
     pattern: /\|\s*safe\b|\{\{.*?\|safe\s*\}\}/g,
@@ -194,8 +194,7 @@ const TEMPLATE_OUTPUT_PATTERNS: OutputPattern[] = [
     description:
       "Blade's {!! !!} syntax outputs raw HTML without escaping. Use {{ }} for auto-escaping.",
     severity: "high",
-    remediation:
-      "Use {{ }} instead of {!! !!} for all user-controlled data.",
+    remediation: "Use {{ }} instead of {!! !!} for all user-controlled data.",
   },
 ];
 
@@ -263,8 +262,7 @@ function checkCSPHeaders(file: SkillFile, findings: SecurityFinding[]): void {
       severity: "medium",
       category: "insecure-output",
       title: "Unsafe Content-Security-Policy directive",
-      description:
-        "'unsafe-inline' or 'unsafe-eval' in CSP weakens XSS protection significantly.",
+      description: "'unsafe-inline' or 'unsafe-eval' in CSP weakens XSS protection significantly.",
       file: file.relativePath,
       line: getLineNumber(file.content, match.index),
       evidence: getEvidenceLine(file.content, match.index),
@@ -303,10 +301,25 @@ function checkContentTypeHandling(file: SkillFile, findings: SecurityFinding[]):
 
 function isScannableFile(ext: string): boolean {
   return [
-    "ts", "tsx", "js", "jsx", "mjs", "cjs",
-    "py", "rb", "go", "rs", "java", "kt",
-    "html", "htm", "ejs", "pug", "hbs",
-    "vue", "svelte",
+    "ts",
+    "tsx",
+    "js",
+    "jsx",
+    "mjs",
+    "cjs",
+    "py",
+    "rb",
+    "go",
+    "rs",
+    "java",
+    "kt",
+    "html",
+    "htm",
+    "ejs",
+    "pug",
+    "hbs",
+    "vue",
+    "svelte",
   ].includes(ext);
 }
 

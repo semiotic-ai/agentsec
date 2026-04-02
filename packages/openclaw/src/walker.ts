@@ -4,9 +4,9 @@
  */
 
 import { readdir, readFile, stat } from "node:fs/promises";
-import { join, relative, basename } from "node:path";
+import { join, relative } from "node:path";
 import type { SkillFile } from "@agent-audit/shared";
-import { detectLanguage, SKIP_PATTERNS, MAX_FILE_SIZE } from "./formats";
+import { detectLanguage, MAX_FILE_SIZE, SKIP_PATTERNS } from "./formats";
 
 /**
  * Parsed .gitignore rules. Each rule has a pattern and whether it's negated.
@@ -79,10 +79,7 @@ async function walkDirectory(
  * Read a single file and return a SkillFile object.
  * Returns null if the file is too large, binary, or unreadable.
  */
-async function readSkillFile(
-  filePath: string,
-  rootDir: string,
-): Promise<SkillFile | null> {
+async function readSkillFile(filePath: string, rootDir: string): Promise<SkillFile | null> {
   try {
     const fileStat = await stat(filePath);
 
@@ -178,11 +175,7 @@ function parseGitignore(content: string): IgnoreRule[] {
  *
  * Uses simplified gitignore matching: glob patterns with * and ** support.
  */
-function isIgnored(
-  relPath: string,
-  isDirectory: boolean,
-  rules: IgnoreRule[],
-): boolean {
+function isIgnored(relPath: string, isDirectory: boolean, rules: IgnoreRule[]): boolean {
   let ignored = false;
 
   for (const rule of rules) {

@@ -28,17 +28,18 @@ const SENSITIVE_LOG_PATTERNS: LogPattern[] = [
       "Remove password data from log statements. Use a logging library with field redaction.",
   },
   {
-    pattern: /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:secret|secret[_-]?key|client[_-]?secret)\b/gi,
+    pattern:
+      /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:secret|secret[_-]?key|client[_-]?secret)\b/gi,
     id: "LOG-002",
     title: "Secret/key logged to console",
     description:
       "Secret or key material is included in console output. Secrets in logs can be harvested from log aggregation systems.",
     severity: "high",
-    remediation:
-      "Remove secrets from log statements. Redact sensitive fields before logging.",
+    remediation: "Remove secrets from log statements. Redact sensitive fields before logging.",
   },
   {
-    pattern: /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:token|auth[_-]?token|access[_-]?token|bearer)\b/gi,
+    pattern:
+      /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:token|auth[_-]?token|access[_-]?token|bearer)\b/gi,
     id: "LOG-003",
     title: "Authentication token logged",
     description:
@@ -48,7 +49,8 @@ const SENSITIVE_LOG_PATTERNS: LogPattern[] = [
       "Never log authentication tokens. If correlation is needed, log a hash or truncated version.",
   },
   {
-    pattern: /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:api[_-]?key|apikey|api_secret)\b/gi,
+    pattern:
+      /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:api[_-]?key|apikey|api_secret)\b/gi,
     id: "LOG-004",
     title: "API key logged to console",
     description:
@@ -58,7 +60,8 @@ const SENSITIVE_LOG_PATTERNS: LogPattern[] = [
       "Remove API keys from logs. If needed for debugging, log only the last 4 characters.",
   },
   {
-    pattern: /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:credit[_-]?card|card[_-]?number|cvv|ssn|social[_-]?security)\b/gi,
+    pattern:
+      /console\s*\.\s*(?:log|info|debug|warn|error)\s*\([^)]*(?:credit[_-]?card|card[_-]?number|cvv|ssn|social[_-]?security)\b/gi,
     id: "LOG-005",
     title: "PII/financial data logged",
     description:
@@ -68,7 +71,8 @@ const SENSITIVE_LOG_PATTERNS: LogPattern[] = [
       "Never log PII or financial data. Use data masking and comply with relevant data protection regulations.",
   },
   {
-    pattern: /(?:logger|log|logging)\s*\.\s*(?:info|debug|log|trace)\s*\([^)]*(?:password|secret|token|key|credential|api[_-]?key)\b/gi,
+    pattern:
+      /(?:logger|log|logging)\s*\.\s*(?:info|debug|log|trace)\s*\([^)]*(?:password|secret|token|key|credential|api[_-]?key)\b/gi,
     id: "LOG-006",
     title: "Sensitive data in structured logging",
     description:
@@ -91,7 +95,8 @@ const DEBUG_LOG_PATTERNS: LogPattern[] = [
       "Remove debug logging before production deployment. Use a logging library with configurable log levels.",
   },
   {
-    pattern: /console\s*\.\s*log\s*\(\s*(?:JSON\.stringify\s*\(\s*(?:req|request|res|response|body|headers)\b)/gi,
+    pattern:
+      /console\s*\.\s*log\s*\(\s*(?:JSON\.stringify\s*\(\s*(?:req|request|res|response|body|headers)\b)/gi,
     id: "LOG-011",
     title: "Full request/response object logged",
     description:
@@ -117,7 +122,9 @@ export function checkInsufficientLogging(skill: AgentSkill): SecurityFinding[] {
     totalCodeFiles++;
 
     // Track logging usage
-    if (/console\s*\.\s*(?:log|warn|error|info|debug)\b|logger\s*\.|logging\s*\./i.test(file.content)) {
+    if (
+      /console\s*\.\s*(?:log|warn|error|info|debug)\b|logger\s*\.|logging\s*\./i.test(file.content)
+    ) {
       hasAnyLogging = true;
     }
     if (/console\s*\.\s*error|logger\s*\.\s*error|logging\s*\.\s*error/i.test(file.content)) {
@@ -204,9 +211,14 @@ export function checkInsufficientLogging(skill: AgentSkill): SecurityFinding[] {
 
 function checkSecurityEventLogging(file: SkillFile, findings: SecurityFinding[]): void {
   // Check if the file has authentication but no auth logging
-  const hasAuth = /(?:authenticate|login|signin|authorize|verifyToken|checkAuth)\b/i.test(file.content);
+  const hasAuth = /(?:authenticate|login|signin|authorize|verifyToken|checkAuth)\b/i.test(
+    file.content,
+  );
   if (hasAuth) {
-    const hasAuthLogging = /(?:console|logger|log)\s*\.\s*\w+\s*\([^)]*(?:auth|login|access|denied|unauthorized|forbidden)/i.test(file.content);
+    const hasAuthLogging =
+      /(?:console|logger|log)\s*\.\s*\w+\s*\([^)]*(?:auth|login|access|denied|unauthorized|forbidden)/i.test(
+        file.content,
+      );
     if (!hasAuthLogging) {
       findings.push({
         id: `LOG-AUTH-${file.relativePath}`,
@@ -224,9 +236,14 @@ function checkSecurityEventLogging(file: SkillFile, findings: SecurityFinding[])
   }
 
   // Check if the file has authorization checks but no audit logging
-  const hasAuthz = /(?:isAdmin|isAuthorized|hasPermission|checkRole|canAccess|rbac)\b/i.test(file.content);
+  const hasAuthz = /(?:isAdmin|isAuthorized|hasPermission|checkRole|canAccess|rbac)\b/i.test(
+    file.content,
+  );
   if (hasAuthz) {
-    const hasAuthzLogging = /(?:console|logger|log)\s*\.\s*\w+\s*\([^)]*(?:permission|role|access|denied|forbidden|authorized)/i.test(file.content);
+    const hasAuthzLogging =
+      /(?:console|logger|log)\s*\.\s*\w+\s*\([^)]*(?:permission|role|access|denied|forbidden|authorized)/i.test(
+        file.content,
+      );
     if (!hasAuthzLogging) {
       findings.push({
         id: `LOG-AUTHZ-${file.relativePath}`,
@@ -246,17 +263,13 @@ function checkSecurityEventLogging(file: SkillFile, findings: SecurityFinding[])
 
 function redactLogEvidence(evidence: string): string {
   // Redact any actual credential values that might appear in the evidence
-  return evidence.replace(
-    /(["'])[a-zA-Z0-9_\-/+=]{20,}(\1)/g,
-    "$1[REDACTED]$2"
-  );
+  return evidence.replace(/(["'])[a-zA-Z0-9_\-/+=]{20,}(\1)/g, "$1[REDACTED]$2");
 }
 
 function isCodeFile(ext: string): boolean {
-  return [
-    "ts", "tsx", "js", "jsx", "mjs", "cjs",
-    "py", "rb", "go", "rs", "java", "kt",
-  ].includes(ext);
+  return ["ts", "tsx", "js", "jsx", "mjs", "cjs", "py", "rb", "go", "rs", "java", "kt"].includes(
+    ext,
+  );
 }
 
 function getLineNumber(content: string, index: number): number {

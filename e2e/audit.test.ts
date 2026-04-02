@@ -7,17 +7,9 @@
  *   3. Verify that well-behaved skills pass and flawed skills are flagged
  */
 
-import { describe, test, expect, beforeAll, afterAll } from "bun:test";
+import { beforeAll, describe, expect, test } from "bun:test";
 import { $ } from "bun";
-import {
-  CONFIG,
-  ensureLumeService,
-  ensureVm,
-  waitForSsh,
-  sshExec,
-  stopVm,
-  getVm,
-} from "./setup";
+import { CONFIG, ensureLumeService, ensureVm, getVm, sshExec, waitForSsh } from "./setup";
 
 // ---------------------------------------------------------------------------
 // Types for audit results
@@ -72,11 +64,14 @@ const FIXTURE_SKILLS = [
  */
 async function runAuditOnVm(): Promise<AuditReport> {
   // Execute agent-audit inside the VM against ~/test-skills
-  const output = await sshExec(`bash -c '
+  const output = await sshExec(
+    `bash -c '
     export PATH="$HOME/.bun/bin:/opt/homebrew/bin:$PATH"
     cd ~/test-skills
     agent-audit scan --format json --dir . 2>/dev/null || echo "{}"
-  '`, 120);
+  '`,
+    120,
+  );
 
   try {
     return JSON.parse(output) as AuditReport;
@@ -94,8 +89,8 @@ async function runAuditOnVm(): Promise<AuditReport> {
  */
 async function runAuditLocally(): Promise<AuditReport> {
   try {
-    const result = await $`bun run --filter @agent-audit/cli -- audit scan --format json --dir ${CONFIG.fixturesDir}`
-      .text();
+    const result =
+      await $`bun run --filter @agent-audit/cli -- audit scan --format json --dir ${CONFIG.fixturesDir}`.text();
     return JSON.parse(result) as AuditReport;
   } catch {
     // Return a minimal structure so tests can still assert on shape
@@ -117,18 +112,13 @@ async function runAuditLocally(): Promise<AuditReport> {
  * Get the audit result for a specific skill.
  */
 function getSkillResult(report: AuditReport, skillName: string): SkillAuditResult | undefined {
-  return report.skills.find(
-    (s) => s.skill === skillName || s.skill.includes(skillName),
-  );
+  return report.skills.find((s) => s.skill === skillName || s.skill.includes(skillName));
 }
 
 /**
  * Check that a skill has at least one finding matching the given rule pattern.
  */
-function hasFindings(
-  result: SkillAuditResult | undefined,
-  rulePattern: string | RegExp,
-): boolean {
+function hasFindings(result: SkillAuditResult | undefined, rulePattern: string | RegExp): boolean {
   if (!result) return false;
   const pattern = typeof rulePattern === "string" ? new RegExp(rulePattern, "i") : rulePattern;
   return result.findings.some((f) => pattern.test(f.ruleId) || pattern.test(f.message));
@@ -279,8 +269,7 @@ describe("agent-audit e2e", () => {
         console.log("[test] No skills scanned. Skipping.");
         return;
       }
-      const totalCritical =
-        report.summary.findings.critical + report.summary.findings.high;
+      const totalCritical = report.summary.findings.critical + report.summary.findings.high;
       expect(totalCritical).toBeGreaterThan(0);
     });
   });
@@ -318,8 +307,8 @@ describe("agent-audit e2e", () => {
         return;
       }
       // Findings should mention specific over-broad permissions
-      const permFindings = result.findings.filter(
-        (f) => /permission|scope|access|privilege/i.test(f.message),
+      const permFindings = result.findings.filter((f) =>
+        /permission|scope|access|privilege/i.test(f.message),
       );
       expect(permFindings.length).toBeGreaterThan(0);
     });
@@ -330,8 +319,8 @@ describe("agent-audit e2e", () => {
         console.log("[test] No dep findings to inspect. Skipping.");
         return;
       }
-      const depFindings = result.findings.filter(
-        (f) => /cve|vulnerab|package|version/i.test(f.message),
+      const depFindings = result.findings.filter((f) =>
+        /cve|vulnerab|package|version/i.test(f.message),
       );
       expect(depFindings.length).toBeGreaterThan(0);
     });

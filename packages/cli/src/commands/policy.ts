@@ -8,20 +8,10 @@
  *   agent-audit policy validate <file>  Validate a custom policy config
  */
 
-import type { PolicyConfig, PolicyRule } from "@agent-audit/shared";
+import type { PolicyConfig } from "@agent-audit/shared";
 
 import type { AuditConfig } from "../config";
-import {
-  color,
-  divider,
-  error,
-  heading,
-  info,
-  keyValue,
-  severityBadge,
-  success,
-  warn,
-} from "../ui";
+import { color, error, heading, info, severityBadge, success } from "../ui";
 
 // ---------------------------------------------------------------------------
 // Built-in presets (available even if @agent-audit/policy is not built yet)
@@ -67,7 +57,7 @@ async function loadPolicyPresets(): Promise<PresetInfo[]> {
     // The policy package returns string[] from listPresets() and has
     // getPreset(name) to retrieve the full PolicyConfig.
     const listFn = policy.listPresets ?? policy.default?.listPresets;
-    const getFn  = policy.getPreset  ?? policy.default?.getPreset;
+    const getFn = policy.getPreset ?? policy.default?.getPreset;
 
     if (typeof listFn === "function" && typeof getFn === "function") {
       const names: string[] = listFn();
@@ -93,7 +83,7 @@ async function loadPolicy(nameOrPath: string): Promise<PolicyConfig | null> {
     const policy = await import("@agent-audit/policy");
 
     // Try loading as a preset name first, then as a file path
-    const getFn  = policy.getPreset      ?? policy.default?.getPreset;
+    const getFn = policy.getPreset ?? policy.default?.getPreset;
     const loadFn = policy.loadPolicyFile ?? policy.default?.loadPolicyFile;
 
     if (typeof getFn === "function") {
@@ -151,7 +141,13 @@ async function validatePolicyFile(filePath: string): Promise<{ valid: boolean; e
           errors.push(`Rule ${i}: missing 'condition'`);
         } else {
           const cond = rule.condition as Record<string, unknown>;
-          const validTypes = ["score-below", "finding-exists", "permission-used", "dependency-banned", "custom"];
+          const validTypes = [
+            "score-below",
+            "finding-exists",
+            "permission-used",
+            "dependency-banned",
+            "custom",
+          ];
           if (!cond.type || !validTypes.includes(cond.type as string)) {
             errors.push(`Rule ${i}: invalid condition type '${cond.type}'`);
           }
@@ -207,9 +203,7 @@ async function showPolicy(name: string): Promise<number> {
   heading(`Policy: ${policy.name}`);
 
   for (const rule of policy.rules) {
-    console.log(
-      `  ${severityBadge(rule.severity)} ${color.bold(rule.id)}`,
-    );
+    console.log(`  ${severityBadge(rule.severity)} ${color.bold(rule.id)}`);
     console.log(`  ${rule.description}`);
     console.log(`  ${color.dim(`Action: ${rule.action}  |  Condition: ${rule.condition.type}`)}`);
     console.log();
@@ -248,7 +242,7 @@ async function validate(filePath: string): Promise<number> {
 // Command entry point
 // ---------------------------------------------------------------------------
 
-export async function runPolicy(config: AuditConfig, args: string[]): Promise<number> {
+export async function runPolicy(_config: AuditConfig, args: string[]): Promise<number> {
   const subcommand = args[0] ?? "list";
 
   switch (subcommand) {

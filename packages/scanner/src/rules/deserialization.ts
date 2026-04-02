@@ -19,7 +19,8 @@ interface DeserPattern {
 
 const DESERIALIZATION_PATTERNS: DeserPattern[] = [
   {
-    pattern: /JSON\s*\.\s*parse\s*\(\s*(?:req|request|body|input|data|user|query|params|message|payload)\b/gi,
+    pattern:
+      /JSON\s*\.\s*parse\s*\(\s*(?:req|request|body|input|data|user|query|params|message|payload)\b/gi,
     id: "DES-001",
     title: "JSON.parse with untrusted input",
     description:
@@ -55,8 +56,7 @@ const DESERIALIZATION_PATTERNS: DeserPattern[] = [
     description:
       "Ruby's Marshal can execute arbitrary code during deserialization. It should never be used with untrusted data.",
     severity: "high",
-    remediation:
-      "Use JSON or a safe serialization format for untrusted data.",
+    remediation: "Use JSON or a safe serialization format for untrusted data.",
   },
   {
     pattern: /ObjectInputStream|readObject\s*\(\s*\)/g,
@@ -109,7 +109,8 @@ const DESERIALIZATION_PATTERNS: DeserPattern[] = [
       "Never create functions from untrusted strings. Use a safe expression evaluator or predefined function lookup.",
   },
   {
-    pattern: /(?:msgpack|protobuf|avro|thrift)\s*\.\s*(?:decode|unpack|deserialize)\s*\(\s*(?:req|request|body|input|data|user)\b/gi,
+    pattern:
+      /(?:msgpack|protobuf|avro|thrift)\s*\.\s*(?:decode|unpack|deserialize)\s*\(\s*(?:req|request|body|input|data|user)\b/gi,
     id: "DES-010",
     title: "Binary deserialization with untrusted input",
     description:
@@ -142,7 +143,8 @@ const PROTOTYPE_POLLUTION_PATTERNS: DeserPattern[] = [
       "Validate object keys against an allowlist. Never allow user input to navigate the prototype chain.",
   },
   {
-    pattern: /Object\s*\.\s*assign\s*\(\s*(?:target|dest|obj|result|\{\})\s*,\s*(?:req|request|body|input|data|user|query|params)\b/gi,
+    pattern:
+      /Object\s*\.\s*assign\s*\(\s*(?:target|dest|obj|result|\{\})\s*,\s*(?:req|request|body|input|data|user|query|params)\b/gi,
     id: "DES-022",
     title: "Object.assign with untrusted source",
     description:
@@ -162,7 +164,8 @@ const PROTOTYPE_POLLUTION_PATTERNS: DeserPattern[] = [
       "Update lodash to the latest version. Consider using structuredClone() or a merge library with prototype pollution protection.",
   },
   {
-    pattern: /(?:for\s*\(\s*(?:const|let|var)\s+\w+\s+in\s+)(?:req|request|body|input|data|user|query|params)\b/gi,
+    pattern:
+      /(?:for\s*\(\s*(?:const|let|var)\s+\w+\s+in\s+)(?:req|request|body|input|data|user|query|params)\b/gi,
     id: "DES-024",
     title: "for...in loop over untrusted object",
     description:
@@ -173,10 +176,7 @@ const PROTOTYPE_POLLUTION_PATTERNS: DeserPattern[] = [
   },
 ];
 
-const ALL_PATTERNS: DeserPattern[] = [
-  ...DESERIALIZATION_PATTERNS,
-  ...PROTOTYPE_POLLUTION_PATTERNS,
-];
+const ALL_PATTERNS: DeserPattern[] = [...DESERIALIZATION_PATTERNS, ...PROTOTYPE_POLLUTION_PATTERNS];
 
 export function checkUnsafeDeserialization(skill: AgentSkill): SecurityFinding[] {
   const findings: SecurityFinding[] = [];
@@ -216,7 +216,10 @@ export function checkUnsafeDeserialization(skill: AgentSkill): SecurityFinding[]
   return findings;
 }
 
-function checkSchemaValidation(file: { relativePath: string; content: string }, findings: SecurityFinding[]): void {
+function checkSchemaValidation(
+  file: { relativePath: string; content: string },
+  findings: SecurityFinding[],
+): void {
   // If the file uses JSON.parse, check if any schema validation library is present
   const hasJsonParse = /JSON\.parse/.test(file.content);
   if (!hasJsonParse) return;
@@ -236,8 +239,7 @@ function checkSchemaValidation(file: { relativePath: string; content: string }, 
         severity: "low",
         category: "unsafe-deserialization",
         title: "JSON parsing without schema validation",
-        description:
-          `The file has ${parseCount} JSON.parse calls but no apparent schema validation. Parsed data should be validated against an expected shape to prevent injection of unexpected properties.`,
+        description: `The file has ${parseCount} JSON.parse calls but no apparent schema validation. Parsed data should be validated against an expected shape to prevent injection of unexpected properties.`,
         file: file.relativePath,
         remediation:
           "Use a schema validation library (zod, ajv, joi) to validate parsed JSON against an expected structure.",
@@ -248,8 +250,19 @@ function checkSchemaValidation(file: { relativePath: string; content: string }, 
 
 function isCodeFile(ext: string): boolean {
   return [
-    "ts", "tsx", "js", "jsx", "mjs", "cjs",
-    "py", "rb", "go", "rs", "java", "kt", "php",
+    "ts",
+    "tsx",
+    "js",
+    "jsx",
+    "mjs",
+    "cjs",
+    "py",
+    "rb",
+    "go",
+    "rs",
+    "java",
+    "kt",
+    "php",
   ].includes(ext);
 }
 

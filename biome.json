@@ -1,6 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
-  "organizeImports": {
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+  "assist": {
     "enabled": true
   },
   "linter": {
@@ -8,13 +8,17 @@
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noExplicitAny": "warn"
+        "noExplicitAny": "warn",
+        "noAssignInExpressions": "warn",
+        "noTemplateCurlyInString": "warn",
+        "noControlCharactersInRegex": "off"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": {
           "level": "warn",
           "options": { "maxAllowedComplexity": 25 }
-        }
+        },
+        "noUselessEscapeInRegex": "off"
       }
     }
   },
@@ -25,6 +29,14 @@
     "lineWidth": 100
   },
   "files": {
-    "ignore": ["node_modules", "dist", ".turbo", "coverage", ".reference"]
+    "includes": [
+      "**",
+      "!node_modules",
+      "!dist",
+      "!.turbo",
+      "!coverage",
+      "!.reference",
+      "!e2e/fixtures"
+    ]
   }
 }

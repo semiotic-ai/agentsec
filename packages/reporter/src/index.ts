@@ -8,41 +8,39 @@
  * - html:  Self-contained HTML with dark-themed dashboard
  */
 
-export { ReportGenerator } from "./reporter.js";
-
-// Individual formatters for direct use
-export { formatText } from "./formats/text.js";
-export { formatJson } from "./formats/json.js";
-export { formatSarif } from "./formats/sarif.js";
-export { formatHtml } from "./formats/html.js";
-
 // Color utilities
 export {
-  bold,
-  dim,
-  italic,
-  underline,
-  red,
-  green,
-  yellow,
   blue,
-  cyan,
-  magenta,
-  gray,
-  white,
-  brightRed,
-  brightGreen,
-  brightYellow,
+  bold,
+  box,
   brightBlue,
   brightCyan,
+  brightGreen,
+  brightRed,
   brightWhite,
-  teal,
-  severityColor,
+  brightYellow,
+  cyan,
+  dim,
   gradeColor,
-  stripAnsi,
-  visibleLength,
+  gray,
+  green,
+  italic,
+  magenta,
   progressBar,
+  red,
   scoreGauge,
+  severityColor,
+  stripAnsi,
   symbols,
-  box,
+  teal,
+  underline,
+  visibleLength,
+  white,
+  yellow,
 } from "./colors.js";
+export { formatHtml } from "./formats/html.js";
+export { formatJson } from "./formats/json.js";
+export { formatSarif } from "./formats/sarif.js";
+// Individual formatters for direct use
+export { formatText } from "./formats/text.js";
+export { ReportGenerator } from "./reporter.js";

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import {
-  calculateSecurityScore,
-  calculateQualityScore,
-  calculateOverallScore,
-  scoreToGrade,
   buildAuditScore,
+  calculateOverallScore,
+  calculateQualityScore,
+  calculateSecurityScore,
+  scoreToGrade,
 } from "../scoring";
-import type { SecurityFinding, QualityMetrics } from "../types";
+import type { QualityMetrics, SecurityFinding } from "../types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -334,10 +334,7 @@ describe("buildAuditScore", () => {
   });
 
   it("produces a low grade when critical findings are present", () => {
-    const findings = [
-      makeFinding("critical", "f1"),
-      makeFinding("critical", "f2"),
-    ];
+    const findings = [makeFinding("critical", "f1"), makeFinding("critical", "f2")];
     const metrics = makeMetrics({
       codeComplexity: 15,
       documentationScore: 0,
@@ -361,7 +358,7 @@ describe("buildAuditScore", () => {
     const expectedOverall = calculateOverallScore(
       result.security,
       result.quality,
-      result.maintenance
+      result.maintenance,
     );
     expect(result.overall).toBe(expectedOverall);
   });

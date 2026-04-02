@@ -14,9 +14,9 @@
  *   bun run setup.ts --status    # print VM status
  */
 
-import { $ } from "bun";
 import { readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { $ } from "bun";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -50,10 +50,7 @@ interface LumeVm {
   display: string;
 }
 
-async function lumeApi<T = unknown>(
-  path: string,
-  options?: RequestInit,
-): Promise<T> {
+async function lumeApi<T = unknown>(path: string, options?: RequestInit): Promise<T> {
   const url = `${CONFIG.apiUrl}${path}`;
   const res = await fetch(url, {
     headers: { "Content-Type": "application/json" },
@@ -125,13 +122,15 @@ async function deleteVm(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 async function sshExec(command: string, timeoutSec = 60): Promise<string> {
-  const result = await $`lume ssh ${CONFIG.vmName} -u ${CONFIG.sshUser} -p ${CONFIG.sshPassword} -t ${timeoutSec} ${command}`
-    .text();
+  const result =
+    await $`lume ssh ${CONFIG.vmName} -u ${CONFIG.sshUser} -p ${CONFIG.sshPassword} -t ${timeoutSec} ${command}`.text();
   return result.trim();
 }
 
 async function waitForSsh(): Promise<void> {
-  console.log(`[setup] Waiting for SSH to become available (timeout: ${CONFIG.sshTimeoutSeconds}s)...`);
+  console.log(
+    `[setup] Waiting for SSH to become available (timeout: ${CONFIG.sshTimeoutSeconds}s)...`,
+  );
   const deadline = Date.now() + CONFIG.sshTimeoutSeconds * 1_000;
 
   while (Date.now() < deadline) {
@@ -198,7 +197,8 @@ async function ensureVm(): Promise<void> {
 async function installOpenclaw(): Promise<void> {
   console.log("[setup] Installing openclaw inside VM...");
 
-  await sshExec(`bash -c '
+  await sshExec(
+    `bash -c '
     set -euo pipefail
     export PATH="$HOME/.bun/bin:/opt/homebrew/bin:$PATH"
 
@@ -214,7 +214,9 @@ async function installOpenclaw(): Promise<void> {
     bun install -g openclaw 2>/dev/null || npm install -g openclaw
 
     echo "openclaw-installed"
-  '`, 120);
+  '`,
+    120,
+  );
 
   console.log("[setup] openclaw installed.");
 }
@@ -248,7 +250,16 @@ async function installFixtures(): Promise<void> {
     });
 
     const sshProc = Bun.spawn(
-      ["lume", "ssh", CONFIG.vmName, "-u", CONFIG.sshUser, "-p", CONFIG.sshPassword, "tar -xf - -C ~/test-skills/"],
+      [
+        "lume",
+        "ssh",
+        CONFIG.vmName,
+        "-u",
+        CONFIG.sshUser,
+        "-p",
+        CONFIG.sshPassword,
+        "tar -xf - -C ~/test-skills/",
+      ],
       { stdin: tar.stdout },
     );
 
@@ -261,13 +272,16 @@ async function installFixtures(): Promise<void> {
 async function verifyEnvironment(): Promise<void> {
   console.log("[setup] Verifying VM environment...");
 
-  const output = await sshExec(`bash -c '
+  const output = await sshExec(
+    `bash -c '
     export PATH="$HOME/.bun/bin:/opt/homebrew/bin:$PATH"
     echo "macos=$(sw_vers -productVersion)"
     echo "bun=$(bun --version 2>/dev/null || echo missing)"
     echo "openclaw=$(openclaw --version 2>/dev/null || echo missing)"
     echo "fixtures=$(ls ~/test-skills/ 2>/dev/null | tr "\\n" "," || echo none)"
-  '`, 30);
+  '`,
+    30,
+  );
 
   console.log("[setup] VM environment:");
   for (const line of output.split("\n")) {
@@ -349,4 +363,4 @@ main().catch((err) => {
 });
 
 // Export for use by tests
-export { CONFIG, ensureLumeService, ensureVm, waitForSsh, sshExec, stopVm, deleteVm, getVm };
+export { CONFIG, deleteVm, ensureLumeService, ensureVm, getVm, sshExec, stopVm, waitForSsh };

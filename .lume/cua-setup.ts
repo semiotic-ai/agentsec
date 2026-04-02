@@ -18,8 +18,8 @@
  *   bun run .lume/cua-setup.ts --snapshot        # Snapshot after setup
  */
 
-import { LumeVM, type ExecResult } from "./vm-manager";
-import { resolve, dirname } from "path";
+import { dirname, resolve } from "node:path";
+import { type ExecResult, LumeVM } from "./vm-manager";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -121,9 +121,7 @@ class CUASetup {
 
     // Step 3: Install openclaw
     if (!this.config.skipInstall) {
-      await this.step("Installing Homebrew (if needed)", () =>
-        this.installHomebrew(),
-      );
+      await this.step("Installing Homebrew (if needed)", () => this.installHomebrew());
       await this.step("Installing openclaw", () => this.installOpenclaw());
     } else {
       console.log("[setup] Skipping openclaw installation (--skip-install)");
@@ -154,7 +152,9 @@ class CUASetup {
     console.log(`    bun run .lume/vm-manager.ts exec ${this.config.vmName} "openclaw --version"`);
     console.log(`    bun run .lume/vm-manager.ts stop ${this.config.vmName}`);
     if (this.config.takeSnapshot) {
-      console.log(`    bun run .lume/vm-manager.ts restore ${this.config.vmName} ${this.config.snapshotLabel}`);
+      console.log(
+        `    bun run .lume/vm-manager.ts restore ${this.config.vmName} ${this.config.snapshotLabel}`,
+      );
     }
     console.log();
   }
@@ -189,10 +189,7 @@ class CUASetup {
 
   private async installOpenclaw(): Promise<void> {
     // Check if already installed
-    const check = await this.vm.exec(
-      "export PATH=/opt/homebrew/bin:$PATH && which openclaw",
-      10,
-    );
+    const check = await this.vm.exec("export PATH=/opt/homebrew/bin:$PATH && which openclaw", 10);
     if (check.exitCode === 0) {
       console.log("    openclaw already installed.");
       return;
@@ -236,9 +233,7 @@ class CUASetup {
       await this.vm.execOrThrow(`mkdir -p ${skillDir}`);
 
       // Write skill instruction file
-      const escapedInstructions = skill.instructions
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "'\\''");
+      const _escapedInstructions = skill.instructions.replace(/\\/g, "\\\\").replace(/'/g, "'\\''");
       await this.vm.execOrThrow(
         `cat > ${skillDir}/SKILL.md << 'SKILL_EOF'
 # ${skill.name}
@@ -320,7 +315,9 @@ META_EOF`,
       const result = await this.vm.exec(check.command, 15);
       const ok = check.validate(result);
       const status = ok ? "PASS" : "FAIL";
-      const detail = ok ? result.stdout.split("\n")[0] : result.stderr.split("\n")[0] || "(no output)";
+      const detail = ok
+        ? result.stdout.split("\n")[0]
+        : result.stderr.split("\n")[0] || "(no output)";
       console.log(`    [${status}] ${check.label}: ${detail}`);
       if (ok) passed++;
       else failed++;

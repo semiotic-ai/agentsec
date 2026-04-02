@@ -22,10 +22,7 @@ export function checkSupplyChain(skill: AgentSkill): SecurityFinding[] {
   return findings;
 }
 
-function checkVersionPinning(
-  deps: Record<string, string>,
-  findings: SecurityFinding[]
-): void {
+function checkVersionPinning(deps: Record<string, string>, findings: SecurityFinding[]): void {
   for (const [name, version] of Object.entries(deps)) {
     if (version === "*" || version === "latest" || version === "next") {
       findings.push({
@@ -37,7 +34,8 @@ function checkVersionPinning(
         description: `The dependency '${name}' uses '${version}' which accepts any version. A compromised future version will be automatically installed.`,
         file: "package.json",
         evidence: `"${name}": "${version}"`,
-        remediation: "Pin to a specific version (e.g., '1.2.3') or a caret range ('^1.2.3') with a lockfile.",
+        remediation:
+          "Pin to a specific version (e.g., '1.2.3') or a caret range ('^1.2.3') with a lockfile.",
       });
     }
 
@@ -51,7 +49,8 @@ function checkVersionPinning(
         description: `The dependency '${name}' uses '${version}' which accepts virtually any version, including potentially malicious future releases.`,
         file: "package.json",
         evidence: `"${name}": "${version}"`,
-        remediation: "Narrow the version range to the minimum needed. Use a caret (^) or tilde (~) with a specific version.",
+        remediation:
+          "Narrow the version range to the minimum needed. Use a caret (^) or tilde (~) with a specific version.",
       });
     }
 
@@ -65,7 +64,8 @@ function checkVersionPinning(
         description: `The dependency '${name}' uses a broad version range '${version}' that may accept multiple major versions.`,
         file: "package.json",
         evidence: `"${name}": "${version}"`,
-        remediation: "Use a more specific version range. The caret (^) prefix with a lockfile is the recommended approach.",
+        remediation:
+          "Use a more specific version range. The caret (^) prefix with a lockfile is the recommended approach.",
       });
     }
 
@@ -79,7 +79,8 @@ function checkVersionPinning(
         description: `The dependency '${name}' is installed from '${version}'. Git/URL sources bypass registry integrity checks and can be changed without version bumps.`,
         file: "package.json",
         evidence: `"${name}": "${version}"`,
-        remediation: "If a specific commit is needed, pin to a commit hash. Prefer publishing to a registry for integrity verification.",
+        remediation:
+          "If a specific commit is needed, pin to a commit hash. Prefer publishing to a registry for integrity verification.",
       });
 
       if (!/#[a-f0-9]{7,}/.test(version)) {
@@ -107,7 +108,8 @@ function checkVersionPinning(
         description: `The dependency '${name}' references a local path '${version}'. This is not reproducible across environments and bypasses integrity verification.`,
         file: "package.json",
         evidence: `"${name}": "${version}"`,
-        remediation: "Publish the local package to a registry (private if needed) for reproducible builds.",
+        remediation:
+          "Publish the local package to a registry (private if needed) for reproducible builds.",
       });
     }
   }
@@ -165,8 +167,7 @@ function checkRegistryConfig(skill: AgentSkill, findings: SecurityFinding[]): vo
     while ((match = registryPattern.exec(file.content)) !== null) {
       const registryUrl = match[1];
       const isOfficialRegistry =
-        registryUrl.includes("registry.npmjs.org") ||
-        registryUrl.includes("registry.yarnpkg.com");
+        registryUrl.includes("registry.npmjs.org") || registryUrl.includes("registry.yarnpkg.com");
 
       if (!isOfficialRegistry) {
         findings.push({
@@ -178,7 +179,8 @@ function checkRegistryConfig(skill: AgentSkill, findings: SecurityFinding[]): vo
           description: `A custom registry '${registryUrl}' is configured. Custom registries may lack the security scanning of the official npm registry.`,
           file: file.relativePath,
           evidence: match[0],
-          remediation: "Verify the custom registry is trusted and properly secured. Consider using the official npm registry with scoped packages for private packages.",
+          remediation:
+            "Verify the custom registry is trusted and properly secured. Consider using the official npm registry with scoped packages for private packages.",
         });
       }
     }
@@ -190,10 +192,12 @@ function checkRegistryConfig(skill: AgentSkill, findings: SecurityFinding[]): vo
         severity: "high",
         category: "supply-chain",
         title: "SSL verification disabled for package registry",
-        description: "SSL verification is disabled in the npm/yarn configuration. This allows man-in-the-middle attacks on package downloads.",
+        description:
+          "SSL verification is disabled in the npm/yarn configuration. This allows man-in-the-middle attacks on package downloads.",
         file: file.relativePath,
         evidence: "strict-ssl=false",
-        remediation: "Enable SSL verification (strict-ssl=true). Fix any certificate issues rather than disabling verification.",
+        remediation:
+          "Enable SSL verification (strict-ssl=true). Fix any certificate issues rather than disabling verification.",
       });
     }
 
@@ -204,22 +208,20 @@ function checkRegistryConfig(skill: AgentSkill, findings: SecurityFinding[]): vo
         severity: "critical",
         category: "supply-chain",
         title: "Auth token in package config file",
-        description: "An authentication token is stored in a package config file that may be committed to version control.",
+        description:
+          "An authentication token is stored in a package config file that may be committed to version control.",
         file: file.relativePath,
         evidence: "[auth token redacted]",
-        remediation: "Remove auth tokens from config files. Use environment variables (NPM_TOKEN) or npm login for authentication.",
+        remediation:
+          "Remove auth tokens from config files. Use environment variables (NPM_TOKEN) or npm login for authentication.",
       });
     }
   }
 }
 
 function checkLockfilePresence(skill: AgentSkill, findings: SecurityFinding[]): void {
-  const lockfiles = [
-    "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "bun.lock",
-  ];
-  const hasLockfile = skill.files.some((f) =>
-    lockfiles.some((lf) => f.relativePath.endsWith(lf))
-  );
+  const lockfiles = ["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "bun.lock"];
+  const hasLockfile = skill.files.some((f) => lockfiles.some((lf) => f.relativePath.endsWith(lf)));
   const hasDeps = Object.keys(skill.manifest.dependencies ?? {}).length > 0;
 
   if (hasDeps && !hasLockfile) {
@@ -229,8 +231,10 @@ function checkLockfilePresence(skill: AgentSkill, findings: SecurityFinding[]): 
       severity: "high",
       category: "supply-chain",
       title: "No lockfile found",
-      description: "The skill has dependencies but no lockfile. Without a lockfile, dependency versions are not deterministic, and integrity hashes are not verified.",
-      remediation: "Generate and commit a lockfile. Run 'npm install', 'yarn install', or 'bun install' to create one.",
+      description:
+        "The skill has dependencies but no lockfile. Without a lockfile, dependency versions are not deterministic, and integrity hashes are not verified.",
+      remediation:
+        "Generate and commit a lockfile. Run 'npm install', 'yarn install', or 'bun install' to create one.",
     });
   }
 }
@@ -251,11 +255,13 @@ function checkIntegrityVerification(skill: AgentSkill, findings: SecurityFinding
         severity: "critical",
         category: "supply-chain",
         title: "Remote code execution via pipe to shell",
-        description: "Code is downloaded from a URL and piped directly to a shell interpreter without integrity verification. This is the most dangerous supply chain pattern.",
+        description:
+          "Code is downloaded from a URL and piped directly to a shell interpreter without integrity verification. This is the most dangerous supply chain pattern.",
         file: file.relativePath,
         line: getLineNumber(file.content, match.index),
         evidence: getEvidenceLine(file.content, match.index),
-        remediation: "Download the script first, verify its checksum/signature, then execute. Or use a package manager with integrity checks.",
+        remediation:
+          "Download the script first, verify its checksum/signature, then execute. Or use a package manager with integrity checks.",
       });
     }
   }
@@ -277,15 +283,18 @@ function checkDynamicLoading(skill: AgentSkill, findings: SecurityFinding[]): vo
         severity: "critical",
         category: "supply-chain",
         title: "Dynamic import from URL",
-        description: "Code is dynamically imported from a URL at runtime. This bypasses all package manager integrity checks and can be changed without notice.",
+        description:
+          "Code is dynamically imported from a URL at runtime. This bypasses all package manager integrity checks and can be changed without notice.",
         file: file.relativePath,
         line: getLineNumber(file.content, match.index),
         evidence: getEvidenceLine(file.content, match.index),
-        remediation: "Install the dependency via a package manager. If URL imports are necessary (Deno), pin to a specific version and use a lockfile.",
+        remediation:
+          "Install the dependency via a package manager. If URL imports are necessary (Deno), pin to a specific version and use a lockfile.",
       });
     }
 
-    const pluginPattern = /(?:loadPlugin|loadExtension|addPlugin|registerPlugin)\s*\(\s*(?:user|input|url|path|config)\b/gi;
+    const pluginPattern =
+      /(?:loadPlugin|loadExtension|addPlugin|registerPlugin)\s*\(\s*(?:user|input|url|path|config)\b/gi;
     pluginPattern.lastIndex = 0;
 
     while ((match = pluginPattern.exec(file.content)) !== null) {
@@ -295,11 +304,13 @@ function checkDynamicLoading(skill: AgentSkill, findings: SecurityFinding[]): vo
         severity: "high",
         category: "supply-chain",
         title: "Dynamic plugin loading from untrusted source",
-        description: "Plugins or extensions are loaded dynamically from potentially untrusted sources. This allows arbitrary code execution via plugin injection.",
+        description:
+          "Plugins or extensions are loaded dynamically from potentially untrusted sources. This allows arbitrary code execution via plugin injection.",
         file: file.relativePath,
         line: getLineNumber(file.content, match.index),
         evidence: getEvidenceLine(file.content, match.index),
-        remediation: "Only load plugins from an explicit allowlist. Verify plugin integrity (checksums/signatures) before loading.",
+        remediation:
+          "Only load plugins from an explicit allowlist. Verify plugin integrity (checksums/signatures) before loading.",
       });
     }
   }
@@ -320,10 +331,12 @@ function checkVendoredDeps(skill: AgentSkill, findings: SecurityFinding[]): void
         severity: "medium",
         category: "supply-chain",
         title: `Vendored/minified code: ${file.relativePath}`,
-        description: "Minified or vendored JavaScript files can hide malicious code that is difficult to review. The long line lengths make manual inspection impractical.",
+        description:
+          "Minified or vendored JavaScript files can hide malicious code that is difficult to review. The long line lengths make manual inspection impractical.",
         file: file.relativePath,
         evidence: `File contains lines over 5000 characters (${file.size} bytes total)`,
-        remediation: "Install dependencies via a package manager instead of vendoring. If vendoring is necessary, include the source maps and verify the minified output matches the source.",
+        remediation:
+          "Install dependencies via a package manager instead of vendoring. If vendoring is necessary, include the source maps and verify the minified output matches the source.",
       });
     }
   }

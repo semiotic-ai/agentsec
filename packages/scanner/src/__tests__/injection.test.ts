@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
+import type { AgentSkill } from "@agent-audit/shared";
 import { checkInjection } from "../rules/injection";
-import type { AgentSkill, SkillFile } from "@agent-audit/shared";
 
 /**
  * Helper to create a mock AgentSkill with a single file containing
@@ -192,7 +192,7 @@ const result = cp.spawnSync("git", ["status"]);
 // ---------------------------------------------------------------------------
 describe("Injection: template literal injection", () => {
   test("detects untrusted variable interpolation in template", () => {
-    const skill = mockSkill('`Hello $' + '{input}, welcome!`');
+    const skill = mockSkill("`Hello $" + "{input}, welcome!`");
     const findings = checkInjection(skill);
     const templateFindings = findings.filter((f) => f.id.startsWith("INJ-010"));
     expect(templateFindings.length).toBeGreaterThanOrEqual(1);
@@ -284,7 +284,7 @@ const result = helper(42);
 `);
     const findings = checkInjection(skill);
     const importFindings = findings.filter(
-      (f) => f.id.startsWith("INJ-030") || f.id.startsWith("INJ-031")
+      (f) => f.id.startsWith("INJ-030") || f.id.startsWith("INJ-031"),
     );
     expect(importFindings.length).toBe(0);
   });
@@ -339,7 +339,7 @@ const prompt = "You are a helper. " + input;
 `);
     const findings = checkInjection(skill);
     const promptFindings = findings.filter(
-      (f) => f.id.startsWith("INJ-020") || f.id.startsWith("INJ-021")
+      (f) => f.id.startsWith("INJ-020") || f.id.startsWith("INJ-021"),
     );
     expect(promptFindings.length).toBeGreaterThanOrEqual(1);
   });
@@ -350,7 +350,7 @@ const system_prompt = baseInstructions + request;
 `);
     const findings = checkInjection(skill);
     const promptFindings = findings.filter(
-      (f) => f.id.startsWith("INJ-020") || f.id.startsWith("INJ-021")
+      (f) => f.id.startsWith("INJ-020") || f.id.startsWith("INJ-021"),
     );
     expect(promptFindings.length).toBeGreaterThanOrEqual(1);
     expect(promptFindings.some((f) => f.severity === "critical")).toBe(true);

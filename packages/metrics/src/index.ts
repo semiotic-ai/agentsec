@@ -1,14 +1,10 @@
-export { MetricsAnalyzer } from "./analyzer";
 export type { DetailedMetrics } from "./analyzer";
-
-export { calculateComplexity, countTotalLinesOfCode } from "./complexity";
+export { MetricsAnalyzer } from "./analyzer";
 export type { ComplexityResult, FileComplexity } from "./complexity";
-
-export { scoreDocumentation } from "./documentation";
-export type { DocumentationResult } from "./documentation";
-
-export { analyzeDependencies } from "./dependencies";
+export { calculateComplexity, countTotalLinesOfCode } from "./complexity";
 export type { DependencyResult } from "./dependencies";
-
-export { scoreMaintenanceHealth } from "./maintenance";
+export { analyzeDependencies } from "./dependencies";
+export type { DocumentationResult } from "./documentation";
+export { scoreDocumentation } from "./documentation";
 export type { MaintenanceResult } from "./maintenance";
+export { scoreMaintenanceHealth } from "./maintenance";

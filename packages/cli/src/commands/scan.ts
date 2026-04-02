@@ -5,26 +5,19 @@
  * where you just want the raw scan data.
  */
 
-import type {
-  AgentSkill,
-  SecurityFinding,
-  QualityMetrics,
-} from "@agent-audit/shared";
-import { compareSeverity, buildAuditScore } from "@agent-audit/shared";
+import type { AgentSkill, QualityMetrics, SecurityFinding } from "@agent-audit/shared";
+import { buildAuditScore, compareSeverity } from "@agent-audit/shared";
 
 import type { AuditConfig } from "../config";
 import {
   color,
   createSpinner,
   divider,
+  formatGrade,
   heading,
   info,
   keyValue,
-  progressBar,
   severityBadge,
-  formatGrade,
-  success,
-  warn,
 } from "../ui";
 
 // ---------------------------------------------------------------------------
@@ -110,7 +103,7 @@ function printScanResult(result: ScanResult, verbose: boolean): void {
   console.log();
   console.log(
     `  ${color.bold(skill.name)} ${color.dim(`v${skill.version}`)}  ` +
-    formatGrade(score.grade, score.overall),
+      formatGrade(score.grade, score.overall),
   );
   console.log(`  ${color.dim(skill.path)}`);
 
@@ -156,14 +149,18 @@ export async function runScan(config: AuditConfig): Promise<number> {
   if (skills.length === 0) {
     spinner.fail("No agent skills found");
     console.log();
-    info(`Looked for ${color.bold(config.platform)} skills${config.path ? ` in ${config.path}` : ""}`);
+    info(
+      `Looked for ${color.bold(config.platform)} skills${config.path ? ` in ${config.path}` : ""}`,
+    );
     info("Use --platform to target a different agent platform");
     info("Use --path to specify a custom skill directory");
     console.log();
     return 0;
   }
 
-  spinner.succeed(`Found ${color.bold(String(skills.length))} skill${skills.length === 1 ? "" : "s"}`);
+  spinner.succeed(
+    `Found ${color.bold(String(skills.length))} skill${skills.length === 1 ? "" : "s"}`,
+  );
 
   heading("Security Scan");
 
@@ -190,9 +187,7 @@ export async function runScan(config: AuditConfig): Promise<number> {
         `${skill.name} -- ${findings.length} finding(s), ${color.red(`${critHigh} critical/high`)}`,
       );
     } else if (findings.length > 0) {
-      scanSpinner.succeed(
-        `${skill.name} -- ${color.yellow(`${findings.length} finding(s)`)}`,
-      );
+      scanSpinner.succeed(`${skill.name} -- ${color.yellow(`${findings.length} finding(s)`)}`);
     } else {
       scanSpinner.succeed(`${skill.name} -- ${color.green("clean")}`);
     }

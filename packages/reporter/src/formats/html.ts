@@ -9,13 +9,12 @@
  */
 
 import type {
+  AuditGrade,
   AuditReport,
   AuditSummary,
   SecurityFinding,
   Severity,
   SkillAuditResult,
-  AuditGrade,
-  QualityMetrics,
 } from "@agent-audit/shared";
 
 // ── Helpers ─────────────────────────────────────────────────────────────── //
@@ -599,11 +598,15 @@ const renderDashboard = (summary: AuditSummary): string => {
 
   return `
     <div class="dashboard">
-      ${cards.map((c) => `
+      ${cards
+        .map(
+          (c) => `
         <div class="stat-card ${c.cls}">
           <div class="stat-value">${c.value}</div>
           <div class="stat-label">${esc(c.label)}</div>
-        </div>`).join("")}
+        </div>`,
+        )
+        .join("")}
     </div>`;
 };
 
@@ -655,16 +658,12 @@ const renderSkillTable = (results: SkillAuditResult[]): string => {
     </div>`;
 };
 
-const renderFindingCard = (
-  finding: SecurityFinding,
-  skillName: string,
-): string => {
-  const loc =
-    finding.file
-      ? finding.line
-        ? `${finding.file}:${finding.line}${finding.column ? `:${finding.column}` : ""}`
-        : finding.file
-      : null;
+const renderFindingCard = (finding: SecurityFinding, skillName: string): string => {
+  const loc = finding.file
+    ? finding.line
+      ? `${finding.file}:${finding.line}${finding.column ? `:${finding.column}` : ""}`
+      : finding.file
+    : null;
 
   return `
     <div class="finding">
@@ -701,10 +700,7 @@ const renderFindings = (results: SkillAuditResult[]): string => {
     }
   }
 
-  allFindings.sort(
-    (a, b) =>
-      severityOrder[a.finding.severity] - severityOrder[b.finding.severity],
-  );
+  allFindings.sort((a, b) => severityOrder[a.finding.severity] - severityOrder[b.finding.severity]);
 
   if (allFindings.length === 0) {
     return `
@@ -773,9 +769,7 @@ const renderRecommendations = (results: SkillAuditResult[]): string => {
     info: 4,
   };
 
-  allRecs.sort(
-    (a, b) => severityOrder[a.rec.priority] - severityOrder[b.rec.priority],
-  );
+  allRecs.sort((a, b) => severityOrder[a.rec.priority] - severityOrder[b.rec.priority]);
 
   return `
     <div class="section">
