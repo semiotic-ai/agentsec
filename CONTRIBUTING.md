@@ -1,14 +1,16 @@
 # Contributing to Agent Audit
 
-Thank you for your interest in contributing to Agent Audit. This guide will help you get started.
+Thank you for your interest in contributing to Agent Audit! We welcome contributions from security researchers, TypeScript developers, and anyone passionate about AI agent security.
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) v1.3.11 or later
-- [Git](https://git-scm.com)
-- TypeScript knowledge
+- [Bun](https://bun.sh) v1.3.11 or later -- fast, TypeScript-native runtime
+- [Git](https://git-scm.com) -- version control
+- macOS, Linux, or WSL on Windows
 
-## Setup
+Use **bun** everywhere. Do not use npm, yarn, or pnpm.
+
+## Quick Setup
 
 ```bash
 git clone https://github.com/agent-audit/agent-audit.git
@@ -18,94 +20,389 @@ bun run build
 bun run test
 ```
 
-## Development Workflow
+If any step fails, see [Troubleshooting](#troubleshooting) below.
 
-1. **Create your changes** on the `main` branch (we commit directly to main).
-2. **Build** to verify everything compiles: `bun run build`
-3. **Test** to make sure nothing is broken: `bun run test`
-4. **Lint** to check code style: `bun run lint`
-5. **Commit** with a clear, descriptive message.
+## Monorepo Structure
 
-## Monorepo Layout
+This is a **Turborepo** monorepo with **bun workspaces**. All packages live under `packages/`:
 
-This project uses Turborepo with bun workspaces. Each package lives under `packages/`:
+```
+agent-audit/
+  packages/
+    shared/        @agent-audit/shared      - Shared types, constants, utilities
+    scanner/       @agent-audit/scanner     - Skill scanning engine and detectors
+    metrics/       @agent-audit/metrics     - Security scoring algorithms
+    policy/        @agent-audit/policy      - Policy rules and compliance engine
+    openclaw/      @agent-audit/openclaw    - OpenClaw (SKILL.md) format support
+    reporter/      @agent-audit/reporter    - Report generation (HTML, JSON, SARIF)
+    cli/           @agent-audit/cli         - CLI entry point (published as "agent-audit")
+  apps/
+    dashboard/     @agent-audit/dashboard   - Web dashboard
+```
 
-| Package | Name | Description |
-|---------|------|-------------|
-| `shared` | `@agent-audit/shared` | Shared types, constants, utilities |
-| `scanner` | `@agent-audit/scanner` | Skill scanning engine |
-| `metrics` | `@agent-audit/metrics` | Security scoring and risk calculation |
-| `policy` | `@agent-audit/policy` | Policy rules and compliance checks |
-| `openclaw` | `@agent-audit/openclaw` | OpenClaw format support |
-| `reporter` | `@agent-audit/reporter` | Report generation |
-| `cli` | `@agent-audit/cli` | CLI entry point |
+### Dependency Graph
 
-The `apps/` directory contains the web dashboard.
+Packages must only depend on packages above them in this graph:
 
-## Working on a Specific Package
+```
+shared (no internal dependencies)
+  ^
+  |--- scanner
+  |--- metrics
+  |--- policy
+  |--- openclaw
+  \--- reporter
+         ^
+         \--- cli
+```
+
+## How to Run Tests
 
 ```bash
-# Build one package and its dependencies
-turbo build --filter=@agent-audit/scanner
+# Run all tests across the monorepo
+bun run test
 
-# Run tests for one package
+# Run tests for a single package
 bun test --filter @agent-audit/scanner
 
-# Add a dependency to a package
-cd packages/scanner && bun add <package>
+# Watch mode (rerun on file changes)
+bun test --watch
+
+# With coverage
+bun test --coverage
 ```
 
-## Code Standards
+Place test files alongside the code they test: `analyze.ts` -> `analyze.test.ts`.
 
-- **TypeScript** targeting ES2022 with strict mode
-- **bun test** for all tests (not jest, vitest, or mocha)
-- Use `import type` for type-only imports
-- Prefer named exports over default exports
-- All public APIs must have JSDoc comments
-- Never use `eval()` or dynamic code execution
+```typescript
+import { test, expect } from 'bun:test';
+import { analyzeSkill } from './scanner';
 
-## Security
+test('detects eval() usage', () => {
+  const findings = analyzeSkill('./test-fixtures/malicious-skill');
+  expect(findings).toContainEqual({
+    severity: 'critical',
+    riskId: 'AST05',
+  });
+});
+```
 
-This is a security-focused project. Please follow these rules:
+## How to Add a Scanner Rule
 
-- Never commit secrets, API keys, tokens, or credentials
-- Always validate external inputs
-- Sanitize user-controlled data in outputs
-- Pin exact versions for security-critical dependencies
-- Run `bun audit` before adding new packages
+Scanner rules live in `packages/scanner/src/rules/`. Each rule file exports a function that takes an `AgentSkill` and returns an array of `SecurityFinding` objects.
 
-## Testing
+### 1. Create the rule file
 
-Write tests for all new functionality. Place test files alongside the code they test:
+Create `packages/scanner/src/rules/your-rule.ts`:
+
+```typescript
+import type { AgentSkill, SecurityFinding } from '@agent-audit/shared';
+
+/**
+ * Rule: Your Rule Name (AST-XX)
+ *
+ * Detects <what this rule catches>.
+ */
+export function checkYourRule(skill: AgentSkill): SecurityFinding[] {
+  const findings: SecurityFinding[] = [];
+
+  for (const file of skill.files) {
+    // Match patterns in file content
+    const pattern = /your-regex-here/g;
+    let match: RegExpExecArray | null;
+    while ((match = pattern.exec(file.content)) !== null) {
+      findings.push({
+        id: 'YOURRULE-001',
+        title: 'Description of finding',
+        description: 'Detailed explanation of why this is a risk.',
+        severity: 'high',
+        riskId: 'AST01',
+        filePath: file.path,
+        line: getLineNumber(file.content, match.index),
+        evidence: getEvidenceLine(file.content, match.index),
+        remediation: 'How to fix this issue.',
+      });
+    }
+  }
+
+  return findings;
+}
+```
+
+### 2. Register in the rule index
+
+Add your rule to `packages/scanner/src/rules/index.ts`:
+
+```typescript
+// Add the import
+export { checkYourRule } from './your-rule';
+import { checkYourRule } from './your-rule';
+
+// Add to ALL_RULES array
+{
+  name: 'your-rule',
+  category: 'your-category',
+  description: 'What this rule detects (AST-XX)',
+  owaspId: 'ASTXX',
+  owaspLink: OWASP_BASE,
+  run: checkYourRule,
+},
+```
+
+### 3. Add tests
+
+Create `packages/scanner/src/rules/your-rule.test.ts` with tests covering both detection and false-positive avoidance. Use the existing rule tests as examples.
+
+### 4. Add a test fixture
+
+Create a fixture skill under `e2e/fixtures/` that triggers your rule (see next section).
+
+### Existing rules for reference
+
+| File | Category | OWASP |
+|------|----------|-------|
+| `injection.ts` | Code injection detection | AST01 |
+| `permissions.ts` | Permission analysis | AST03 |
+| `dependencies.ts` | Dependency risk checks | AST02 |
+| `supply-chain.ts` | Supply chain indicators | AST02 |
+| `storage.ts` | Insecure storage patterns | AST05 |
+| `deserialization.ts` | Unsafe deserialization | AST05 |
+| `dos.ts` | Denial of service patterns | AST06 |
+| `logging.ts` | Logging hygiene | AST08 |
+| `error-handling.ts` | Error handling checks | AST09 |
+| `output-handling.ts` | Output sanitization | AST04 |
+
+## How to Create Test Fixtures
+
+Test fixtures live in `e2e/fixtures/`. Each fixture is a self-contained skill directory that represents a specific scanning scenario.
+
+### Fixture structure
 
 ```
-packages/scanner/
+e2e/fixtures/your-fixture-skill/
+  skill.json          # Required: skill manifest
   src/
-    analyze.ts
-    analyze.test.ts
+    index.ts          # Required: main source file with patterns to detect
+    utils.ts          # Optional: additional source files
+  package.json        # Optional: needed for dependency-related rules
 ```
 
-Run the full test suite before committing:
+### skill.json format
+
+```json
+{
+  "name": "your-fixture-skill",
+  "version": "1.0.0",
+  "description": "Fixture that triggers <specific rule or pattern>",
+  "author": "test-author",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": ["clipboard:read"],
+  "inputs": {},
+  "outputs": {}
+}
+```
+
+### Tips
+
+- Name the fixture after the vulnerability it demonstrates (e.g., `injection-vuln-skill`, `excessive-perms-skill`).
+- Include only the minimal code needed to trigger the rule.
+- Add a `good-skill` equivalent if testing that clean code produces no false positives.
+- Put intentionally vulnerable code in `src/` files so the scanner can find it.
+
+### Existing fixtures
+
+| Fixture | What it tests |
+|---------|---------------|
+| `good-skill` | Clean skill, no findings expected |
+| `injection-vuln-skill` | Code injection vulnerabilities |
+| `excessive-perms-skill` | Overly broad permissions |
+| `bad-deps-skill` | Problematic dependencies |
+| `bad-injection-skill` | Injection pattern variant |
+| `supply-chain-skill` | Supply chain risk indicators |
+| `bad-permissions-skill` | Overly broad permission declarations |
+| `insecure-storage-skill` | Insecure data storage patterns |
+
+## Code Style
+
+### Formatting
+
+- **Linter**: Biome (configured in `biome.json`)
+- **Indentation**: 2 spaces
+- **Line width**: 100 characters
+- **Semicolons**: Required
+- **Trailing commas**: ES5 style
+
+Run the linter and auto-fix:
 
 ```bash
-bun run test
+bun run lint
+bunx biome check --write .
 ```
 
-## Commit Messages
+### TypeScript
 
-Write clear commit messages that explain what changed and why:
+- Target **ES2022** (see `tsconfig.json`)
+- **Strict mode** enabled -- avoid `any` without good reason
+- Use `import type` for type-only imports
+- Prefer named exports over default exports
+- Use `const` by default, `let` only when reassignment is needed
+- All public APIs must have JSDoc comments
+
+Example:
+
+```typescript
+import type { Finding } from '@agent-audit/shared';
+
+/**
+ * Analyze a skill for security findings.
+ *
+ * @param skillPath - Absolute path to the skill directory
+ * @returns Array of findings, empty if no issues
+ * @throws {Error} If the skill cannot be read or parsed
+ */
+export function analyzeSkill(skillPath: string): Finding[] {
+  // ...
+}
+```
+
+## Security Rules
+
+This is a **security-focused project**. Follow these rules strictly:
+
+1. **Never commit secrets** -- no API keys, tokens, passwords, or credentials in code or fixtures
+2. **Always validate inputs** -- all external data must be validated before use
+3. **Sanitize outputs** -- escape user-controlled data in reports and logs
+4. **Pin dependencies** -- use exact versions for security-critical packages
+5. **No eval or dynamic code execution** -- never use `eval()`, `new Function()`, or similar in production code
+6. **Check for vulnerabilities** -- run `bun audit` before adding new packages
+
+### Reporting Security Issues
+
+Found a vulnerability? **Do not open a public issue.** Email **security@agent-audit.dev** with a description, reproduction steps, and impact assessment. We respond within 48 hours.
+
+## Commit Conventions
+
+Write commit messages that explain **what** changed and **why**:
 
 ```
 Add permission model validation for AST03 checks
 
 The scanner now validates skill permission declarations against
-the least-privilege policy defined in the active ruleset.
+the least-privilege policy defined in the active ruleset. This
+addresses OWASP AST03 (Over-Privileged Skills) risk category.
+
+Fixes #123
 ```
 
-## Reporting Security Issues
+### Rules
 
-If you discover a security vulnerability, please do **not** open a public issue. Instead, email security@agent-audit.dev with details. We will respond within 48 hours.
+- **First line**: imperative mood ("Add" not "Added"), under 50 characters
+- **Body**: explain the "why", not just the "what"
+- **References**: link related issues with "Fixes #123" or "Relates to #456"
+- **Line length**: keep under 100 characters per line
+- **Atomic commits**: one logical change per commit
+
+### Prefixes
+
+Use a prefix that describes the type of change:
+
+- `feat:` -- new feature or capability
+- `fix:` -- bug fix
+- `enhance:` -- improvement to existing feature
+- `refactor:` -- code restructuring without behavior change
+- `test:` -- adding or updating tests
+- `docs:` -- documentation changes
+- `chore:` -- maintenance, dependencies, tooling
+
+## Development Commands
+
+```bash
+# Full pipeline
+bun install && bun run build && bun run test && bun run lint
+
+# Build a specific package
+turbo build --filter=@agent-audit/scanner
+
+# Type check everything
+bun run check
+
+# Clean build artifacts
+bun run clean
+
+# Dev mode (watch and rebuild)
+bun run dev
+```
+
+## Working on a Specific Package
+
+```bash
+cd packages/scanner
+
+# Build this package and its dependencies
+turbo build --filter=@agent-audit/scanner
+
+# Test this package only
+bun test --filter @agent-audit/scanner
+
+# Watch mode (rebuilds on changes)
+turbo watch build --filter=@agent-audit/scanner
+```
+
+## Continuous Integration
+
+Every push triggers the CI pipeline:
+
+1. `bun run lint` -- linting must pass
+2. `bun run check` -- type checking must pass
+3. `bun run test` -- tests must pass
+4. `bun run build` -- build must succeed
+
+Run locally before pushing:
+
+```bash
+bun run lint && bun run check && bun run test && bun run build
+```
+
+## Troubleshooting
+
+### `bun install` fails
+
+Old lockfile or corrupted cache:
+
+```bash
+rm -rf node_modules .bun-lock ~/.bun
+bun install
+```
+
+### TypeScript errors after changes
+
+Types not rebuilt:
+
+```bash
+bun run clean
+bun run build
+```
+
+### Tests fail on first run
+
+Check fixture paths in test files. Ensure paths are absolute or relative to the package root.
+
+### Linter complaints about spacing
+
+Let Biome auto-fix:
+
+```bash
+bunx biome check --write .
+```
+
+## Questions?
+
+- **General questions**: Create a GitHub Discussion
+- **Bug reports**: Create an Issue with `[BUG]` in the title
+- **Feature requests**: Create an Issue with `[FEATURE]` in the title
+- **Security issues**: Email security@agent-audit.dev
 
 ## License
 
-By contributing to Agent Audit, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to Agent Audit, you agree your contributions will be licensed under the [MIT License](LICENSE).

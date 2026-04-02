@@ -1,0 +1,90 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg-primary { fill: #0d1117; }
+      .card-bg { fill: #1c2333; }
+      .card-stroke { stroke: #30363d; stroke-width: 2; }
+      .text-primary { fill: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+      .text-secondary { fill: #8b949e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+      .text-title { font-size: 14px; font-weight: 600; }
+      .text-desc { font-size: 11px; }
+      .connection { stroke: #00d2b4; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .connection-dim { stroke: #00a894; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead-dim); stroke-dasharray: 5,5; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#00d2b4" />
+    </marker>
+    <marker id="arrowhead-dim" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#00a894" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" class="bg-primary" />
+
+  <!-- Title -->
+  <text x="400" y="30" class="text-primary text-title" text-anchor="middle" font-size="18" font-weight="700">
+    Agent Audit Monorepo Architecture
+  </text>
+
+  <!-- Layer labels -->
+  <text x="20" y="470" class="text-secondary text-desc">Foundation</text>
+  <text x="20" y="250" class="text-secondary text-desc">Core Packages</text>
+  <text x="20" y="80" class="text-secondary text-desc">Entry Point</text>
+
+  <!-- Shared (center, bottom) -->
+  <rect x="300" y="400" width="200" height="70" class="card-bg card-stroke" rx="6" />
+  <text x="400" y="425" class="text-primary text-title" text-anchor="middle">@agent-audit/shared</text>
+  <text x="400" y="445" class="text-secondary text-desc" text-anchor="middle">Types • Constants • Utilities</text>
+
+  <!-- Scanner -->
+  <rect x="50" y="220" width="140" height="70" class="card-bg card-stroke" rx="6" />
+  <text x="120" y="243" class="text-primary text-title" text-anchor="middle">Scanner</text>
+  <text x="120" y="263" class="text-secondary text-desc" text-anchor="middle">Scanning Engine</text>
+
+  <!-- Metrics -->
+  <rect x="210" y="220" width="140" height="70" class="card-bg card-stroke" rx="6" />
+  <text x="280" y="243" class="text-primary text-title" text-anchor="middle">Metrics</text>
+  <text x="280" y="263" class="text-secondary text-desc" text-anchor="middle">Security Scoring</text>
+
+  <!-- Policy -->
+  <rect x="370" y="220" width="140" height="70" class="card-bg card-stroke" rx="6" />
+  <text x="440" y="243" class="text-primary text-title" text-anchor="middle">Policy</text>
+  <text x="440" y="263" class="text-secondary text-desc" text-anchor="middle">Policy Rules</text>
+
+  <!-- OpenClaw -->
+  <rect x="530" y="220" width="140" height="70" class="card-bg card-stroke" rx="6" />
+  <text x="600" y="243" class="text-primary text-title" text-anchor="middle">OpenClaw</text>
+  <text x="600" y="263" class="text-secondary text-desc" text-anchor="middle">SKILL.md Format</text>
+
+  <!-- Reporter -->
+  <rect x="690" y="220" width="110" height="70" class="card-bg card-stroke" rx="6" />
+  <text x="745" y="243" class="text-primary text-title" text-anchor="middle">Reporter</text>
+  <text x="745" y="263" class="text-secondary text-desc" text-anchor="middle">Report Gen</text>
+
+  <!-- CLI (top) -->
+  <rect x="250" y="40" width="300" height="70" class="card-bg card-stroke" rx="6" />
+  <text x="400" y="63" class="text-primary text-title" text-anchor="middle" font-size="15" font-weight="700">@agent-audit/cli</text>
+  <text x="400" y="83" class="text-secondary text-desc" text-anchor="middle">CLI Entry Point (Published: agent-audit)</text>
+
+  <!-- Connections: Core packages to Shared -->
+  <path d="M 120 290 Q 280 350 350 400" class="connection" />
+  <path d="M 280 290 Q 350 350 380 400" class="connection" />
+  <path d="M 440 290 Q 440 350 440 400" class="connection" />
+  <path d="M 600 290 Q 520 350 460 400" class="connection" />
+  <path d="M 745 290 Q 520 350 450 400" class="connection" />
+
+  <!-- Connections: CLI to Core packages -->
+  <path d="M 330 110 L 120 220" class="connection-dim" />
+  <path d="M 360 110 L 280 220" class="connection-dim" />
+  <path d="M 400 110 L 440 220" class="connection-dim" />
+  <path d="M 440 110 L 600 220" class="connection-dim" />
+  <path d="M 470 110 L 745 220" class="connection-dim" />
+
+  <!-- Legend -->
+  <circle cx="50" cy="340" r="4" class="connection" />
+  <text x="60" y="345" class="text-secondary text-desc">Solid: Package dependency</text>
+
+  <line x1="50" y1="360" x2="66" y2="360" class="connection-dim" />
+  <text x="70" y="365" class="text-secondary text-desc">Dashed: CLI integration</text>
+</svg>

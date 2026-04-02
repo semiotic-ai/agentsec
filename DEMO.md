@@ -1,8 +1,11 @@
-# agent-audit Demo Guide
+# Demo Guide
 
 > For installation and project overview, see [README.md](README.md).
+> For development setup, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Quick Demo
+
+From a built checkout (`bun install && bun run build`):
 
 ```bash
 bun run demo
@@ -10,65 +13,28 @@ bun run demo
 
 This runs a full security audit against the bundled test fixtures and prints findings to the terminal.
 
-## Running the Audit
+## Step-by-Step Demo
 
-### Scan the bundled test fixtures
+### 1. Scan the bundled test fixtures
 
 ```bash
 bun packages/cli/src/cli.ts audit --path ./e2e/fixtures
 ```
 
-### Scan a specific skill directory
+### 2. Try different output formats
 
 ```bash
-bun packages/cli/src/cli.ts audit --path /path/to/your/skills
-```
-
-### Scan only (no policy evaluation)
-
-```bash
-bun packages/cli/src/cli.ts scan --path ./e2e/fixtures
-```
-
-### Verbose output
-
-```bash
-bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --verbose
-```
-
-## Report Formats
-
-### JSON report
-
-```bash
+# JSON (machine-readable)
 bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format json --output audit.json
-```
 
-### HTML report
-
-```bash
+# HTML (interactive dashboard)
 bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format html --output report.html
-```
 
-### SARIF report (for IDE/CI integration)
-
-```bash
+# SARIF (IDE/CI integration)
 bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format sarif --output audit.sarif
 ```
 
-Pre-generated example reports are available in the [`examples/`](examples/) folder.
-
-### Generate a report from saved JSON
-
-```bash
-# First, save an audit as JSON
-bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format json --output audit.json
-
-# Then convert to HTML
-bun packages/cli/src/cli.ts report audit.json --format html --output report.html
-```
-
-## Policy Presets
+### 3. Apply different policy presets
 
 ```bash
 # Strict -- zero tolerance for high/critical findings
@@ -84,11 +50,51 @@ bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --policy permissive
 bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --policy enterprise
 ```
 
-### List available policies
+### 4. Scan a specific skill
 
 ```bash
-bun packages/cli/src/cli.ts policy list
+bun packages/cli/src/cli.ts audit --path ./e2e/fixtures/injection-vuln-skill
 ```
+
+### 5. Scan-only mode (no policy evaluation)
+
+```bash
+bun packages/cli/src/cli.ts scan --path ./e2e/fixtures
+```
+
+### 6. Verbose output
+
+```bash
+bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --verbose
+```
+
+## Pre-Generated Example Reports
+
+The [`examples/`](examples/) folder contains sample reports you can inspect without running the scanner:
+
+| File | Format | Description |
+|------|--------|-------------|
+| [`audit-report.html`](examples/audit-report.html) | HTML | Interactive dashboard with findings, scores, and recommendations |
+| [`audit-report.json`](examples/audit-report.json) | JSON | Machine-readable output for CI/CD integration |
+| [`audit-report.sarif`](examples/audit-report.sarif) | SARIF | IDE integration format (VS Code, GitHub) |
+| [`audit-report.txt`](examples/audit-report.txt) | Text | Plain text for logs and terminals |
+
+Open the HTML report in a browser to see the full dashboard experience.
+
+## Test Fixtures
+
+The `e2e/fixtures/` directory contains sample skills designed to trigger specific scanner rules:
+
+| Fixture | What it demonstrates |
+|---------|---------------------|
+| `good-skill` | Clean skill with no findings |
+| `injection-vuln-skill` | Code injection vulnerabilities |
+| `excessive-perms-skill` | Overly broad permission requests |
+| `bad-deps-skill` | Problematic dependencies |
+| `bad-injection-skill` | Injection pattern variant |
+| `supply-chain-skill` | Supply chain risk indicators |
+| `bad-permissions-skill` | Overly broad permission declarations |
+| `insecure-storage-skill` | Insecure data storage patterns |
 
 ## Configuration Reference
 
@@ -126,47 +132,32 @@ export default defineConfig({
 });
 ```
 
-## Test Fixtures
+### List available policies
 
-The `e2e/fixtures/` directory contains sample skills for testing:
+```bash
+bun packages/cli/src/cli.ts policy list
+```
 
-| Fixture | Description |
-|---------|-------------|
-| `good-skill` | Clean skill with no findings |
-| `injection-vuln-skill` | Contains code injection vulnerabilities |
-| `excessive-perms-skill` | Requests more permissions than needed |
-| `bad-deps-skill` | Has problematic dependencies |
-| `bad-injection-skill` | Another injection pattern variant |
-| `supply-chain-skill` | Supply chain risk indicators |
-| `bad-permissions-skill` | Overly broad permission declarations |
-| `insecure-storage-skill` | Insecure data storage patterns |
+## Generating a Report from Saved JSON
 
-## Adding a New Scanner Rule
+```bash
+# First, save an audit as JSON
+bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format json --output audit.json
 
-Scanner rules live in `packages/scanner/src/rules/`. Each file exports rule definitions that match against skill source code. See existing rules for the pattern:
-
-- `injection.ts` -- Code injection detection
-- `permissions.ts` -- Permission analysis
-- `dependencies.ts` -- Dependency risk checks
-- `supply-chain.ts` -- Supply chain indicators
-- `storage.ts` -- Insecure storage patterns
-- `deserialization.ts` -- Unsafe deserialization
-- `dos.ts` -- Denial of service patterns
-- `logging.ts` -- Logging hygiene
-- `error-handling.ts` -- Error handling checks
-- `output-handling.ts` -- Output sanitization
-
-## Creating a Test Fixture
-
-Add a new directory under `e2e/fixtures/` with:
-
-1. A `skill.json` manifest
-2. A `src/` directory with TypeScript source files
-3. Optionally a `package.json` (for dependency-related rules)
+# Then convert to HTML
+bun packages/cli/src/cli.ts report audit.json --format html --output report.html
+```
 
 ## Lume VM Testing
 
-Lume provides sandboxed macOS VMs for end-to-end testing. This is optional and only needed for full integration tests. Requires Apple Silicon, macOS 13.0+, 16 GB RAM (recommended), and ~60 GB free disk space.
+Lume provides sandboxed macOS VMs for end-to-end testing. This is optional and only needed for full integration tests.
+
+### Requirements
+
+- Apple Silicon Mac
+- macOS 13.0+
+- 16 GB RAM (recommended)
+- ~60 GB free disk space
 
 ### Setup
 
@@ -183,7 +174,7 @@ This creates a macOS VM named `agent-audit-vm` with 4 CPUs, 8 GB RAM, and 50 GB 
 cd e2e && bun test
 ```
 
-The E2E suite will start the VM, install OpenClaw inside it, deploy the fixture skills, and run `agent-audit` against the VM environment.
+The E2E suite starts the VM, installs OpenClaw inside it, deploys the fixture skills, and runs `agent-audit` against the VM environment.
 
 ### Manual VM management
 

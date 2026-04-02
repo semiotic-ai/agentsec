@@ -1,0 +1,129 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg-primary { fill: #0d1117; }
+      .card-bg { fill: #1c2333; }
+      .card-stroke { stroke: #30363d; stroke-width: 2; }
+      .text-primary { fill: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+      .text-secondary { fill: #8b949e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+      .text-code { font-family: 'SF Mono', 'Cascadia Code', monospace; }
+      .text-title { font-size: 16px; font-weight: 700; }
+      .text-id { font-size: 12px; font-weight: 600; }
+      .text-name { font-size: 11px; }
+      .shield { fill: #00d2b4; }
+      .icon { font-size: 20px; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" class="bg-primary" />
+
+  <!-- Header -->
+  <text x="400" y="35" class="text-primary text-title" text-anchor="middle" font-size="20" font-weight="700">
+    OWASP Agentic Skills Top 10
+  </text>
+  <text x="400" y="55" class="text-secondary text-name" text-anchor="middle">Coverage and Risk Categories</text>
+
+  <!-- AST01 -->
+  <rect x="30" y="80" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="57" cy="105" r="12" class="shield" />
+  <text x="95" y="107" class="text-primary text-id">AST01</text>
+  <text x="105" y="125" class="text-primary text-name" text-anchor="middle">Malicious</text>
+  <text x="105" y="140" class="text-primary text-name" text-anchor="middle">Skills</text>
+  <text x="105" y="160" class="text-secondary" style="font-size: 9px" text-anchor="middle">Threat detection</text>
+
+  <!-- AST02 -->
+  <rect x="200" y="80" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="227" cy="105" r="12" class="shield" />
+  <text x="265" y="107" class="text-primary text-id">AST02</text>
+  <text x="275" y="125" class="text-primary text-name" text-anchor="middle">Supply Chain</text>
+  <text x="275" y="140" class="text-primary text-name" text-anchor="middle">Compromise</text>
+  <text x="275" y="160" class="text-secondary" style="font-size: 9px" text-anchor="middle">Dependency audit</text>
+
+  <!-- AST03 -->
+  <rect x="370" y="80" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="397" cy="105" r="12" class="shield" />
+  <text x="435" y="107" class="text-primary text-id">AST03</text>
+  <text x="445" y="125" class="text-primary text-name" text-anchor="middle">Over-Privileged</text>
+  <text x="445" y="140" class="text-primary text-name" text-anchor="middle">Skills</text>
+  <text x="445" y="160" class="text-secondary" style="font-size: 9px" text-anchor="middle">Permission check</text>
+
+  <!-- AST04 -->
+  <rect x="540" y="80" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="567" cy="105" r="12" class="shield" />
+  <text x="605" y="107" class="text-primary text-id">AST04</text>
+  <text x="615" y="125" class="text-primary text-name" text-anchor="middle">Insecure</text>
+  <text x="615" y="140" class="text-primary text-name" text-anchor="middle">Metadata</text>
+  <text x="615" y="160" class="text-secondary" style="font-size: 9px" text-anchor="middle">Metadata parse</text>
+
+  <!-- AST05 -->
+  <rect x="620" y="80" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="647" cy="105" r="12" class="shield" />
+  <text x="685" y="107" class="text-primary text-id">AST05</text>
+  <text x="695" y="125" class="text-primary text-name" text-anchor="middle">Unsafe</text>
+  <text x="695" y="140" class="text-primary text-name" text-anchor="middle">Deserialization</text>
+  <text x="695" y="160" class="text-secondary" style="font-size: 9px" text-anchor="middle">Code analysis</text>
+
+  <!-- AST06 -->
+  <rect x="30" y="210" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="57" cy="235" r="12" class="shield" />
+  <text x="95" y="237" class="text-primary text-id">AST06</text>
+  <text x="105" y="255" class="text-primary text-name" text-anchor="middle">Weak</text>
+  <text x="105" y="270" class="text-primary text-name" text-anchor="middle">Isolation</text>
+  <text x="105" y="290" class="text-secondary" style="font-size: 9px" text-anchor="middle">Boundary check</text>
+
+  <!-- AST07 -->
+  <rect x="200" y="210" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="227" cy="235" r="12" class="shield" />
+  <text x="265" y="237" class="text-primary text-id">AST07</text>
+  <text x="275" y="255" class="text-primary text-name" text-anchor="middle">Update</text>
+  <text x="275" y="270" class="text-primary text-name" text-anchor="middle">Drift</text>
+  <text x="275" y="290" class="text-secondary" style="font-size: 9px" text-anchor="middle">Version tracking</text>
+
+  <!-- AST08 -->
+  <rect x="370" y="210" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="397" cy="235" r="12" class="shield" />
+  <text x="435" y="237" class="text-primary text-id">AST08</text>
+  <text x="445" y="255" class="text-primary text-name" text-anchor="middle">Poor</text>
+  <text x="445" y="270" class="text-primary text-name" text-anchor="middle">Scanning</text>
+  <text x="445" y="290" class="text-secondary" style="font-size: 9px" text-anchor="middle">Deep inspection</text>
+
+  <!-- AST09 -->
+  <rect x="540" y="210" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="567" cy="235" r="12" class="shield" />
+  <text x="605" y="237" class="text-primary text-id">AST09</text>
+  <text x="615" y="255" class="text-primary text-name" text-anchor="middle">No</text>
+  <text x="615" y="270" class="text-primary text-name" text-anchor="middle">Governance</text>
+  <text x="615" y="290" class="text-secondary" style="font-size: 9px" text-anchor="middle">Policy engine</text>
+
+  <!-- AST10 -->
+  <rect x="620" y="210" width="150" height="100" class="card-bg card-stroke" rx="6" />
+  <circle cx="647" cy="235" r="12" class="shield" />
+  <text x="685" y="237" class="text-primary text-id">AST10</text>
+  <text x="695" y="255" class="text-primary text-name" text-anchor="middle">Cross-Platform</text>
+  <text x="695" y="270" class="text-primary text-name" text-anchor="middle">Reuse</text>
+  <text x="695" y="290" class="text-secondary" style="font-size: 9px" text-anchor="middle">Portability check</text>
+
+  <!-- Footer info -->
+  <rect x="30" y="350" width="740" height="200" class="card-bg card-stroke" rx="6" />
+
+  <text x="50" y="375" class="text-primary" style="font-size: 13px; font-weight: 600;">About OWASP Agentic Skills Top 10</text>
+
+  <text x="50" y="398" class="text-primary" style="font-size: 11px; font-weight: 500;">Malicious Skills (AST01)</text>
+  <text x="50" y="412" class="text-secondary" style="font-size: 10px;">Detection of skills with malicious intent, hidden capabilities, or data exfiltration risks</text>
+
+  <text x="50" y="432" class="text-primary" style="font-size: 11px; font-weight: 500;">Supply Chain Compromise (AST02)</text>
+  <text x="50" y="446" class="text-secondary" style="font-size: 10px;">Vulnerable dependencies, outdated packages, and compromised sources</text>
+
+  <text x="50" y="466" class="text-primary" style="font-size: 11px; font-weight: 500;">Over-Privileged Skills (AST03)</text>
+  <text x="50" y="480" class="text-secondary" style="font-size: 10px;">Excessive permissions beyond what is required for the skill's stated purpose</text>
+
+  <text x="50" y="500" class="text-primary" style="font-size: 11px; font-weight: 500;">Policy Enforcement (AST09)</text>
+  <text x="50" y="514" class="text-secondary" style="font-size: 10px;">Lack of governance rules and policy controls over skill deployment and execution</text>
+
+  <!-- Badge explanation -->
+  <g>
+    <circle cx="50" cy="540" r="8" class="shield" />
+    <text x="65" y="545" class="text-primary" style="font-size: 11px;">Each risk is scanned and scored by Agent Audit</text>
+  </g>
+</svg>

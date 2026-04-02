@@ -1,0 +1,26 @@
+<svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .pill-bg { fill: #0d1117; stroke: #00d2b4; stroke-width: 1.5; }
+      .shield-badge { fill: none; stroke: #00d2b4; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+      .check-badge { stroke: #00d2b4; stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .badge-text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; font-size: 14px; font-weight: 600; fill: #00d2b4; letter-spacing: 0.3px; }
+    </style>
+  </defs>
+
+  <!-- Pill background -->
+  <rect class="pill-bg" x="2" y="2" width="276" height="76" rx="38" ry="38"/>
+
+  <!-- Icon group: small shield with checkmark -->
+  <g transform="translate(18, 20)">
+    <!-- Shield -->
+    <path class="shield-badge" d="M 20 2 L 28 6 L 28 15 C 28 21 20 26 20 26 C 20 26 12 21 12 15 L 12 6 Z"/>
+    <!-- Checkmark -->
+    <g opacity="0.95">
+      <path class="check-badge" d="M 16 17 L 19 20 L 24 14"/>
+    </g>
+  </g>
+
+  <!-- Badge text -->
+  <text class="badge-text" x="70" y="52">Agent Audit Certified</text>
+</svg>
