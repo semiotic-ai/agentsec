@@ -1,7 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "installCommand": "bun install",
-  "buildCommand": "turbo build --filter=@agent-audit/landing",
-  "outputDirectory": "apps/landing/.next"
-}
