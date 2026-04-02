@@ -1,11 +1,12 @@
 export { Scanner, type ScanOptions, type RuleFunction } from "./scanner";
+export { ALL_RULES, type RuleDefinition } from "./rules";
 
 export {
   checkInjection,
-  checkExcessivePermissions,
-  checkDependencyVulnerabilities,
-  checkInsecureOutput,
-  checkInsecureStorage,
+  checkPermissions,
+  checkDependencies,
+  checkOutputHandling,
+  checkStorage,
   checkSupplyChain,
   checkErrorHandling,
   checkUnsafeDeserialization,
