@@ -3,17 +3,30 @@ import type { AgentPlatform } from "./types";
 export const OPENCLAW_SKILL_DIRS: Record<string, string[]> = {
   darwin: [
     "~/.openclaw/skills",
-    "~/.config/openclaw/skills",
-    "~/Library/Application Support/openclaw/skills",
+    "~/.agents/skills",
+    "./skills",
+    "./.agents/skills",
   ],
   linux: [
     "~/.openclaw/skills",
-    "~/.config/openclaw/skills",
+    "~/.agents/skills",
+    "./skills",
+    "./.agents/skills",
   ],
   win32: [
     "%APPDATA%/openclaw/skills",
     "%LOCALAPPDATA%/openclaw/skills",
+    ".\\skills",
+    ".\\.agents\\skills",
   ],
+};
+
+/** OpenClaw config file paths for reading installed skill state */
+export const OPENCLAW_CONFIG_FILES = {
+  mainConfig: "~/.openclaw/openclaw.json",
+  clawHubConfig: "~/Library/Application Support/clawhub/config.json",
+  lockFile: ".clawhub/lock.json",
+  originFile: ".clawhub/origin.json",
 };
 
 export const CLAUDE_SKILL_DIRS: Record<string, string[]> = {
@@ -24,10 +37,10 @@ export const CLAUDE_SKILL_DIRS: Record<string, string[]> = {
 };
 
 export const SKILL_MANIFEST_FILES = [
+  "SKILL.md",       // Primary format for OpenClaw/ClawHub skills
   "skill.json",
   "skill.yaml",
   "skill.yml",
-  "SKILL.md",
   "package.json",
   "manifest.json",
 ];
