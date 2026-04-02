@@ -1,11 +1,36 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
-.turbo/
-coverage/
 *.tsbuildinfo
+
+# Turbo
+.turbo/
+
+# Test coverage
+coverage/
+
+# Security - secrets and credentials
 .env
-.env.local
+.env.*
+.secret*
+*.pem
+*.key
+*.p12
+*.cert
+credentials.json
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Project-specific
 .reference/
 .lume/images/
 .lume/*.qcow2
