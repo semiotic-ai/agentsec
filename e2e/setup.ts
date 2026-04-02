@@ -181,16 +181,62 @@ async function ensureLumeService(): Promise<void> {
   }
 }
 
+/**
+ * VM statuses that indicate the VM cannot be started right now.
+ * When a VM is in one of these states, tests should skip gracefully
+ * instead of hanging while waiting for a state transition that may
+ * never complete within a reasonable timeout.
+ */
+const NON_STARTABLE_STATUSES = new Set([
+  "provisioning",
+  "provisioning (ipsw_install)",
+  "downloading",
+  "restoring",
+  "error",
+]);
+
+/**
+ * Check whether the VM is in a state that prevents it from being started.
+ * Returns a human-readable reason string if the VM cannot be started,
+ * or null if it can proceed.
+ */
+function getVmBlockReason(status: string): string | null {
+  // Exact match
+  if (NON_STARTABLE_STATUSES.has(status)) {
+    return status;
+  }
+  // Prefix match for sub-states like "provisioning (ipsw_install)"
+  for (const prefix of NON_STARTABLE_STATUSES) {
+    if (status.startsWith(prefix)) {
+      return status;
+    }
+  }
+  return null;
+}
+
+/** Tracks whether the VM is confirmed reachable and ready for SSH. */
+export let vmReady = false;
+
 async function ensureVm(): Promise<void> {
   const existing = await getVm(CONFIG.vmName);
   if (existing) {
     console.log(`[setup] VM '${CONFIG.vmName}' already exists (status: ${existing.status}).`);
+
+    const blockReason = getVmBlockReason(existing.status);
+    if (blockReason) {
+      console.log(`[test] VM is ${blockReason}, skipping VM-dependent tests`);
+      vmReady = false;
+      return;
+    }
+
     if (existing.status !== "running") {
       await startVm();
     }
+    vmReady = true;
   } else {
     await createVm();
     await startVm();
+    vmReady = true;
   }
 }
 
@@ -363,4 +409,4 @@ main().catch((err) => {
 });
 
 // Export for use by tests
-export { CONFIG, deleteVm, ensureLumeService, ensureVm, getVm, sshExec, stopVm, waitForSsh };
+export { CONFIG, deleteVm, ensureLumeService, ensureVm, getVm, sshExec, stopVm, vmReady, waitForSsh };

@@ -11,8 +11,9 @@
     "test": "turbo test",
     "lint": "bunx biome check .",
     "format": "bunx biome check --write .",
-    "check": "turbo check",
+    "check": "turbo run //#check",
     "audit": "bun run --filter @agent-audit/cli -- audit",
+    "demo": "bun packages/cli/src/cli.ts audit --path ./e2e/fixtures",
     "clean": "turbo clean"
   },
   "devDependencies": {

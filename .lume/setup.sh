@@ -35,6 +35,33 @@ check_apple_silicon() {
   fi
 }
 
+wait_for_provisioning() {
+  local vm="$1"
+  local max_polls=60          # 60 x 30s = 30 minutes
+  local poll_interval=30
+
+  info "VM '$vm' is still being provisioned (ipsw_install). Waiting up to 30 minutes..."
+  for i in $(seq 1 "$max_polls"); do
+    local status
+    status="$(lume ls 2>/dev/null | grep "$vm" || true)"
+
+    if [[ -z "$status" ]]; then
+      die "VM '$vm' disappeared while waiting for provisioning."
+    fi
+
+    if echo "$status" | grep -qi "provisioning\|ipsw_install"; then
+      local elapsed=$(( i * poll_interval ))
+      info "  Still provisioning... (${elapsed}s elapsed, polling every ${poll_interval}s)"
+      sleep "$poll_interval"
+    else
+      info "VM '$vm' provisioning complete."
+      return 0
+    fi
+  done
+
+  die "VM '$vm' is still provisioning after 30 minutes. Check 'lume ls' manually."
+}
+
 # ---------------------------------------------------------------------------
 # 1. Install Lume CLI
 # ---------------------------------------------------------------------------
@@ -99,8 +126,16 @@ ensure_lume_service() {
 # ---------------------------------------------------------------------------
 create_vm() {
   info "Checking for existing VM '$VM_NAME'..."
-  if lume ls 2>/dev/null | grep -q "$VM_NAME"; then
-    info "VM '$VM_NAME' already exists. Skipping creation."
+  local vm_status
+  vm_status="$(lume ls 2>/dev/null | grep "$VM_NAME" || true)"
+
+  if [[ -n "$vm_status" ]]; then
+    # VM exists -- check if it is still being provisioned
+    if echo "$vm_status" | grep -qi "provisioning\|ipsw_install"; then
+      wait_for_provisioning "$VM_NAME"
+    else
+      info "VM '$VM_NAME' already exists. Skipping creation."
+    fi
     return 0
   fi
 

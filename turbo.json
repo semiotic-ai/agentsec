@@ -23,8 +23,18 @@
         "e2e/**/*.ts"
       ]
     },
-    "check": {
-      "dependsOn": ["^build"]
+    "//#check": {
+      "dependsOn": ["build"]
+    },
+    "//#format": {
+      "inputs": [
+        "biome.json",
+        "packages/**/*.ts",
+        "packages/**/*.json",
+        "apps/**/*.ts",
+        "apps/**/*.json",
+        "e2e/**/*.ts"
+      ]
     },
     "clean": {
       "cache": false

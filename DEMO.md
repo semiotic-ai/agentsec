@@ -1,27 +1,14 @@
 # agent-audit Demo Guide
 
-## Quick Start
+> For installation and project overview, see [README.md](README.md).
+
+## Quick Demo
 
 ```bash
-bun install && bun packages/cli/src/cli.ts audit --path ./e2e/fixtures
+bun run demo
 ```
 
 This runs a full security audit against the bundled test fixtures and prints findings to the terminal.
-
-## Setup
-
-### Prerequisites
-
-- **Bun** -- Install from [bun.sh](https://bun.sh) (`curl -fsSL https://bun.sh/install | bash`)
-- **Apple Silicon Mac** -- Required only for Lume VM testing (M1/M2/M3/M4)
-- **macOS 13.0+** -- Required only for Lume VM testing
-
-### Install
-
-```bash
-git clone <repo-url> && cd agent-audit
-bun install
-```
 
 ## Running the Audit
 
@@ -49,7 +36,7 @@ bun packages/cli/src/cli.ts scan --path ./e2e/fixtures
 bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --verbose
 ```
 
-## Key Features Demo
+## Report Formats
 
 ### JSON report
 
@@ -69,9 +56,19 @@ bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format html --output r
 bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format sarif --output audit.sarif
 ```
 
-### Policy presets
+Pre-generated example reports are available in the [`examples/`](examples/) folder.
 
-Apply a policy preset to gate pass/fail:
+### Generate a report from saved JSON
+
+```bash
+# First, save an audit as JSON
+bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format json --output audit.json
+
+# Then convert to HTML
+bun packages/cli/src/cli.ts report audit.json --format html --output report.html
+```
+
+## Policy Presets
 
 ```bash
 # Strict -- zero tolerance for high/critical findings
@@ -93,14 +90,40 @@ bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --policy enterprise
 bun packages/cli/src/cli.ts policy list
 ```
 
-### Generate a report from saved JSON
+## Configuration Reference
 
-```bash
-# First, save an audit as JSON
-bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --format json --output audit.json
+Create an `agent-audit.config.ts` in your project root:
 
-# Then convert to HTML
-bun packages/cli/src/cli.ts report audit.json --format html --output report.html
+```typescript
+import { defineConfig } from "agent-audit";
+
+export default defineConfig({
+  // Directories to scan
+  include: ["./skills", "./agents"],
+
+  // Policy preset: "standard" | "strict" | "enterprise"
+  policy: "strict",
+
+  // Fail threshold: "critical" | "high" | "medium" | "low"
+  failOn: "high",
+
+  // Output format: "html" | "json" | "pdf"
+  format: "html",
+
+  // OWASP AST10 categories to check (all enabled by default)
+  rules: {
+    "ast01-malicious-skills": "error",
+    "ast02-supply-chain": "error",
+    "ast03-over-privileged": "warn",
+    "ast04-insecure-metadata": "warn",
+    "ast05-unsafe-deserialization": "error",
+    "ast06-weak-isolation": "error",
+    "ast07-update-drift": "warn",
+    "ast08-poor-scanning": "warn",
+    "ast09-no-governance": "warn",
+    "ast10-cross-platform": "info",
+  },
+});
 ```
 
 ## Test Fixtures
@@ -118,39 +141,7 @@ The `e2e/fixtures/` directory contains sample skills for testing:
 | `bad-permissions-skill` | Overly broad permission declarations |
 | `insecure-storage-skill` | Insecure data storage patterns |
 
-## Development
-
-### Run all tests
-
-```bash
-bun run test
-```
-
-### Run tests for a single package
-
-```bash
-bun test --filter @agent-audit/scanner
-```
-
-### Build all packages
-
-```bash
-bun run build
-```
-
-### Type-check
-
-```bash
-bun run check
-```
-
-### Lint (Biome)
-
-```bash
-bun run lint
-```
-
-### Adding a new scanner rule
+## Adding a New Scanner Rule
 
 Scanner rules live in `packages/scanner/src/rules/`. Each file exports rule definitions that match against skill source code. See existing rules for the pattern:
 
@@ -165,7 +156,7 @@ Scanner rules live in `packages/scanner/src/rules/`. Each file exports rule defi
 - `error-handling.ts` -- Error handling checks
 - `output-handling.ts` -- Output sanitization
 
-### Creating a test fixture
+## Creating a Test Fixture
 
 Add a new directory under `e2e/fixtures/` with:
 
