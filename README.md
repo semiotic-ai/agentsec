@@ -94,18 +94,18 @@ See [`examples/`](./examples/) for full report samples in HTML, JSON, SARIF, and
 
 Every scan checks for all 10 risk categories:
 
-| ID | Risk | What We Detect |
-|----|------|----------------|
-| **AST01** | Malicious Skills | Dangerous code patterns, known-malicious signatures |
-| **AST02** | Supply Chain Compromise | Dependency provenance, transparency log gaps |
-| **AST03** | Over-Privileged Skills | Excessive permission grants, least-privilege violations |
-| **AST04** | Insecure Metadata | Schema validation failures, metadata integrity issues |
-| **AST05** | Unsafe Deserialization | Parser safety gaps, injection vectors |
-| **AST06** | Weak Isolation | Missing sandboxing, container misconfigurations |
-| **AST07** | Update Drift | Unpinned versions, stale dependencies, hash mismatches |
-| **AST08** | Poor Scanning | Coverage gaps, incomplete scanning pipelines |
-| **AST09** | No Governance | Missing audit logs, absent policy enforcement |
-| **AST10** | Cross-Platform Reuse | Platform-specific validation gaps, portability issues |
+| ID        | Risk                    | What We Detect                                          |
+| --------- | ----------------------- | ------------------------------------------------------- |
+| **AST01** | Malicious Skills        | Dangerous code patterns, known-malicious signatures     |
+| **AST02** | Supply Chain Compromise | Dependency provenance, transparency log gaps            |
+| **AST03** | Over-Privileged Skills  | Excessive permission grants, least-privilege violations |
+| **AST04** | Insecure Metadata       | Schema validation failures, metadata integrity issues   |
+| **AST05** | Unsafe Deserialization  | Parser safety gaps, injection vectors                   |
+| **AST06** | Weak Isolation          | Missing sandboxing, container misconfigurations         |
+| **AST07** | Update Drift            | Unpinned versions, stale dependencies, hash mismatches  |
+| **AST08** | Poor Scanning           | Coverage gaps, incomplete scanning pipelines            |
+| **AST09** | No Governance           | Missing audit logs, absent policy enforcement           |
+| **AST10** | Cross-Platform Reuse    | Platform-specific validation gaps, portability issues   |
 
 ## Supported Agents
 
