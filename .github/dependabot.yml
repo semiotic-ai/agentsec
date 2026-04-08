@@ -4,6 +4,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Disable automatic PRs — only use Dependabot for security alerts
+    open-pull-requests-limit: 0
     # Test fixtures intentionally contain vulnerable/malicious deps for scanning validation
     exclude-paths:
       - "e2e/fixtures/**"
