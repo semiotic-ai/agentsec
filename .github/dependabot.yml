@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Exclude test fixtures that intentionally contain vulnerable/malicious deps
+    allow:
+      - dependency-scope: "production"
+      - dependency-scope: "development"
+    directories:
+      - "/"
+      - "/packages/shared"
+      - "/packages/scanner"
+      - "/packages/metrics"
+      - "/packages/policy"
+      - "/packages/openclaw"
+      - "/packages/reporter"
+      - "/packages/cli"
