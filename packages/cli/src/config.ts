@@ -1,12 +1,12 @@
 /**
- * Configuration loader for agent-audit.
+ * Configuration loader for agentsec.
  *
- * Searches for .agentauditrc or agent-audit.config.json in cwd
+ * Searches for .agentsecrc or agentsec.config.json in cwd
  * and parent directories, then merges with CLI flags.
  */
 
 import { join, resolve } from "node:path";
-import type { AgentPlatform, OutputFormat } from "@agent-audit/shared";
+import type { AgentPlatform, OutputFormat } from "@agentsec/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,7 +46,7 @@ export interface AuditConfig {
 // Config file search
 // ---------------------------------------------------------------------------
 
-const CONFIG_FILENAMES = [".agentauditrc", ".agentauditrc.json", "agent-audit.config.json"];
+const CONFIG_FILENAMES = [".agentsecrc", ".agentsecrc.json", "agentsec.config.json"];
 
 async function findConfigFile(startDir: string): Promise<string | null> {
   let dir = resolve(startDir);

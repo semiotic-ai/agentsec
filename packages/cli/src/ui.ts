@@ -1,11 +1,11 @@
 /**
- * Terminal UI utilities for agent-audit CLI.
+ * Terminal UI utilities for agentsec CLI.
  *
  * Provides colored output, spinner animation, progress bars,
  * and the ASCII banner used on startup.
  */
 
-import type { AuditGrade, Severity } from "@agent-audit/shared";
+import type { AuditGrade, Severity } from "@agentsec/shared";
 
 // ---------------------------------------------------------------------------
 // Color support

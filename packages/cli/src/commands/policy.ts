@@ -3,18 +3,18 @@
  * and show policy details.
  *
  * Usage:
- *   agent-audit policy list             List available policy presets
- *   agent-audit policy show <name>      Show rules in a policy
- *   agent-audit policy validate <file>  Validate a custom policy config
+ *   agentsec policy list             List available policy presets
+ *   agentsec policy show <name>      Show rules in a policy
+ *   agentsec policy validate <file>  Validate a custom policy config
  */
 
-import type { PolicyConfig } from "@agent-audit/shared";
+import type { PolicyConfig } from "@agentsec/shared";
 
 import type { AuditConfig } from "../config";
 import { color, error, heading, info, severityBadge, success } from "../ui";
 
 // ---------------------------------------------------------------------------
-// Built-in presets (available even if @agent-audit/policy is not built yet)
+// Built-in presets (available even if @agentsec/policy is not built yet)
 // ---------------------------------------------------------------------------
 
 interface PresetInfo {
@@ -52,7 +52,7 @@ const BUILT_IN_PRESETS: PresetInfo[] = [
 
 async function loadPolicyPresets(): Promise<PresetInfo[]> {
   try {
-    const policy = await import("@agent-audit/policy");
+    const policy = await import("@agentsec/policy");
 
     // The policy package returns string[] from listPresets() and has
     // getPreset(name) to retrieve the full PolicyConfig.
@@ -80,7 +80,7 @@ async function loadPolicyPresets(): Promise<PresetInfo[]> {
 
 async function loadPolicy(nameOrPath: string): Promise<PolicyConfig | null> {
   try {
-    const policy = await import("@agent-audit/policy");
+    const policy = await import("@agentsec/policy");
 
     // Try loading as a preset name first, then as a file path
     const getFn = policy.getPreset ?? policy.default?.getPreset;
@@ -180,7 +180,7 @@ async function listPresets(): Promise<number> {
     console.log();
   }
 
-  info(`Use ${color.bold("agent-audit policy show <name>")} to see rules`);
+  info(`Use ${color.bold("agentsec policy show <name>")} to see rules`);
   info(`Use ${color.bold("--policy <name>")} with the audit command to apply a preset`);
   console.log();
 
@@ -196,7 +196,7 @@ async function showPolicy(name: string): Promise<number> {
 
   if (!policy) {
     error(`Policy not found: ${name}`);
-    info("Use 'agent-audit policy list' to see available presets");
+    info("Use 'agentsec policy list' to see available presets");
     return 1;
   }
 
@@ -251,14 +251,14 @@ export async function runPolicy(_config: AuditConfig, args: string[]): Promise<n
     case "show":
       if (!args[1]) {
         error("Missing policy name");
-        info("Usage: agent-audit policy show <name>");
+        info("Usage: agentsec policy show <name>");
         return 1;
       }
       return showPolicy(args[1]);
     case "validate":
       if (!args[1]) {
         error("Missing file path");
-        info("Usage: agent-audit policy validate <file>");
+        info("Usage: agentsec policy validate <file>");
         return 1;
       }
       return validate(args[1]);

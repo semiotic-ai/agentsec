@@ -1,27 +1,56 @@
 {
-  "name": "agent-audit",
+  "name": "agentsec",
   "version": "0.1.0",
+  "description": "Security auditing CLI for AI agent skills — OWASP Agentic Skills Top 10",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/semiotic-agentium/agent-audit.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/semiotic-agentium/agent-audit",
+  "bugs": {
+    "url": "https://github.com/semiotic-agentium/agent-audit/issues"
+  },
+  "keywords": [
+    "security",
+    "audit",
+    "ai",
+    "agent",
+    "skills",
+    "owasp",
+    "openclaw",
+    "vulnerability",
+    "scanner",
+    "cli"
+  ],
   "main": "dist/cli.js",
   "types": "dist/cli.d.ts",
   "bin": {
-    "agent-audit": "./dist/cli.js"
+    "agentsec": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "engines": {
+    "bun": ">=1.0.0"
   },
   "scripts": {
     "build": "bun build src/cli.ts --outdir dist --target bun",
     "dev": "bun build src/cli.ts --outdir dist --target bun --watch",
     "test": "bun test",
-    "clean": "rm -rf dist"
-  },
-  "dependencies": {
-    "@agent-audit/shared": "workspace:*",
-    "@agent-audit/scanner": "workspace:*",
-    "@agent-audit/openclaw": "workspace:*",
-    "@agent-audit/metrics": "workspace:*",
-    "@agent-audit/policy": "workspace:*",
-    "@agent-audit/reporter": "workspace:*"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "bun run build"
   },
   "devDependencies": {
+    "@agentsec/shared": "workspace:*",
+    "@agentsec/scanner": "workspace:*",
+    "@agentsec/openclaw": "workspace:*",
+    "@agentsec/metrics": "workspace:*",
+    "@agentsec/policy": "workspace:*",
+    "@agentsec/reporter": "workspace:*",
     "@types/bun": "^1.3.11",
     "typescript": "^6.0.2"
   }

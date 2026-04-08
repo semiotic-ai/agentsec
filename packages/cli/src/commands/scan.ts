@@ -5,8 +5,8 @@
  * where you just want the raw scan data.
  */
 
-import type { AgentSkill, QualityMetrics, SecurityFinding } from "@agent-audit/shared";
-import { buildAuditScore, compareSeverity } from "@agent-audit/shared";
+import type { AgentSkill, QualityMetrics, SecurityFinding } from "@agentsec/shared";
+import { buildAuditScore, compareSeverity } from "@agentsec/shared";
 
 import type { AuditConfig } from "../config";
 import {
@@ -26,7 +26,7 @@ import {
 
 async function discoverSkills(config: AuditConfig): Promise<AgentSkill[]> {
   try {
-    const openclaw = await import("@agent-audit/openclaw");
+    const openclaw = await import("@agentsec/openclaw");
     const SkillDiscovery = openclaw.SkillDiscovery ?? openclaw.default?.SkillDiscovery;
     if (typeof SkillDiscovery === "function") {
       const discovery = new SkillDiscovery();
@@ -43,7 +43,7 @@ async function discoverSkills(config: AuditConfig): Promise<AgentSkill[]> {
 
 async function scanSkill(skill: AgentSkill): Promise<SecurityFinding[]> {
   try {
-    const scanner = await import("@agent-audit/scanner");
+    const scanner = await import("@agentsec/scanner");
     if (typeof scanner.scanSkill === "function") {
       return await scanner.scanSkill(skill);
     }
@@ -62,7 +62,7 @@ async function scanSkill(skill: AgentSkill): Promise<SecurityFinding[]> {
 
 async function calculateMetrics(skill: AgentSkill): Promise<QualityMetrics> {
   try {
-    const metrics = await import("@agent-audit/metrics");
+    const metrics = await import("@agentsec/metrics");
     const MetricsAnalyzer = metrics.MetricsAnalyzer ?? metrics.default?.MetricsAnalyzer;
     if (typeof MetricsAnalyzer === "function") {
       const analyzer = new MetricsAnalyzer();

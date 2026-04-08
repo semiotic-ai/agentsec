@@ -15,7 +15,7 @@ describe("CLI argument parsing", () => {
     expect(flags.verbose).toBe(false);
   });
 
-  it("parses 'agent-audit scan --path ./skills -f json -v'", () => {
+  it("parses 'agentsec scan --path ./skills -f json -v'", () => {
     const flags = parseFlags(argv("scan", "--path", "./skills", "-f", "json", "-v"));
     expect(flags.command).toBe("scan");
     expect(flags.path).toBe("./skills");
@@ -23,35 +23,35 @@ describe("CLI argument parsing", () => {
     expect(flags.verbose).toBe(true);
   });
 
-  it("parses 'agent-audit report output.json --format html'", () => {
+  it("parses 'agentsec report output.json --format html'", () => {
     const flags = parseFlags(argv("report", "output.json", "--format", "html"));
     expect(flags.command).toBe("report");
     expect(flags.args).toEqual(["output.json"]);
     expect(flags.format).toBe("html");
   });
 
-  it("parses 'agent-audit policy list'", () => {
+  it("parses 'agentsec policy list'", () => {
     const flags = parseFlags(argv("policy", "list"));
     expect(flags.command).toBe("policy");
     expect(flags.args).toEqual(["list"]);
   });
 
-  it("parses 'agent-audit --version' as version command", () => {
+  it("parses 'agentsec --version' as version command", () => {
     const flags = parseFlags(argv("--version"));
     expect(flags.command).toBe("version");
   });
 
-  it("parses 'agent-audit -V' as version command", () => {
+  it("parses 'agentsec -V' as version command", () => {
     const flags = parseFlags(argv("-V"));
     expect(flags.command).toBe("version");
   });
 
-  it("parses 'agent-audit --help' as help command", () => {
+  it("parses 'agentsec --help' as help command", () => {
     const flags = parseFlags(argv("--help"));
     expect(flags.command).toBe("help");
   });
 
-  it("parses 'agent-audit -h' as help command", () => {
+  it("parses 'agentsec -h' as help command", () => {
     const flags = parseFlags(argv("-h"));
     expect(flags.command).toBe("help");
   });

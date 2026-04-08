@@ -16,8 +16,8 @@ import type {
   Recommendation,
   SecurityFinding,
   SkillAuditResult,
-} from "@agent-audit/shared";
-import { buildAuditScore, compareSeverity } from "@agent-audit/shared";
+} from "@agentsec/shared";
+import { buildAuditScore, compareSeverity } from "@agentsec/shared";
 
 import type { AuditConfig } from "../config";
 import {
@@ -39,7 +39,7 @@ import {
 
 async function discoverSkills(config: AuditConfig): Promise<AgentSkill[]> {
   try {
-    const openclaw = await import("@agent-audit/openclaw");
+    const openclaw = await import("@agentsec/openclaw");
 
     // Use SkillDiscovery class which is the actual API
     const SkillDiscovery = openclaw.SkillDiscovery ?? openclaw.default?.SkillDiscovery;
@@ -62,7 +62,7 @@ async function discoverSkills(config: AuditConfig): Promise<AgentSkill[]> {
 
 async function scanSkill(skill: AgentSkill): Promise<SecurityFinding[]> {
   try {
-    const scanner = await import("@agent-audit/scanner");
+    const scanner = await import("@agentsec/scanner");
 
     // Try class-based API first, then function-based
     if (typeof scanner.scanSkill === "function") {
@@ -87,7 +87,7 @@ async function scanSkill(skill: AgentSkill): Promise<SecurityFinding[]> {
 
 async function calculateMetrics(skill: AgentSkill): Promise<QualityMetrics> {
   try {
-    const metrics = await import("@agent-audit/metrics");
+    const metrics = await import("@agentsec/metrics");
 
     // Use MetricsAnalyzer class which is the actual API
     const MetricsAnalyzer = metrics.MetricsAnalyzer ?? metrics.default?.MetricsAnalyzer;
@@ -123,7 +123,7 @@ async function loadPolicy(nameOrPath: string | null): Promise<PolicyConfig | nul
   if (!nameOrPath) return null;
 
   try {
-    const policy = await import("@agent-audit/policy");
+    const policy = await import("@agentsec/policy");
 
     // Try loading as a preset name first, then as a file path
     const getFn = policy.getPreset ?? policy.default?.getPreset;
@@ -148,7 +148,7 @@ async function evaluatePolicy(
   result: SkillAuditResult,
 ): Promise<PolicyViolation[]> {
   try {
-    const policy = await import("@agent-audit/policy");
+    const policy = await import("@agentsec/policy");
 
     // Use PolicyEngine.evaluate() which is the actual API
     const PolicyEngine = policy.PolicyEngine ?? policy.default?.PolicyEngine;
@@ -269,7 +269,7 @@ function generateRecommendations(
 
 async function writeReport(report: AuditReport, config: AuditConfig): Promise<void> {
   try {
-    const reporter = await import("@agent-audit/reporter");
+    const reporter = await import("@agentsec/reporter");
 
     // Use ReportGenerator class or format functions
     const ReportGenerator = reporter.ReportGenerator ?? reporter.default?.ReportGenerator;

@@ -1,12 +1,12 @@
 #!/usr/bin/env bun
 
 /**
- * agent-audit CLI
+ * agentsec CLI
  *
  * Security auditing for AI agent skills.
  *
  * Usage:
- *   agent-audit [command] [options]
+ *   agentsec [command] [options]
  *
  * Commands:
  *   audit   (default) Run a full security audit
@@ -17,7 +17,7 @@
  *   help    Show this help message
  */
 
-import { AUDIT_VERSION } from "@agent-audit/shared";
+import { AUDIT_VERSION } from "@agentsec/shared";
 import { runAudit } from "./commands/audit";
 import { runPolicy } from "./commands/policy";
 import { runReport } from "./commands/report";
@@ -33,7 +33,7 @@ function printHelp(): void {
   printBanner(AUDIT_VERSION);
 
   console.log(color.bold("USAGE"));
-  console.log(`  agent-audit [command] [options]`);
+  console.log(`  agentsec [command] [options]`);
   console.log();
 
   console.log(color.bold("COMMANDS"));
@@ -63,24 +63,24 @@ function printHelp(): void {
 
   console.log(color.bold("EXAMPLES"));
   console.log(`  ${color.dim("# Audit all installed OpenClaw skills")}`);
-  console.log(`  agent-audit`);
+  console.log(`  agentsec`);
   console.log();
   console.log(`  ${color.dim("# Audit with strict policy, output JSON")}`);
-  console.log(`  agent-audit --policy strict --format json --output audit.json`);
+  console.log(`  agentsec --policy strict --format json --output audit.json`);
   console.log();
   console.log(`  ${color.dim("# Scan a specific directory")}`);
-  console.log(`  agent-audit scan --path ./my-skills`);
+  console.log(`  agentsec scan --path ./my-skills`);
   console.log();
   console.log(`  ${color.dim("# Generate HTML report from previous audit")}`);
-  console.log(`  agent-audit report audit.json --format html --output report.html`);
+  console.log(`  agentsec report audit.json --format html --output report.html`);
   console.log();
   console.log(`  ${color.dim("# List available policies")}`);
-  console.log(`  agent-audit policy list`);
+  console.log(`  agentsec policy list`);
   console.log();
 }
 
 function printVersion(): void {
-  console.log(`agent-audit v${AUDIT_VERSION}`);
+  console.log(`agentsec v${AUDIT_VERSION}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -124,7 +124,7 @@ async function main(): Promise<void> {
 
     default:
       error(`Unknown command: ${flags.command}`);
-      info("Run 'agent-audit help' for usage information");
+      info("Run 'agentsec help' for usage information");
       exitCode = 1;
   }
 

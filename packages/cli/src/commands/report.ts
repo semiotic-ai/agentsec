@@ -2,10 +2,10 @@
  * Report command -- generates a formatted report from a saved audit JSON file.
  *
  * Usage:
- *   agent-audit report <audit.json> [--format html] [--output report.html]
+ *   agentsec report <audit.json> [--format html] [--output report.html]
  */
 
-import type { AuditReport } from "@agent-audit/shared";
+import type { AuditReport } from "@agentsec/shared";
 
 import type { AuditConfig } from "../config";
 import { color, createSpinner, error, formatGrade, heading, info, keyValue, success } from "../ui";
@@ -21,15 +21,15 @@ export async function runReport(config: AuditConfig, args: string[]): Promise<nu
     error("No input file specified");
     console.log();
     console.log(
-      `  ${color.bold("Usage:")} agent-audit report <audit.json> [--format html] [--output report.html]`,
+      `  ${color.bold("Usage:")} agentsec report <audit.json> [--format html] [--output report.html]`,
     );
     console.log();
     console.log("  Generate a formatted report from a previously saved audit JSON file.");
     console.log();
     console.log(`  ${color.bold("Examples:")}`);
-    console.log(`    agent-audit report audit-results.json`);
-    console.log(`    agent-audit report audit-results.json --format html --output report.html`);
-    console.log(`    agent-audit report audit-results.json --format sarif --output results.sarif`);
+    console.log(`    agentsec report audit-results.json`);
+    console.log(`    agentsec report audit-results.json --format html --output report.html`);
+    console.log(`    agentsec report audit-results.json --format sarif --output results.sarif`);
     console.log();
     return 1;
   }
@@ -56,7 +56,7 @@ export async function runReport(config: AuditConfig, args: string[]): Promise<nu
   // Validate basic structure
   if (!report.skills || !Array.isArray(report.skills) || !report.summary) {
     spinner.fail("Invalid audit report format");
-    error("The file does not appear to be a valid agent-audit report.");
+    error("The file does not appear to be a valid agentsec report.");
     return 1;
   }
 
@@ -99,7 +99,7 @@ export async function runReport(config: AuditConfig, args: string[]): Promise<nu
   // Attempt to use reporter package for non-text formats
   if (config.format !== "text" || config.output) {
     try {
-      const reporter = await import("@agent-audit/reporter");
+      const reporter = await import("@agentsec/reporter");
 
       // Use ReportGenerator class or standalone format functions
       const ReportGenerator = reporter.ReportGenerator ?? reporter.default?.ReportGenerator;
@@ -145,7 +145,7 @@ export async function runReport(config: AuditConfig, args: string[]): Promise<nu
     } else if (config.format === "json") {
       console.log(JSON.stringify(report, null, 2));
     } else {
-      info(`${config.format.toUpperCase()} format requires the @agent-audit/reporter package`);
+      info(`${config.format.toUpperCase()} format requires the @agentsec/reporter package`);
     }
   }
 
