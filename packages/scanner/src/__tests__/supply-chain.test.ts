@@ -564,7 +564,7 @@ describe("Supply Chain: dynamic loading", () => {
 // ---------------------------------------------------------------------------
 describe("Supply Chain: vendored/minified code", () => {
   test("flags minified file with long lines", () => {
-    const longLine = "var a=" + "b+c;".repeat(2000);
+    const longLine = `var a=${"b+c;".repeat(2000)}`;
     const skill = mockSkill({}, [
       {
         name: "vendor/lib.min.js",
@@ -603,7 +603,7 @@ describe("Supply Chain: vendored/minified code", () => {
   });
 
   test("skips node_modules paths", () => {
-    const longLine = "var a=" + "b+c;".repeat(2000);
+    const longLine = `var a=${"b+c;".repeat(2000)}`;
     const skill = mockSkill({}, [
       {
         name: "node_modules/lib/dist/index.min.js",

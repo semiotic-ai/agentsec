@@ -1,4 +1,4 @@
-import type { Config } from '@agent-audit/cli';
+import type { Config } from "@agent-audit/cli";
 
 /**
  * Agent Audit Configuration Example
@@ -84,7 +84,7 @@ export default {
      * - 'custom': Use the rules defined in customRules below
      * Default: 'balanced'
      */
-    preset: 'balanced',
+    preset: "balanced",
 
     /**
      * Custom policy rules (used only if preset: 'custom')
@@ -92,18 +92,18 @@ export default {
      */
     customRules: [
       {
-        id: 'rule-001',
-        name: 'No eval() or dynamic code execution',
-        severity: 'critical',
-        pattern: 'eval\\(|new Function\\(',
-        description: 'Skills must not use eval() or similar dynamic code execution',
+        id: "rule-001",
+        name: "No eval() or dynamic code execution",
+        severity: "critical",
+        pattern: "eval\\(|new Function\\(",
+        description: "Skills must not use eval() or similar dynamic code execution",
       },
       {
-        id: 'rule-002',
-        name: 'Dependencies must be pinned',
-        severity: 'high',
-        pattern: '\\^|~|latest',
-        description: 'Use exact version numbers for all dependencies',
+        id: "rule-002",
+        name: "Dependencies must be pinned",
+        severity: "high",
+        pattern: "\\^|~|latest",
+        description: "Use exact version numbers for all dependencies",
       },
     ],
 
@@ -132,7 +132,7 @@ export default {
      * 'low' = informational only
      * Default: 'high'
      */
-    maxSeverity: 'high',
+    maxSeverity: "high",
 
     /**
      * Whether to require certification for deployment
@@ -145,9 +145,9 @@ export default {
      * Custom remediation guidance per rule
      */
     remediation: {
-      'rule-001':
-        'Remove eval() and dynamic code execution. Use static imports and predefined functions instead.',
-      'rule-002':
+      "rule-001":
+        "Remove eval() and dynamic code execution. Use static imports and predefined functions instead.",
+      "rule-002":
         'Update package.json to use exact versions (remove ^ and ~). Example: "express": "4.18.2"',
     },
   },
@@ -162,7 +162,7 @@ export default {
      * Supported: 'html', 'json', 'pdf', 'sarif', 'junit'
      * Default: ['html', 'json']
      */
-    formats: ['html', 'json'],
+    formats: ["html", "json"],
 
     /**
      * Include detailed findings in reports
@@ -196,16 +196,16 @@ export default {
      * Title for the report
      * Default: "Agent Audit Security Report"
      */
-    title: 'Agent Audit Security Report',
+    title: "Agent Audit Security Report",
 
     /**
      * Custom branding in reports
      * null = use defaults
      */
     branding: {
-      logoUrl: 'https://agent-audit.dev/logo.svg',
-      companyName: 'Agent Audit',
-      reporterEmail: 'security@yourorg.dev',
+      logoUrl: "https://agent-audit.dev/logo.svg",
+      companyName: "Agent Audit",
+      reporterEmail: "security@yourorg.dev",
     },
 
     /**
@@ -233,13 +233,13 @@ export default {
      * Relative paths are resolved from current working directory
      * Default: './audit-reports'
      */
-    reportDir: './audit-reports',
+    reportDir: "./audit-reports",
 
     /**
      * Cache directory for scan results and vulnerability data
      * Default: './.agent-audit-cache'
      */
-    cacheDir: './.agent-audit-cache',
+    cacheDir: "./.agent-audit-cache",
 
     /**
      * Whether to save raw scan data alongside reports
@@ -271,7 +271,7 @@ export default {
      * Email addresses to notify on critical findings
      * Requires email integration to be configured
      */
-    criticalFindingsEmail: ['security@yourorg.dev'],
+    criticalFindingsEmail: ["security@yourorg.dev"],
 
     /**
      * Webhook URL for audit notifications
@@ -352,12 +352,12 @@ export default {
       baseUrl: process.env.JIRA_BASE_URL,
       username: process.env.JIRA_USERNAME,
       apiToken: process.env.JIRA_API_TOKEN,
-      projectKey: 'SEC',
-      issuetype: 'Bug',
+      projectKey: "SEC",
+      issuetype: "Bug",
       /**
        * Create tickets for which severity levels?
        */
-      createTicketsFor: ['critical', 'high'],
+      createTicketsFor: ["critical", "high"],
     },
 
     /**
@@ -367,8 +367,8 @@ export default {
     datadog: {
       enabled: false,
       apiKey: process.env.DATADOG_API_KEY,
-      site: 'datadoghq.com',
-      tags: ['agent-audit', 'security'],
+      site: "datadoghq.com",
+      tags: ["agent-audit", "security"],
     },
   },
 
@@ -382,7 +382,7 @@ export default {
      * 'debug' = verbose, 'info' = normal, 'warn' = errors only
      * Default: 'info'
      */
-    level: 'info',
+    level: "info",
 
     /**
      * Whether to log to file
@@ -390,7 +390,7 @@ export default {
      */
     file: {
       enabled: false,
-      path: './audit.log',
+      path: "./audit.log",
     },
 
     /**
@@ -403,7 +403,7 @@ export default {
      * Whether to colorize console output
      * Default: true (auto-detect TTY)
      */
-    colors: 'auto',
+    colors: "auto",
   },
 
   /**

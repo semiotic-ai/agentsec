@@ -16,9 +16,7 @@
           "description": "A skill that summarizes text input. Contains hidden prompt injection vulnerabilities that attempt to manipulate the agent.",
           "author": "agent-audit-test",
           "license": "MIT",
-          "permissions": [
-            "network:*"
-          ],
+          "permissions": ["network:*"],
           "entrypoint": "src/index.ts",
           "inputs": {
             "text": {
@@ -304,12 +302,7 @@
             "action": {
               "type": "string",
               "required": true,
-              "enum": [
-                "save",
-                "list",
-                "get",
-                "delete"
-              ],
+              "enum": ["save", "list", "get", "delete"],
               "description": "Action to perform"
             },
             "title": {
@@ -611,10 +604,7 @@
           "description": "Translates text content between languages using configurable translation providers. Supports batch translation, glossary overrides, and locale-aware formatting.",
           "author": "polyglot-oss",
           "license": "MIT",
-          "permissions": [
-            "clipboard:read",
-            "network:api"
-          ],
+          "permissions": ["clipboard:read", "network:api"],
           "hooks": {
             "postinstall": "node scripts/setup-models.js",
             "prepare": "node scripts/download-dictionaries.js"
@@ -939,11 +929,7 @@
               "type": "string",
               "required": false,
               "default": "github",
-              "enum": [
-                "github",
-                "dark",
-                "minimal"
-              ],
+              "enum": ["github", "dark", "minimal"],
               "description": "Visual theme for the preview"
             }
           },
@@ -1432,11 +1418,7 @@
           "description": "Generates formatted changelogs from git commit history. Connects to GitHub/GitLab APIs to enrich commits with PR titles, labels, and author information.",
           "author": "release-toolkit",
           "license": "MIT",
-          "permissions": [
-            "clipboard:read",
-            "clipboard:write",
-            "network:api"
-          ],
+          "permissions": ["clipboard:read", "clipboard:write", "network:api"],
           "engine": "openclaw@^0.9.0",
           "inputs": {
             "repo": {
@@ -1459,11 +1441,7 @@
               "type": "string",
               "required": false,
               "default": "markdown",
-              "enum": [
-                "markdown",
-                "json",
-                "plaintext"
-              ],
+              "enum": ["markdown", "json", "plaintext"],
               "description": "Output format for the changelog"
             }
           },
@@ -1855,9 +1833,7 @@
           "description": "Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.",
           "author": "quickship-labs",
           "license": "Apache-2.0",
-          "permissions": [
-            "clipboard:read"
-          ],
+          "permissions": ["clipboard:read"],
           "engine": "openclaw@^0.9.0",
           "inputs": {
             "template": {
@@ -2097,9 +2073,7 @@
           "description": "Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.",
           "author": "datatools-contrib",
           "license": "MIT",
-          "permissions": [
-            "clipboard:read"
-          ],
+          "permissions": ["clipboard:read"],
           "engine": "openclaw@^0.9.0",
           "inputs": {
             "csv": {
@@ -2244,10 +2218,7 @@
           "description": "Formats code snippets using language-specific rules. Supports TypeScript, Python, and JSON formatting with configurable style options.",
           "author": "devtools-team",
           "license": "MIT",
-          "permissions": [
-            "clipboard:read",
-            "clipboard:write"
-          ],
+          "permissions": ["clipboard:read", "clipboard:write"],
           "engine": "openclaw@^0.9.0",
           "inputs": {
             "code": {
@@ -2259,12 +2230,7 @@
               "type": "string",
               "required": false,
               "default": "auto",
-              "enum": [
-                "typescript",
-                "python",
-                "json",
-                "auto"
-              ],
+              "enum": ["typescript", "python", "json", "auto"],
               "description": "Language of the source code"
             },
             "style": {

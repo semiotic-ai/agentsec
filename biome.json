@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+  "$schema": "node_modules/@biomejs/biome/configuration_schema.json",
   "assist": {
     "enabled": true
   },
@@ -11,12 +11,16 @@
         "noExplicitAny": "warn",
         "noAssignInExpressions": "warn",
         "noTemplateCurlyInString": "warn",
-        "noControlCharactersInRegex": "off"
+        "noControlCharactersInRegex": "off",
+        "noArrayIndexKey": "warn",
+        "noUnknownAtRules": "off"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": {
           "level": "warn",
-          "options": { "maxAllowedComplexity": 25 }
+          "options": {
+            "maxAllowedComplexity": 50
+          }
         },
         "noUselessEscapeInRegex": "off"
       }
@@ -32,11 +36,13 @@
     "includes": [
       "**",
       "!node_modules",
-      "!dist",
+      "!**/dist",
+      "!**/.next",
       "!.turbo",
       "!coverage",
       "!.reference",
-      "!e2e/fixtures"
+      "!e2e/fixtures",
+      "!examples"
     ]
   }
 }

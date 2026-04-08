@@ -253,6 +253,7 @@ export function checkStorage(skill: AgentSkill): SecurityFinding[] {
       def.pattern.lastIndex = 0;
       let match: RegExpExecArray | null;
 
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
       while ((match = def.pattern.exec(file.content)) !== null) {
         if (isInComment(file.content, match.index)) continue;
         // Skip obvious test/example values
@@ -290,6 +291,7 @@ function checkEnvFileReferences(file: SkillFile, findings: SecurityFinding[]): v
   envReadPattern.lastIndex = 0;
   let match: RegExpExecArray | null;
 
+  // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
   while ((match = envReadPattern.exec(file.content)) !== null) {
     // This is informational -- .env usage is common but should be noted
     findings.push({

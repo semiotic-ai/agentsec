@@ -119,7 +119,7 @@ describe("agent-audit CLI", () => {
   // -----------------------------------------------------------------------
   describe("audit --path ./e2e/fixtures/injection-vuln-skill", () => {
     test("detects injection findings in a vulnerable skill", async () => {
-      const { stdout, stderr, exitCode } = await runCli([
+      const { stdout, stderr } = await runCli([
         "audit",
         "--path",
         join(FIXTURES_DIR, "injection-vuln-skill"),
@@ -139,7 +139,7 @@ describe("agent-audit CLI", () => {
   // -----------------------------------------------------------------------
   describe("audit --path ./e2e/fixtures/excessive-perms-skill", () => {
     test("detects permission issues in an over-privileged skill", async () => {
-      const { stdout, stderr, exitCode } = await runCli([
+      const { stdout, stderr } = await runCli([
         "audit",
         "--path",
         join(FIXTURES_DIR, "excessive-perms-skill"),

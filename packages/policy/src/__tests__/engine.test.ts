@@ -13,25 +13,25 @@ describe("PolicyEngine.loadPolicy", () => {
     engine.loadPolicy("strict");
     const policy = engine.getPolicy();
     expect(policy).not.toBeNull();
-    expect(policy!.name).toBe("strict");
+    expect(policy?.name).toBe("strict");
   });
 
   it("loads the standard preset by name", () => {
     const engine = new PolicyEngine();
     engine.loadPolicy("standard");
-    expect(engine.getPolicy()!.name).toBe("standard");
+    expect(engine.getPolicy()?.name).toBe("standard");
   });
 
   it("loads the permissive preset by name", () => {
     const engine = new PolicyEngine();
     engine.loadPolicy("permissive");
-    expect(engine.getPolicy()!.name).toBe("permissive");
+    expect(engine.getPolicy()?.name).toBe("permissive");
   });
 
   it("loads the enterprise preset by name", () => {
     const engine = new PolicyEngine();
     engine.loadPolicy("enterprise");
-    expect(engine.getPolicy()!.name).toBe("enterprise");
+    expect(engine.getPolicy()?.name).toBe("enterprise");
   });
 
   it("throws for an unknown preset name", () => {
@@ -58,16 +58,16 @@ describe("PolicyEngine.loadPolicy", () => {
     };
     engine.loadPolicy(custom);
     const policy = engine.getPolicy();
-    expect(policy!.name).toBe("custom-policy");
-    expect(policy!.rules).toHaveLength(1);
+    expect(policy?.name).toBe("custom-policy");
+    expect(policy?.rules).toHaveLength(1);
   });
 
   it("replaces a previously loaded policy", () => {
     const engine = new PolicyEngine();
     engine.loadPolicy("strict");
-    expect(engine.getPolicy()!.name).toBe("strict");
+    expect(engine.getPolicy()?.name).toBe("strict");
     engine.loadPolicy("permissive");
-    expect(engine.getPolicy()!.name).toBe("permissive");
+    expect(engine.getPolicy()?.name).toBe("permissive");
   });
 });
 
@@ -406,7 +406,7 @@ describe("Preset rules content", () => {
   it("strict preset has rules for critical, high, score, and medium", () => {
     const engine = new PolicyEngine();
     engine.loadPolicy("strict");
-    const policy = engine.getPolicy()!;
+    const policy = engine.getPolicy() as PolicyConfig;
     const ruleIds = policy.rules.map((r) => r.id);
     expect(ruleIds).toContain("strict-critical-findings");
     expect(ruleIds).toContain("strict-high-findings");
@@ -417,7 +417,7 @@ describe("Preset rules content", () => {
   it("standard preset has rules for critical, high, score, and medium", () => {
     const engine = new PolicyEngine();
     engine.loadPolicy("standard");
-    const policy = engine.getPolicy()!;
+    const policy = engine.getPolicy() as PolicyConfig;
     const ruleIds = policy.rules.map((r) => r.id);
     expect(ruleIds).toContain("standard-critical-findings");
     expect(ruleIds).toContain("standard-high-findings");
@@ -428,14 +428,14 @@ describe("Preset rules content", () => {
   it("permissive preset only has two rules", () => {
     const engine = new PolicyEngine();
     engine.loadPolicy("permissive");
-    const policy = engine.getPolicy()!;
+    const policy = engine.getPolicy() as PolicyConfig;
     expect(policy.rules).toHaveLength(2);
   });
 
   it("enterprise preset includes strict rules plus extra requirements", () => {
     const engine = new PolicyEngine();
     engine.loadPolicy("enterprise");
-    const policy = engine.getPolicy()!;
+    const policy = engine.getPolicy() as PolicyConfig;
     const ruleIds = policy.rules.map((r) => r.id);
     expect(ruleIds).toContain("enterprise-critical-findings");
     expect(ruleIds).toContain("enterprise-requires-license");

@@ -68,7 +68,7 @@ switch (action) {
     const result = calculateComplexity([makeFile(code, "ts")]);
     const ternary = result.branches.find((b) => b.type === "ternary");
     expect(ternary).toBeDefined();
-    expect(ternary!.count).toBeGreaterThanOrEqual(1);
+    expect(ternary?.count).toBeGreaterThanOrEqual(1);
   });
 
   test("detects try / catch / finally", () => {
@@ -106,7 +106,7 @@ const c = x ?? fallback;
     const result = calculateComplexity([makeFile(code, "typescript")]);
     const oc = result.branches.find((b) => b.type === "optional-chain");
     expect(oc).toBeDefined();
-    expect(oc!.count).toBeGreaterThanOrEqual(2);
+    expect(oc?.count).toBeGreaterThanOrEqual(2);
   });
 
   test("detects for-in and for-of loops", () => {
@@ -199,7 +199,7 @@ y = c or d
     const result = calculateComplexity([makeFile(code, "python", "main.py")]);
     const ternary = result.branches.find((b) => b.type === "ternary");
     expect(ternary).toBeDefined();
-    expect(ternary!.count).toBeGreaterThanOrEqual(1);
+    expect(ternary?.count).toBeGreaterThanOrEqual(1);
   });
 });
 

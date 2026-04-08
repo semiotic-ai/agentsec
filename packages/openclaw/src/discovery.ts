@@ -91,10 +91,10 @@ export class SkillDiscovery {
    */
   async scanDirectory(parentDir: string): Promise<AgentSkill[]> {
     const skills: AgentSkill[] = [];
-    let entries: Awaited<ReturnType<typeof readdir>>;
+    let entries: import("node:fs").Dirent[];
 
     try {
-      entries = await readdir(parentDir, { withFileTypes: true });
+      entries = (await readdir(parentDir, { withFileTypes: true })) as import("node:fs").Dirent[];
     } catch {
       return skills;
     }
@@ -148,10 +148,10 @@ export class SkillDiscovery {
     parseOptions: ParseOptions,
   ): Promise<AgentSkill[]> {
     const skills: AgentSkill[] = [];
-    let entries: Awaited<ReturnType<typeof readdir>>;
+    let entries: import("node:fs").Dirent[];
 
     try {
-      entries = await readdir(scopedDir, { withFileTypes: true });
+      entries = (await readdir(scopedDir, { withFileTypes: true })) as import("node:fs").Dirent[];
     } catch {
       return skills;
     }

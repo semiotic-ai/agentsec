@@ -253,12 +253,12 @@ This is the body content.
 `);
     const result = await findAndParseManifest(dir);
     expect(result).not.toBeNull();
-    expect(result!.format).toBe("skill-md");
-    expect(result!.filename).toBe("SKILL.md");
-    expect(result!.manifest.name).toBe("frontmatter-skill");
-    expect(result!.manifest.version).toBe("1.0.0");
-    expect(result!.manifest.author).toBe("test-author");
-    expect(result!.manifest.permissions).toEqual(["clipboard:read", "network:unrestricted"]);
+    expect(result?.format).toBe("skill-md");
+    expect(result?.filename).toBe("SKILL.md");
+    expect(result?.manifest.name).toBe("frontmatter-skill");
+    expect(result?.manifest.version).toBe("1.0.0");
+    expect(result?.manifest.author).toBe("test-author");
+    expect(result?.manifest.permissions).toEqual(["clipboard:read", "network:unrestricted"]);
     await rm(tempDir, { recursive: true });
   });
 
@@ -274,7 +274,7 @@ This paragraph should become the description.
 `);
     const result = await findAndParseManifest(dir);
     expect(result).not.toBeNull();
-    expect(result!.manifest.description).toBe("This paragraph should become the description.");
+    expect(result?.manifest.description).toBe("This paragraph should become the description.");
     await rm(tempDir, { recursive: true });
   });
 
@@ -285,8 +285,8 @@ A bare markdown skill without YAML frontmatter.
 `);
     const result = await findAndParseManifest(dir);
     expect(result).not.toBeNull();
-    expect(result!.manifest.name).toBe("Bare Skill");
-    expect(result!.manifest.version).toBe("0.0.0");
+    expect(result?.manifest.name).toBe("Bare Skill");
+    expect(result?.manifest.version).toBe("0.0.0");
     await rm(tempDir, { recursive: true });
   });
 
@@ -306,9 +306,9 @@ describe("findAndParseManifest", () => {
   test("parses skill.json from good-skill fixture", async () => {
     const result = await findAndParseManifest(join(FIXTURES_DIR, "good-skill"));
     expect(result).not.toBeNull();
-    expect(result!.format).toBe("skill-json");
-    expect(result!.manifest.name).toBe("code-formatter");
-    expect(result!.manifest.version).toBe("1.2.0");
+    expect(result?.format).toBe("skill-json");
+    expect(result?.manifest.name).toBe("code-formatter");
+    expect(result?.manifest.version).toBe("1.2.0");
   });
 
   test("parses package.json from supply-chain fixture", async () => {
@@ -316,7 +316,7 @@ describe("findAndParseManifest", () => {
     // but skill.json has higher priority in MANIFEST_FILENAMES
     const result = await findAndParseManifest(join(FIXTURES_DIR, "supply-chain-skill"));
     expect(result).not.toBeNull();
-    expect(result!.manifest.name).toBeDefined();
+    expect(result?.manifest.name).toBeDefined();
   });
 
   test("returns null for directory with no manifest", async () => {
@@ -385,8 +385,8 @@ describe("walkSkillDirectory", () => {
     // Should find the source file
     const srcFile = files.find((f) => f.relativePath === "src/index.ts");
     expect(srcFile).toBeDefined();
-    expect(srcFile!.language).toBe("typescript");
-    expect(srcFile!.content.length).toBeGreaterThan(0);
+    expect(srcFile?.language).toBe("typescript");
+    expect(srcFile?.content.length).toBeGreaterThan(0);
   });
 
   test("skips node_modules and .git directories", async () => {
@@ -466,12 +466,12 @@ describe("SkillParser", () => {
     test("parses a valid skill directory", async () => {
       const skill = await parser.parse(join(FIXTURES_DIR, "good-skill"));
       expect(skill).not.toBeNull();
-      expect(skill!.id).toContain("code-formatter");
-      expect(skill!.name).toBe("code-formatter");
-      expect(skill!.version).toBe("1.2.0");
-      expect(skill!.platform).toBe("openclaw");
-      expect(skill!.path).toBe(join(FIXTURES_DIR, "good-skill"));
-      expect(skill!.files.length).toBeGreaterThan(0);
+      expect(skill?.id).toContain("code-formatter");
+      expect(skill?.name).toBe("code-formatter");
+      expect(skill?.version).toBe("1.2.0");
+      expect(skill?.platform).toBe("openclaw");
+      expect(skill?.path).toBe(join(FIXTURES_DIR, "good-skill"));
+      expect(skill?.files.length).toBeGreaterThan(0);
     });
 
     test("returns null for directory without manifest", async () => {
@@ -487,14 +487,14 @@ describe("SkillParser", () => {
         shallow: true,
       });
       expect(skill).not.toBeNull();
-      expect(skill!.files).toEqual([]);
-      expect(skill!.name).toBe("code-formatter");
+      expect(skill?.files).toEqual([]);
+      expect(skill?.name).toBe("code-formatter");
     });
 
     test("derives skill ID from manifest name and version", async () => {
       const skill = await parser.parse(join(FIXTURES_DIR, "good-skill"));
       expect(skill).not.toBeNull();
-      expect(skill!.id).toBe("code-formatter@1.2.0");
+      expect(skill?.id).toBe("code-formatter@1.2.0");
     });
 
     test("derives skill ID from directory name when name is unknown", async () => {
@@ -504,8 +504,8 @@ describe("SkillParser", () => {
       const skill = await parser.parse(tempDir);
       expect(skill).not.toBeNull();
       // ID should fall back to directory basename
-      const dirName = tempDir.split("/").pop()!;
-      expect(skill!.id).toContain(dirName);
+      const dirName = tempDir.split("/").pop() ?? "";
+      expect(skill?.id).toContain(dirName);
       await rm(tempDir, { recursive: true });
     });
   });

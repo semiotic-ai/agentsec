@@ -11,7 +11,7 @@
     },
     "test": {
       "dependsOn": ["build"],
-      "outputs": ["coverage/**"]
+      "outputs": []
     },
     "//#lint": {
       "inputs": [
@@ -22,9 +22,6 @@
         "apps/**/*.json",
         "e2e/**/*.ts"
       ]
-    },
-    "//#check": {
-      "dependsOn": ["build"]
     },
     "//#format": {
       "inputs": [

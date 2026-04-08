@@ -97,6 +97,59 @@ export async function loadConfigFile(
 // CLI flag parsing
 // ---------------------------------------------------------------------------
 
+const VALID_FORMATS = new Set(["text", "json", "sarif", "html"]);
+const VALID_PLATFORMS = new Set(["openclaw", "claude", "codex"]);
+const VALID_COMMANDS = new Set(["audit", "scan", "report", "policy", "version", "help"]);
+
+/** Flags that consume the next arg as a value. Returns the number of args consumed (0 or 1). */
+function applyValueFlag(flags: CliFlags, arg: string, nextArg: string | undefined): number {
+  switch (arg) {
+    case "--format":
+    case "-f":
+      if (nextArg && VALID_FORMATS.has(nextArg)) flags.format = nextArg as OutputFormat;
+      return 1;
+    case "--output":
+    case "-o":
+      flags.output = nextArg ?? null;
+      return 1;
+    case "--policy":
+    case "-p":
+      flags.policy = nextArg ?? null;
+      return 1;
+    case "--platform":
+      if (nextArg && VALID_PLATFORMS.has(nextArg)) flags.platform = nextArg as AgentPlatform;
+      return 1;
+    case "--path":
+      flags.path = nextArg ?? null;
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+/** Boolean flags that don't consume an extra arg. Returns true if matched. */
+function applyBooleanFlag(flags: CliFlags, arg: string): boolean {
+  switch (arg) {
+    case "--verbose":
+    case "-v":
+      flags.verbose = true;
+      return true;
+    case "--no-color":
+      flags.noColor = true;
+      return true;
+    case "--help":
+    case "-h":
+      flags.help = true;
+      return true;
+    case "--version":
+    case "-V":
+      flags.version = true;
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function parseFlags(argv: string[]): CliFlags {
   // Bun.argv: [bunPath, scriptPath, ...userArgs]
   const args = argv.slice(2);
@@ -119,46 +172,21 @@ export function parseFlags(argv: string[]): CliFlags {
   while (i < args.length) {
     const arg = args[i];
 
-    // Named flags
-    if (arg === "--format" || arg === "-f") {
+    const consumed = applyValueFlag(flags, arg, args[i + 1]);
+    if (consumed) {
+      i += 1 + consumed;
+      continue;
+    }
+
+    if (applyBooleanFlag(flags, arg)) {
       i++;
-      const val = args[i];
-      if (val === "text" || val === "json" || val === "sarif" || val === "html") {
-        flags.format = val;
-      }
-    } else if (arg === "--output" || arg === "-o") {
-      i++;
-      flags.output = args[i] ?? null;
-    } else if (arg === "--policy" || arg === "-p") {
-      i++;
-      flags.policy = args[i] ?? null;
-    } else if (arg === "--platform") {
-      i++;
-      const val = args[i] as AgentPlatform;
-      if (val === "openclaw" || val === "claude" || val === "codex") {
-        flags.platform = val;
-      }
-    } else if (arg === "--path") {
-      i++;
-      flags.path = args[i] ?? null;
-    } else if (arg === "--verbose" || arg === "-v") {
-      flags.verbose = true;
-    } else if (arg === "--no-color") {
-      flags.noColor = true;
-    } else if (arg === "--help" || arg === "-h") {
-      flags.help = true;
-    } else if (arg === "--version" || arg === "-V") {
-      flags.version = true;
-    } else if (!arg.startsWith("-")) {
-      // First positional is the command, rest are args
-      if (flags.command === "audit" && i === 0) {
-        const validCommands = ["audit", "scan", "report", "policy", "version", "help"];
-        if (validCommands.includes(arg)) {
-          flags.command = arg;
-        } else {
-          // Not a recognized command -- treat as positional arg
-          flags.args.push(arg);
-        }
+      continue;
+    }
+
+    // Positional args
+    if (!arg.startsWith("-")) {
+      if (flags.command === "audit" && i === 0 && VALID_COMMANDS.has(arg)) {
+        flags.command = arg;
       } else {
         flags.args.push(arg);
       }

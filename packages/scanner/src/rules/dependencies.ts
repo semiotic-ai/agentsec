@@ -283,6 +283,7 @@ function checkCodeImports(skill: AgentSkill, findings: SecurityFinding[]): void 
     importPattern.lastIndex = 0;
     let match: RegExpExecArray | null;
 
+    // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
     while ((match = importPattern.exec(file.content)) !== null) {
       const importedPkg = match[1].split("/")[0]; // Handle scoped packages
 

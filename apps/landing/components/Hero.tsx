@@ -19,7 +19,9 @@ export function Hero(): React.ReactNode {
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-blue rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-20">
-        <div className={`text-center transition-all duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
+        <div
+          className={`text-center transition-all duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+        >
           {/* Main headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             Audit What Your
@@ -29,8 +31,8 @@ export function Hero(): React.ReactNode {
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl text-brand-muted mb-12 max-w-3xl mx-auto leading-relaxed">
-            One command scans every skill your agent has installed.
-            Security vulnerabilities, supply chain risks, and policy violations -- automatically.
+            One command scans every skill your agent has installed. Security vulnerabilities, supply
+            chain risks, and policy violations -- automatically.
           </p>
 
           {/* Terminal code block */}
@@ -50,11 +52,22 @@ export function Hero(): React.ReactNode {
                   <div>Discovering installed skills...</div>
                   <div className="mt-2 text-brand-green">Found 12 skills across 3 agents</div>
                   <div className="mt-3 text-brand-text">
-                    <div><span className="text-brand-red">CRITICAL</span>  eval() injection in fetch-data/src/index.ts:14</div>
-                    <div><span className="text-brand-yellow">HIGH</span>      Unpinned dependency in deploy-helper</div>
-                    <div><span className="text-brand-green">PASS</span>      code-review -- all checks passed</div>
+                    <div>
+                      <span className="text-brand-red">CRITICAL</span> eval() injection in
+                      fetch-data/src/index.ts:14
+                    </div>
+                    <div>
+                      <span className="text-brand-yellow">HIGH</span> Unpinned dependency in
+                      deploy-helper
+                    </div>
+                    <div>
+                      <span className="text-brand-green">PASS</span> code-review -- all checks
+                      passed
+                    </div>
                   </div>
-                  <div className="mt-3 text-brand-teal">12 skills | 1 critical | 1 high | 10 passed</div>
+                  <div className="mt-3 text-brand-teal">
+                    12 skills | 1 critical | 1 high | 10 passed
+                  </div>
                 </div>
               </div>
             </div>

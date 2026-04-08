@@ -129,7 +129,7 @@ describe("SkillDiscovery", () => {
 
       const goodSkill = skills.find((s) => s.name === "code-formatter");
       expect(goodSkill).toBeDefined();
-      expect(goodSkill!.manifest.version).toBe("1.2.0");
+      expect(goodSkill?.manifest.version).toBe("1.2.0");
     });
 
     test("returns empty array for unreadable directory", async () => {
@@ -143,7 +143,7 @@ describe("SkillDiscovery", () => {
       const skills = await discovery.scanDirectory(FIXTURES_DIR);
       // None of the skill paths should be hidden directories
       for (const skill of skills) {
-        const dirName = skill.path.split("/").pop()!;
+        const dirName = skill.path.split("/").pop() ?? "";
         expect(dirName.startsWith(".")).toBe(false);
       }
     });
@@ -157,8 +157,8 @@ describe("SkillDiscovery", () => {
       const discovery = new SkillDiscovery();
       const skill = await discovery.parseSkill(join(FIXTURES_DIR, "good-skill"));
       expect(skill).not.toBeNull();
-      expect(skill!.name).toBe("code-formatter");
-      expect(skill!.platform).toBe("openclaw");
+      expect(skill?.name).toBe("code-formatter");
+      expect(skill?.platform).toBe("openclaw");
     });
 
     test("returns null for directory without manifest", async () => {
@@ -171,7 +171,7 @@ describe("SkillDiscovery", () => {
       const discovery = new SkillDiscovery({ shallow: true });
       const skill = await discovery.parseSkill(join(FIXTURES_DIR, "good-skill"));
       expect(skill).not.toBeNull();
-      expect(skill!.files).toEqual([]);
+      expect(skill?.files).toEqual([]);
     });
   });
 });

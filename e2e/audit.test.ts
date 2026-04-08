@@ -14,8 +14,8 @@ import {
   ensureLumeService,
   ensureVm,
   getVm,
-  sshExec,
   vmReady as setupVmReady,
+  sshExec,
   waitForSsh,
 } from "./setup";
 

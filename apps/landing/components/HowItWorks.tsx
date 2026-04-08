@@ -11,7 +11,8 @@ const steps: Step[] = [
   {
     number: 1,
     title: "Install",
-    description: "Run npx agent-audit. It automatically discovers every skill your agent has installed.",
+    description:
+      "Run npx agent-audit. It automatically discovers every skill your agent has installed.",
     icon: "🔌",
   },
   {
@@ -39,9 +40,7 @@ export function HowItWorks(): React.ReactNode {
     <section id="how-it-works" className="section-pad bg-brand-dark">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            How It Works
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">How It Works</h2>
           <p className="text-xl text-brand-muted max-w-2xl mx-auto">
             From discovery to enforcement in four simple steps.
           </p>
@@ -49,10 +48,7 @@ export function HowItWorks(): React.ReactNode {
 
         <div className="grid md:grid-cols-4 gap-6">
           {steps.map((step) => (
-            <div
-              key={step.number}
-              className="relative flex flex-col"
-            >
+            <div key={step.number} className="relative flex flex-col">
               {/* Card */}
               <div className="flex-1 p-8 border border-brand-border rounded-lg bg-brand-secondary hover:border-brand-teal transition-colors duration-300">
                 {/* Step number */}
@@ -79,9 +75,7 @@ export function HowItWorks(): React.ReactNode {
           <p className="text-brand-muted mb-4">
             <span className="text-brand-teal font-semibold">One command.</span> Every skill audited.
           </p>
-          <code className="text-brand-blue font-mono text-sm">
-            npx agent-audit
-          </code>
+          <code className="text-brand-blue font-mono text-sm">npx agent-audit</code>
         </div>
       </div>
     </section>

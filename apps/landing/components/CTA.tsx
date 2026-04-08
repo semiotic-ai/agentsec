@@ -22,15 +22,16 @@ export function CTA(): React.ReactNode {
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-blue rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" />
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6">
-          Start Auditing Your Agents
-        </h2>
+        <h2 className="text-4xl md:text-5xl font-bold mb-6">Start Auditing Your Agents</h2>
         <p className="text-xl text-brand-muted mb-12 max-w-2xl mx-auto">
           One command. Every skill. Full visibility into what your AI agents are running.
         </p>
 
         {/* Email signup */}
-        <form onSubmit={handleSubmit} className="mb-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="mb-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+        >
           <input
             type="email"
             value={email}
@@ -39,10 +40,7 @@ export function CTA(): React.ReactNode {
             required
             className="flex-1 px-4 py-3 rounded-lg bg-brand-secondary border border-brand-border text-brand-text placeholder-brand-muted focus:outline-none focus:border-brand-teal focus:ring-1 focus:ring-brand-teal"
           />
-          <button
-            type="submit"
-            className="btn-primary px-6 py-3 whitespace-nowrap font-semibold"
-          >
+          <button type="submit" className="btn-primary px-6 py-3 whitespace-nowrap font-semibold">
             {submitted ? "Thanks!" : "Get Updates"}
           </button>
         </form>

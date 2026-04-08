@@ -409,4 +409,14 @@ main().catch((err) => {
 });
 
 // Export for use by tests
-export { CONFIG, deleteVm, ensureLumeService, ensureVm, getVm, sshExec, stopVm, vmReady, waitForSsh };
+export {
+  CONFIG,
+  deleteVm,
+  ensureLumeService,
+  ensureVm,
+  getVm,
+  sshExec,
+  stopVm,
+  vmReady,
+  waitForSsh,
+};

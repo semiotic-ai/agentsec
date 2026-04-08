@@ -120,107 +120,94 @@ function parseJson(content: string): Record<string, unknown> | null {
  * simple key-value pairs, arrays (with dash syntax), and nested objects
  * (single level). This avoids pulling in a full YAML library dependency.
  */
+/** Strip surrounding quotes from a YAML value. */
+function unquote(value: string): string {
+  return value.replace(/^["']|["']$/g, "");
+}
+
+/** Coerce a raw YAML scalar string into the appropriate JS type. */
+function coerceScalar(raw: string): unknown {
+  const value = unquote(raw);
+  if (value === "true") return true;
+  if (value === "false") return false;
+  if (value === "null") return null;
+  if (/^-?\d+(\.\d+)?$/.test(value)) return Number(value);
+  return value;
+}
+
+interface YamlParserState {
+  result: Record<string, unknown>;
+  currentKey: string | null;
+  currentArray: string[] | null;
+  currentObject: Record<string, string> | null;
+}
+
+/** Flush any pending array or object into the result. */
+function flushPending(state: YamlParserState): void {
+  if (state.currentKey && state.currentArray) {
+    state.result[state.currentKey] = state.currentArray;
+    state.currentArray = null;
+  }
+  if (state.currentKey && state.currentObject) {
+    state.result[state.currentKey] = state.currentObject;
+    state.currentObject = null;
+  }
+}
+
 function parseYaml(content: string): Record<string, unknown> | null {
   try {
-    const result: Record<string, unknown> = {};
-    const lines = content.split("\n");
-    let currentKey: string | null = null;
-    let currentArray: string[] | null = null;
-    let currentObject: Record<string, string> | null = null;
+    const state: YamlParserState = {
+      result: {},
+      currentKey: null,
+      currentArray: null,
+      currentObject: null,
+    };
 
-    for (const rawLine of lines) {
-      // Skip empty lines and comments
+    for (const rawLine of content.split("\n")) {
       const line = rawLine.replace(/\r$/, "");
-      if (line.trim() === "" || line.trim().startsWith("#")) {
-        continue;
-      }
+      if (line.trim() === "" || line.trim().startsWith("#")) continue;
 
       const indent = line.length - line.trimStart().length;
       const trimmed = line.trim();
 
       // Array item (indented "- value")
-      if (trimmed.startsWith("- ") && indent > 0 && currentKey) {
-        if (!currentArray) {
-          currentArray = [];
-        }
-        currentArray.push(
-          trimmed
-            .slice(2)
-            .trim()
-            .replace(/^["']|["']$/g, ""),
-        );
+      if (trimmed.startsWith("- ") && indent > 0 && state.currentKey) {
+        if (!state.currentArray) state.currentArray = [];
+        state.currentArray.push(unquote(trimmed.slice(2).trim()));
         continue;
       }
 
       // Nested object value (indented "key: value")
-      if (indent > 0 && currentKey && trimmed.includes(":")) {
-        if (currentArray) {
-          result[currentKey] = currentArray;
-          currentArray = null;
+      if (indent > 0 && state.currentKey && trimmed.includes(":")) {
+        if (state.currentArray) {
+          state.result[state.currentKey] = state.currentArray;
+          state.currentArray = null;
         }
-        if (!currentObject) {
-          currentObject = {};
-        }
+        if (!state.currentObject) state.currentObject = {};
         const colonIdx = trimmed.indexOf(":");
-        const nestedKey = trimmed.slice(0, colonIdx).trim();
-        const nestedValue = trimmed
-          .slice(colonIdx + 1)
-          .trim()
-          .replace(/^["']|["']$/g, "");
-        currentObject[nestedKey] = nestedValue;
+        state.currentObject[trimmed.slice(0, colonIdx).trim()] = unquote(
+          trimmed.slice(colonIdx + 1).trim(),
+        );
         continue;
       }
 
-      // Flush any pending array or object
-      if (currentKey && currentArray) {
-        result[currentKey] = currentArray;
-        currentArray = null;
-      }
-      if (currentKey && currentObject) {
-        result[currentKey] = currentObject;
-        currentObject = null;
-      }
+      // Flush before processing a new top-level key
+      flushPending(state);
 
       // Top-level key: value
       if (indent === 0 && trimmed.includes(":")) {
         const colonIdx = trimmed.indexOf(":");
         const key = trimmed.slice(0, colonIdx).trim();
         const value = trimmed.slice(colonIdx + 1).trim();
-        currentKey = key;
+        state.currentKey = key;
 
-        if (value === "" || value === "|" || value === ">") {
-          // Value will follow as indented content (array or object)
-          continue;
-        }
-
-        // Strip quotes
-        const unquoted = value.replace(/^["']|["']$/g, "");
-
-        // Handle booleans and numbers
-        if (unquoted === "true") {
-          result[key] = true;
-        } else if (unquoted === "false") {
-          result[key] = false;
-        } else if (unquoted === "null") {
-          result[key] = null;
-        } else if (/^-?\d+(\.\d+)?$/.test(unquoted)) {
-          result[key] = Number(unquoted);
-        } else {
-          result[key] = unquoted;
-        }
-        currentKey = key;
+        if (value === "" || value === "|" || value === ">") continue;
+        state.result[key] = coerceScalar(value);
       }
     }
 
-    // Flush final pending array/object
-    if (currentKey && currentArray) {
-      result[currentKey] = currentArray;
-    }
-    if (currentKey && currentObject) {
-      result[currentKey] = currentObject;
-    }
-
-    return Object.keys(result).length > 0 ? result : null;
+    flushPending(state);
+    return Object.keys(state.result).length > 0 ? state.result : null;
   } catch {
     return null;
   }

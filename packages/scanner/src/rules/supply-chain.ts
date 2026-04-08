@@ -126,6 +126,7 @@ function checkInstallScripts(skill: AgentSkill, findings: SecurityFinding[]): vo
       scriptPattern.lastIndex = 0;
       let match: RegExpExecArray | null;
 
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
       while ((match = scriptPattern.exec(file.content)) !== null) {
         const scriptContent = match[1];
         const isSuspicious =
@@ -165,6 +166,7 @@ function checkRegistryConfig(skill: AgentSkill, findings: SecurityFinding[]): vo
     registryPattern.lastIndex = 0;
     let match: RegExpExecArray | null;
 
+    // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
     while ((match = registryPattern.exec(file.content)) !== null) {
       const registryUrl = match[1];
       const isOfficialRegistry =
@@ -249,6 +251,7 @@ function checkIntegrityVerification(skill: AgentSkill, findings: SecurityFinding
     curlPipePattern.lastIndex = 0;
     let match: RegExpExecArray | null;
 
+    // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
     while ((match = curlPipePattern.exec(file.content)) !== null) {
       findings.push({
         id: `SC-PIPE-${getLineNumber(file.content, match.index)}`,
@@ -277,6 +280,7 @@ function checkDynamicLoading(skill: AgentSkill, findings: SecurityFinding[]): vo
     urlImportPattern.lastIndex = 0;
     let match: RegExpExecArray | null;
 
+    // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
     while ((match = urlImportPattern.exec(file.content)) !== null) {
       findings.push({
         id: `SC-URLIMPORT-${getLineNumber(file.content, match.index)}`,
@@ -298,6 +302,7 @@ function checkDynamicLoading(skill: AgentSkill, findings: SecurityFinding[]): vo
       /(?:loadPlugin|loadExtension|addPlugin|registerPlugin)\s*\(\s*(?:user|input|url|path|config)\b/gi;
     pluginPattern.lastIndex = 0;
 
+    // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
     while ((match = pluginPattern.exec(file.content)) !== null) {
       findings.push({
         id: `SC-PLUGIN-${getLineNumber(file.content, match.index)}`,

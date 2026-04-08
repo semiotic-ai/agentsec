@@ -185,6 +185,7 @@ export function checkDenialOfService(skill: AgentSkill): SecurityFinding[] {
       def.pattern.lastIndex = 0;
       let match: RegExpExecArray | null;
 
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
       while ((match = def.pattern.exec(file.content)) !== null) {
         if (isInComment(file.content, match.index)) continue;
 

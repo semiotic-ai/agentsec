@@ -164,7 +164,7 @@ describe("ReportGenerator", () => {
 
   describe("generate() with unsupported format", () => {
     test("throws for unknown format", () => {
-      expect(() => generator.generate(makeReport(), "pdf" as any)).toThrow(
+      expect(() => generator.generate(makeReport(), "pdf" as never)).toThrow(
         "Unsupported output format",
       );
     });

@@ -149,6 +149,7 @@ describe("Output Handling: Angular [innerHTML]", () => {
 // ---------------------------------------------------------------------------
 describe("Output Handling: path traversal in file writes", () => {
   test("detects writeFile with template literal path", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
     const skill = mockSkill("writeFile(`/uploads/${userInput}.txt`, data, cb);");
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-020"));
@@ -164,6 +165,7 @@ describe("Output Handling: path traversal in file writes", () => {
   });
 
   test("detects createWriteStream with dynamic path", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
     const skill = mockSkill("createWriteStream(`/tmp/${filename}`);");
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-020"));
@@ -229,6 +231,7 @@ res.json(body);
   });
 
   test("detects user input in HTTP response headers via template literal", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
     const skill = mockSkill("res.setHeader(`X-${param}`, value);");
     const findings = checkOutputHandling(skill);
     const matched = findings.filter((f) => f.id.startsWith("OUT-031"));

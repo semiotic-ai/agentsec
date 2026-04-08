@@ -1,10 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: [
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./app/**/*.{js,ts,jsx,tsx,mdx}", "./components/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
@@ -29,7 +26,7 @@ export default {
       animation: {
         "fade-in": "fadeIn 0.6s ease-in-out",
         "slide-up": "slideUp 0.6s ease-out",
-        "glow": "glow 3s ease-in-out infinite",
+        glow: "glow 3s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {

@@ -179,6 +179,7 @@ const result = cp.spawnSync("git", ["status"]);
   });
 
   test("detects template literal in exec", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
     const skill = mockSkill("child_process.exec(`echo ${userInput}`);");
     const findings = checkInjection(skill);
     const templateFindings = findings.filter((f) => f.id.startsWith("INJ-005"));
@@ -200,6 +201,7 @@ describe("Injection: template literal injection", () => {
   });
 
   test("detects query variable in template", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
     const skill = mockSkill("const sql = `SELECT * FROM users WHERE id = ${query}`;");
     const findings = checkInjection(skill);
     const templateFindings = findings.filter((f) => f.id.startsWith("INJ-010"));
@@ -207,6 +209,7 @@ describe("Injection: template literal injection", () => {
   });
 
   test("detects template with dynamic replacement", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
     const skill = mockSkill("`prefix ${value} suffix`.replace(/pattern/, replacement)");
     const findings = checkInjection(skill);
     const replaceFindings = findings.filter((f) => f.id.startsWith("INJ-011"));
@@ -215,6 +218,7 @@ describe("Injection: template literal injection", () => {
   });
 
   test("safe template with static content produces no findings", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
     const skill = mockSkill("`Hello ${greeting}, welcome!`");
     const findings = checkInjection(skill);
     // "greeting" is not a known untrusted variable name
@@ -295,6 +299,7 @@ const result = helper(42);
 // ---------------------------------------------------------------------------
 describe("Injection: SQL injection patterns", () => {
   test("detects SQL query with template literal interpolation", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
     const skill = mockSkill("db.query(`SELECT * FROM users WHERE id = ${userId}`);");
     const findings = checkInjection(skill);
     const sqlFindings = findings.filter((f) => f.id.startsWith("INJ-040"));

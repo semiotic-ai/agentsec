@@ -42,9 +42,9 @@ async function walkDirectory(
   ignoreRules: IgnoreRule[],
   results: SkillFile[],
 ): Promise<void> {
-  let entries: Awaited<ReturnType<typeof readdir>>;
+  let entries: import("node:fs").Dirent[];
   try {
-    entries = await readdir(currentDir, { withFileTypes: true });
+    entries = (await readdir(currentDir, { withFileTypes: true })) as import("node:fs").Dirent[];
   } catch {
     // Directory unreadable -- skip silently
     return;

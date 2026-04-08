@@ -10,8 +10,7 @@ interface Command {
 const commands: Command[] = [
   {
     title: "Audit Your Agent",
-    description:
-      "Automatically discover and audit every skill your agent has installed.",
+    description: "Automatically discover and audit every skill your agent has installed.",
     command: "npx agent-audit",
     output: `Discovering installed skills...
 ✓ OpenClaw/my-webhook-skill: PASS
@@ -24,8 +23,7 @@ Policy Compliance: 91%`,
   },
   {
     title: "Generate Report",
-    description:
-      "Create detailed HTML/JSON reports for compliance documentation.",
+    description: "Create detailed HTML/JSON reports for compliance documentation.",
     command: "npx agent-audit --report json",
     output: `{
   "scannedAt": "2025-04-02T12:34:56Z",
@@ -43,8 +41,7 @@ Policy Compliance: 91%`,
   },
   {
     title: "Enforce Policy",
-    description:
-      "Integrate into CI/CD to block unsafe skills from deployment.",
+    description: "Integrate into CI/CD to block unsafe skills from deployment.",
     command: "npx agent-audit --enforce --fail-threshold 85",
     output: `Discovering installed skills...
 Enforcing policy: min compliance 85%
@@ -56,8 +53,7 @@ Safe to deploy.`,
   },
   {
     title: "Custom Rules",
-    description:
-      "Define organization-specific security policies and compliance rules.",
+    description: "Define organization-specific security policies and compliance rules.",
     command: "npx agent-audit --policy ./policy.yaml",
     output: `Loading policy: ./policy.yaml
 Applying 8 custom rules...
@@ -74,19 +70,16 @@ export function CLIUsage(): React.ReactNode {
     <section id="cli" className="section-pad bg-brand-secondary">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            CLI Examples
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">CLI Examples</h2>
           <p className="text-xl text-brand-muted max-w-2xl mx-auto">
-            Run audits from the command line or integrate into your CI/CD
-            pipeline.
+            Run audits from the command line or integrate into your CI/CD pipeline.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {commands.map((cmd, index) => (
+          {commands.map((cmd) => (
             <div
-              key={index}
+              key={cmd.title}
               className="border border-brand-border rounded-lg bg-brand-dark overflow-hidden hover:border-brand-teal transition-colors duration-300"
             >
               {/* Header */}
@@ -120,27 +113,19 @@ export function CLIUsage(): React.ReactNode {
           <div className="grid md:grid-cols-2 gap-4 text-sm font-mono">
             <div>
               <div className="text-brand-teal mb-2">--report</div>
-              <div className="text-brand-muted">
-                Output format: html, json, pdf
-              </div>
+              <div className="text-brand-muted">Output format: html, json, pdf</div>
             </div>
             <div>
               <div className="text-brand-teal mb-2">--enforce</div>
-              <div className="text-brand-muted">
-                Fail if policy violations found
-              </div>
+              <div className="text-brand-muted">Fail if policy violations found</div>
             </div>
             <div>
               <div className="text-brand-teal mb-2">--policy</div>
-              <div className="text-brand-muted">
-                Custom policy YAML file path
-              </div>
+              <div className="text-brand-muted">Custom policy YAML file path</div>
             </div>
             <div>
               <div className="text-brand-teal mb-2">--fail-threshold</div>
-              <div className="text-brand-muted">
-                Minimum compliance score required
-              </div>
+              <div className="text-brand-muted">Minimum compliance score required</div>
             </div>
           </div>
         </div>

@@ -218,6 +218,7 @@ export function checkOutputHandling(skill: AgentSkill): SecurityFinding[] {
       def.pattern.lastIndex = 0;
       let match: RegExpExecArray | null;
 
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
       while ((match = def.pattern.exec(file.content)) !== null) {
         if (isInComment(file.content, match.index)) continue;
 
@@ -256,6 +257,7 @@ function checkCSPHeaders(file: SkillFile, findings: SecurityFinding[]): void {
   cspPattern.lastIndex = 0;
   let match: RegExpExecArray | null;
 
+  // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
   while ((match = cspPattern.exec(file.content)) !== null) {
     findings.push({
       id: `OUT-050-${getLineNumber(file.content, match.index)}`,
