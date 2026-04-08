@@ -64,6 +64,8 @@ bun packages/cli/src/cli.ts scan --path ./e2e/fixtures
 
 ### 6. Verbose output
 
+By default, the CLI shows a compact summary with skill grades and finding counts. Use `--verbose` to see per-skill score breakdowns, individual findings with locations, and remediation guidance:
+
 ```bash
 bun packages/cli/src/cli.ts audit --path ./e2e/fixtures --verbose
 ```

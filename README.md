@@ -39,32 +39,20 @@ That's it. Scans your current directory, finds every installed skill, and report
 ### Example Output
 
 ```
-  agent-audit v0.1.0
+  ✔ Found 6 skills
 
-  Scanning agent skills...
-  Found 6 skills across 2 agents
+  ✔ fetch-data     v1.0.0  D (42)
+  ✔ deploy-helper  v2.3.0  C (68)
+  ✔ code-review    v1.1.0  A (95)
+  ✔ summarize-docs v0.9.0  A (91)
+  ✔ db-migrate     v1.4.2  B (78)
+  ✔ lint-fix       v2.0.0  A (93)
 
-  fetch-data
-    FAIL  AST01  Malicious eval() in src/index.ts:14               critical
-    FAIL  AST05  Unsanitized JSON.parse from user input             high
+  6 skills scanned  •  avg score 78  •  4 certified
+  Findings: 2 critical, 1 high, 2 medium
 
-  deploy-helper
-    WARN  AST03  Requests filesystem + network + exec               medium
-
-  code-review
-    PASS  All checks passed
-
-  summarize-docs
-    PASS  All checks passed
-
-  db-migrate
-    WARN  AST06  No process isolation configured                    medium
-
-  lint-fix
-    PASS  All checks passed
-
-  6 skills scanned | 2 critical | 1 high | 2 medium | 0 low
-  Policy: standard -- FAILED
+  ⚠ WARN  3 high/critical finding(s) detected
+  Run with --verbose for detailed findings and recommendations.
 ```
 
 ## CLI Commands
@@ -72,6 +60,9 @@ That's it. Scans your current directory, finds every installed skill, and report
 ```bash
 # Scan current directory (auto-detects agent skills)
 npx agent-audit
+
+# Show detailed findings, score breakdowns, and recommendations
+npx agent-audit --verbose
 
 # Scan a specific path
 npx agent-audit scan ./my-project

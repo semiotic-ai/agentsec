@@ -347,6 +347,35 @@ function printSummary(summary: AuditSummary): void {
   );
 }
 
+function printCompactSummary(summary: AuditSummary): void {
+  console.log();
+
+  // One-line stats
+  const parts = [
+    `${summary.totalSkills} skill${summary.totalSkills === 1 ? "" : "s"} scanned`,
+    `avg score ${color.bold(String(summary.averageScore))}`,
+    `${color.green(String(summary.certifiedSkills))} certified`,
+  ];
+  if (summary.blockedSkills > 0) {
+    parts.push(color.red(`${summary.blockedSkills} blocked`));
+  }
+  console.log(`  ${parts.join(color.dim("  \u2022  "))}`);
+
+  // Finding counts (only show if there are any)
+  const totalFindings =
+    summary.criticalFindings + summary.highFindings + summary.mediumFindings + summary.lowFindings;
+  if (totalFindings > 0) {
+    const findingParts: string[] = [];
+    if (summary.criticalFindings > 0)
+      findingParts.push(color.red(`${summary.criticalFindings} critical`));
+    if (summary.highFindings > 0) findingParts.push(color.red(`${summary.highFindings} high`));
+    if (summary.mediumFindings > 0)
+      findingParts.push(color.yellow(`${summary.mediumFindings} medium`));
+    if (summary.lowFindings > 0) findingParts.push(color.cyan(`${summary.lowFindings} low`));
+    console.log(`  ${color.dim("Findings:")} ${findingParts.join(color.dim(", "))}`);
+  }
+}
+
 function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
   console.log();
   console.log(
@@ -543,12 +572,16 @@ export async function runAudit(config: AuditConfig): Promise<number> {
 
   // 6. Print results (text format to stdout)
   if (config.format === "text") {
-    // Detailed per-skill output
-    for (const result of results) {
-      printSkillResult(result, config.verbose);
+    if (config.verbose) {
+      // Detailed per-skill output (findings, score breakdown, recommendations)
+      for (const result of results) {
+        printSkillResult(result, true);
+      }
+      printSummary(summary);
+    } else {
+      // Compact: skill grades already shown in spinners above
+      printCompactSummary(summary);
     }
-
-    printSummary(summary);
     console.log();
   } else if (config.format === "json") {
     if (!config.output) {
@@ -572,6 +605,9 @@ export async function runAudit(config: AuditConfig): Promise<number> {
       color.bgRed(color.bold(` FAIL `)) +
         ` ${blockedCount} skill${blockedCount === 1 ? "" : "s"} blocked by policy`,
     );
+    if (!config.verbose) {
+      console.log(color.dim("  Run with --verbose for detailed findings and recommendations."));
+    }
     console.log();
     return 1;
   }
@@ -583,6 +619,9 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     );
   } else {
     console.log(`${color.bgGreen(color.bold(` PASS `))} All skills passed audit`);
+  }
+  if (!config.verbose) {
+    console.log(color.dim("  Run with --verbose for detailed findings and recommendations."));
   }
   console.log();
 

@@ -82,12 +82,14 @@ This exits with code 1 if any finding meets or exceeds the specified severity.
 
 ## Understanding the Output
 
-Each finding includes:
+By default, output is compact: each skill shows its grade and score, followed by a one-line summary of finding counts and a PASS/WARN/FAIL status.
 
-- **Rule ID** (AST01-AST10) -- the OWASP risk category
-- **Description** -- what was detected
-- **Severity** -- critical, high, medium, or low
-- **Location** -- file and line number where the issue was found
+Use `--verbose` to see the full details for each skill:
+
+- **Score breakdown** -- security, quality, and maintenance scores
+- **Findings** -- rule ID, description, severity, file and line number
+- **Remediation** -- suggested fix for each finding
+- **Recommendations** -- prioritized improvement suggestions
 
 A summary at the end shows total skills scanned, finding counts by severity, and whether the active policy passed or failed.
 

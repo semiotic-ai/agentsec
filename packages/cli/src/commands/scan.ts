@@ -195,15 +195,21 @@ export async function runScan(config: AuditConfig): Promise<number> {
     results.push({ skill, findings, metrics });
   }
 
-  // Print detailed results (text format)
+  // Print results (text format)
   if (config.format === "text") {
-    for (const result of results) {
-      printScanResult(result, config.verbose);
+    if (config.verbose) {
+      // Detailed per-skill output
+      for (const result of results) {
+        printScanResult(result, true);
+      }
     }
     console.log();
     console.log(divider());
     keyValue("Total skills scanned", String(results.length));
     keyValue("Total findings", String(totalFindings));
+    if (!config.verbose && totalFindings > 0) {
+      console.log(color.dim("  Run with --verbose for detailed findings."));
+    }
     console.log();
   } else if (config.format === "json") {
     const output = results.map((r) => ({
