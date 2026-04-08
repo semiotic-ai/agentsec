@@ -5,7 +5,7 @@
 
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join, relative } from "node:path";
-import type { SkillFile } from "@agent-audit/shared";
+import type { SkillFile } from "@agentsec/shared";
 import { detectLanguage, MAX_FILE_SIZE, SKIP_PATTERNS } from "./formats";
 
 /**

@@ -1,4 +1,4 @@
-import type { SkillFile } from "@agent-audit/shared";
+import type { SkillFile } from "@agentsec/shared";
 
 /**
  * Weights for different branch types.

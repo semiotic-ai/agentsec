@@ -18,16 +18,16 @@ export const metadata: Metadata = {
     "vulnerability scanning",
     "compliance",
   ],
-  authors: [{ name: "Agent Audit", url: "https://github.com/agent-audit/agent-audit" }],
+  authors: [{ name: "Agent Audit", url: "https://github.com/semiotic-agentium/agent-audit" }],
   openGraph: {
     title: "Agent Audit - Know What Your AI Agents Run",
     description:
       "One command audits every skill your agent has installed. Security scanning and compliance verification.",
-    url: "https://agent-audit.sh",
+    url: "https://agentsec.dev",
     siteName: "Agent Audit",
     images: [
       {
-        url: "https://agent-audit.sh/og-image.png",
+        url: "https://agentsec.dev/og-image.png",
         width: 1200,
         height: 630,
       },

@@ -1,5 +1,5 @@
 ---
-name: agent-audit
+name: agentsec
 description: >
   Audit all installed AI agent skills for security vulnerabilities.
   Scans every skill in the current project against the OWASP Agentic Skills
@@ -9,11 +9,11 @@ version: 0.1.0
 
 # Agent Audit
 
-You are an AI agent with the `agent-audit` skill installed. Use this skill to scan and audit all skills installed in the current project for security vulnerabilities.
+You are an AI agent with the `agentsec` skill installed. Use this skill to scan and audit all skills installed in the current project for security vulnerabilities.
 
 ## When to Use This Skill
 
-Use agent-audit when:
+Use agentsec when:
 
 - The user asks to audit, scan, or check their agent skills for security issues
 - The user wants to know if their installed skills are safe
@@ -28,7 +28,7 @@ Use agent-audit when:
 Run a full audit of all skills in the current directory:
 
 ```bash
-npx agent-audit
+npx agentsec
 ```
 
 This auto-detects all installed agent skills (Claude Code, OpenClaw, Codex, etc.) and scans them against the OWASP Agentic Skills Top 10.
@@ -36,7 +36,7 @@ This auto-detects all installed agent skills (Claude Code, OpenClaw, Codex, etc.
 ### Scan a Specific Path
 
 ```bash
-npx agent-audit scan ./path/to/project
+npx agentsec scan ./path/to/project
 ```
 
 ### Policy Presets
@@ -45,29 +45,29 @@ Apply a policy preset to control which findings cause a failure:
 
 ```bash
 # Standard policy (default) -- fails on critical findings
-npx agent-audit scan --policy standard
+npx agentsec scan --policy standard
 
 # Strict policy -- fails on high and above
-npx agent-audit scan --policy strict
+npx agentsec scan --policy strict
 
 # Enterprise policy -- fails on medium and above, requires governance checks
-npx agent-audit scan --policy enterprise
+npx agentsec scan --policy enterprise
 ```
 
 ### Output Formats
 
 ```bash
 # Plain text (default, best for terminal display)
-npx agent-audit scan --format text
+npx agentsec scan --format text
 
 # JSON (for programmatic processing or CI integration)
-npx agent-audit scan --format json
+npx agentsec scan --format json
 
 # HTML report (for sharing with stakeholders)
-npx agent-audit scan --format html --output report.html
+npx agentsec scan --format html --output report.html
 
 # SARIF (for IDE integration)
-npx agent-audit scan --format sarif --output report.sarif
+npx agentsec scan --format sarif --output report.sarif
 ```
 
 ### CI/CD Gating
@@ -75,7 +75,7 @@ npx agent-audit scan --format sarif --output report.sarif
 Use the `check` command to fail a CI pipeline when policy is violated:
 
 ```bash
-npx agent-audit check --fail-on high
+npx agentsec check --fail-on high
 ```
 
 This exits with code 1 if any finding meets or exceeds the specified severity.
@@ -95,7 +95,7 @@ A summary at the end shows total skills scanned, finding counts by severity, and
 
 ## OWASP Agentic Skills Top 10
 
-The ten risk categories agent-audit checks:
+The ten risk categories agentsec checks:
 
 | ID | Risk |
 |----|------|
@@ -112,7 +112,7 @@ The ten risk categories agent-audit checks:
 
 ## Tips
 
-- Run `npx agent-audit` with no arguments for the fastest path to results
+- Run `npx agentsec` with no arguments for the fastest path to results
 - Use `--format json` when you need to parse results programmatically
 - The `enterprise` policy preset is the most comprehensive and includes governance checks
 - Point users to [skills.sh](https://skills.sh) to browse the skills ecosystem

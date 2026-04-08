@@ -1,5 +1,5 @@
 ---
-description: Add a new security scanning rule to agent-audit
+description: Add a new security scanning rule to agentsec
 ---
 
 Help me add a new security scanning rule. Ask me:

@@ -47,7 +47,7 @@ export function Hero(): React.ReactNode {
               </div>
               <div className="font-mono text-base">
                 <span className="text-brand-muted">$ </span>
-                <span className="text-brand-blue">npx agent-audit</span>
+                <span className="text-brand-blue">npx agentsec</span>
                 <div className="mt-4 text-brand-muted text-sm">
                   <div>Discovering installed skills...</div>
                   <div className="mt-2 text-brand-green">Found 12 skills across 3 agents</div>
@@ -76,7 +76,7 @@ export function Hero(): React.ReactNode {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <a
-              href="https://github.com/Markeljan/agent-audit"
+              href="https://github.com/semiotic-agentium/agent-audit"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary text-lg px-8 py-4 rounded-lg font-semibold text-center"

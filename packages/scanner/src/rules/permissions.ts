@@ -1,5 +1,5 @@
-import type { AgentSkill, SecurityFinding, SkillFile } from "@agent-audit/shared";
-import { DANGEROUS_PERMISSIONS } from "@agent-audit/shared";
+import type { AgentSkill, SecurityFinding, SkillFile } from "@agentsec/shared";
+import { DANGEROUS_PERMISSIONS } from "@agentsec/shared";
 import { getEvidenceLine, getLineNumber, isCodeFile, isInComment } from "./utils";
 
 /**

@@ -12,7 +12,7 @@ const steps: Step[] = [
     number: 1,
     title: "Install",
     description:
-      "Run npx agent-audit. It automatically discovers every skill your agent has installed.",
+      "Run npx agentsec. It automatically discovers every skill your agent has installed.",
     icon: "🔌",
   },
   {
@@ -75,7 +75,7 @@ export function HowItWorks(): React.ReactNode {
           <p className="text-brand-muted mb-4">
             <span className="text-brand-teal font-semibold">One command.</span> Every skill audited.
           </p>
-          <code className="text-brand-blue font-mono text-sm">npx agent-audit</code>
+          <code className="text-brand-blue font-mono text-sm">npx agentsec</code>
         </div>
       </div>
     </section>

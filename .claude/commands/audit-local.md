@@ -1,8 +1,8 @@
 ---
-description: Run agent-audit on local test fixture skills
+description: Run agentsec on local test fixture skills
 ---
 
-Run the agent-audit CLI against the local E2E test fixtures to verify the full audit pipeline works end-to-end.
+Run the agentsec CLI against the local E2E test fixtures to verify the full audit pipeline works end-to-end.
 
 Steps:
 1. Build all packages: `bun run build` (or turbo build)

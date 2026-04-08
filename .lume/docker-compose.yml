@@ -1,4 +1,4 @@
-# docker-compose.yml - Lumier macOS VM for agent-audit
+# docker-compose.yml - Lumier macOS VM for agentsec
 #
 # Lumier wraps Lume in a Docker container, providing browser-based VNC access
 # to macOS VMs. The Docker container runs noVNC; the actual VM runs natively
@@ -30,7 +30,7 @@ services:
   # --------------------------------------------------------------------------
   audit-vm:
     image: trycua/lumier:latest
-    container_name: agent-audit-vm
+    container_name: agentsec-vm
     restart: unless-stopped
     ports:
       # noVNC web access: http://localhost:8006
@@ -45,7 +45,7 @@ services:
       # Mount the install script for lifecycle hooks
       - ./install-openclaw.sh:/shared/lifecycle/install-openclaw.sh:ro
     environment:
-      - VM_NAME=agent-audit-vm
+      - VM_NAME=agentsec-vm
       - VERSION=ghcr.io/trycua/macos-sequoia-cua:latest
       - CPU_CORES=4
       - RAM_SIZE=8192
@@ -61,7 +61,7 @@ services:
   # --------------------------------------------------------------------------
   test-vm:
     image: trycua/lumier:latest
-    container_name: agent-audit-test-vm
+    container_name: agentsec-test-vm
     restart: unless-stopped
     profiles:
       - test
@@ -72,7 +72,7 @@ services:
       - ./storage/test-vm:/storage
       - ./shared:/shared:ro
     environment:
-      - VM_NAME=agent-audit-test-vm
+      - VM_NAME=agentsec-test-vm
       - VERSION=ghcr.io/trycua/macos-sequoia-cua:latest
       - CPU_CORES=2
       - RAM_SIZE=4096

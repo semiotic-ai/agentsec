@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "agent-audit",
+      "name": "agentsec",
       "devDependencies": {
         "@biomejs/biome": "^2.4.10",
         "@types/bun": "^1.3.11",
@@ -12,7 +12,7 @@
       },
     },
     "apps/landing": {
-      "name": "@agent-audit/landing",
+      "name": "@agentsec/landing",
       "version": "1.0.0",
       "dependencies": {
         "next": "^15.0.0",
@@ -30,29 +30,27 @@
       },
     },
     "packages/cli": {
-      "name": "agent-audit",
+      "name": "agentsec",
       "version": "0.1.0",
       "bin": {
-        "agent-audit": "./dist/cli.js",
-      },
-      "dependencies": {
-        "@agent-audit/metrics": "workspace:*",
-        "@agent-audit/openclaw": "workspace:*",
-        "@agent-audit/policy": "workspace:*",
-        "@agent-audit/reporter": "workspace:*",
-        "@agent-audit/scanner": "workspace:*",
-        "@agent-audit/shared": "workspace:*",
+        "agentsec": "./dist/cli.js",
       },
       "devDependencies": {
+        "@agentsec/metrics": "workspace:*",
+        "@agentsec/openclaw": "workspace:*",
+        "@agentsec/policy": "workspace:*",
+        "@agentsec/reporter": "workspace:*",
+        "@agentsec/scanner": "workspace:*",
+        "@agentsec/shared": "workspace:*",
         "@types/bun": "^1.3.11",
         "typescript": "^6.0.2",
       },
     },
     "packages/metrics": {
-      "name": "@agent-audit/metrics",
+      "name": "@agentsec/metrics",
       "version": "0.1.0",
       "dependencies": {
-        "@agent-audit/shared": "workspace:*",
+        "@agentsec/shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.3.11",
@@ -60,10 +58,10 @@
       },
     },
     "packages/openclaw": {
-      "name": "@agent-audit/openclaw",
+      "name": "@agentsec/openclaw",
       "version": "0.1.0",
       "dependencies": {
-        "@agent-audit/shared": "workspace:*",
+        "@agentsec/shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.3.11",
@@ -71,10 +69,10 @@
       },
     },
     "packages/policy": {
-      "name": "@agent-audit/policy",
+      "name": "@agentsec/policy",
       "version": "0.1.0",
       "dependencies": {
-        "@agent-audit/shared": "workspace:*",
+        "@agentsec/shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.3.11",
@@ -82,10 +80,10 @@
       },
     },
     "packages/reporter": {
-      "name": "@agent-audit/reporter",
+      "name": "@agentsec/reporter",
       "version": "0.1.0",
       "dependencies": {
-        "@agent-audit/shared": "workspace:*",
+        "@agentsec/shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.3.11",
@@ -93,10 +91,10 @@
       },
     },
     "packages/scanner": {
-      "name": "@agent-audit/scanner",
+      "name": "@agentsec/scanner",
       "version": "0.1.0",
       "dependencies": {
-        "@agent-audit/shared": "workspace:*",
+        "@agentsec/shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.3.11",
@@ -104,7 +102,7 @@
       },
     },
     "packages/shared": {
-      "name": "@agent-audit/shared",
+      "name": "@agentsec/shared",
       "version": "0.1.0",
       "devDependencies": {
         "@types/bun": "^1.3.11",
@@ -113,19 +111,19 @@
     },
   },
   "packages": {
-    "@agent-audit/landing": ["@agent-audit/landing@workspace:apps/landing"],
+    "@agentsec/landing": ["@agentsec/landing@workspace:apps/landing"],
 
-    "@agent-audit/metrics": ["@agent-audit/metrics@workspace:packages/metrics"],
+    "@agentsec/metrics": ["@agentsec/metrics@workspace:packages/metrics"],
 
-    "@agent-audit/openclaw": ["@agent-audit/openclaw@workspace:packages/openclaw"],
+    "@agentsec/openclaw": ["@agentsec/openclaw@workspace:packages/openclaw"],
 
-    "@agent-audit/policy": ["@agent-audit/policy@workspace:packages/policy"],
+    "@agentsec/policy": ["@agentsec/policy@workspace:packages/policy"],
 
-    "@agent-audit/reporter": ["@agent-audit/reporter@workspace:packages/reporter"],
+    "@agentsec/reporter": ["@agentsec/reporter@workspace:packages/reporter"],
 
-    "@agent-audit/scanner": ["@agent-audit/scanner@workspace:packages/scanner"],
+    "@agentsec/scanner": ["@agentsec/scanner@workspace:packages/scanner"],
 
-    "@agent-audit/shared": ["@agent-audit/shared@workspace:packages/shared"],
+    "@agentsec/shared": ["@agentsec/shared@workspace:packages/shared"],
 
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
@@ -253,7 +251,7 @@
 
     "@types/react-dom": ["@types/react-dom@19.2.3", "", { "peerDependencies": { "@types/react": "^19.2.0" } }, "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ=="],
 
-    "agent-audit": ["agent-audit@workspace:packages/cli"],
+    "agentsec": ["agentsec@workspace:packages/cli"],
 
     "any-promise": ["any-promise@1.3.0", "", {}, "sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A=="],
 

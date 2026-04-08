@@ -1,5 +1,5 @@
 {
-  "name": "@agent-audit/landing",
+  "name": "@agentsec/landing",
   "version": "1.0.0",
   "private": true,
   "scripts": {

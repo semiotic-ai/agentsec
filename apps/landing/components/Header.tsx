@@ -41,7 +41,7 @@ export function Header(): React.ReactNode {
             CLI
           </a>
           <a
-            href="https://github.com/Markeljan/agent-audit"
+            href="https://github.com/semiotic-agentium/agent-audit"
             target="_blank"
             rel="noopener noreferrer"
             className="text-brand-muted hover:text-brand-teal transition-colors"
@@ -52,7 +52,7 @@ export function Header(): React.ReactNode {
 
         {/* CTA Button */}
         <a
-          href="https://github.com/Markeljan/agent-audit"
+          href="https://github.com/semiotic-agentium/agent-audit"
           target="_blank"
           rel="noopener noreferrer"
           className="btn-secondary text-sm px-6 py-2 font-semibold"

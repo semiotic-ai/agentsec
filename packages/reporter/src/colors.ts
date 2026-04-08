@@ -79,7 +79,7 @@ export const bgTeal = bgRgb(0, 210, 180);
 
 // --- Severity colors ----------------------------------------------------- //
 
-import type { Severity } from "@agent-audit/shared";
+import type { Severity } from "@agentsec/shared";
 
 export const severityColor = (severity: Severity): ((text: string) => string) => {
   switch (severity) {
@@ -113,7 +113,7 @@ export const severityBg = (severity: Severity): ((text: string) => string) => {
 
 // --- Grade colors -------------------------------------------------------- //
 
-import type { AuditGrade } from "@agent-audit/shared";
+import type { AuditGrade } from "@agentsec/shared";
 
 export const gradeColor = (grade: AuditGrade): ((text: string) => string) => {
   switch (grade) {

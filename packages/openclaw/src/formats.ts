@@ -5,7 +5,7 @@
  * file types, and normalizing skill metadata across different formats.
  */
 
-import type { SkillManifest } from "@agent-audit/shared";
+import type { SkillManifest } from "@agentsec/shared";
 
 /** Manifest source format as detected from filename. */
 export type ManifestFormat =

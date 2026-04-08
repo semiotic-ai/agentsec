@@ -1,4 +1,4 @@
-import type { AgentSkill, SecurityFinding, SkillFile } from "@agent-audit/shared";
+import type { AgentSkill, SecurityFinding, SkillFile } from "@agentsec/shared";
 import { getEvidenceLine, getLineNumber, isInComment } from "./utils";
 
 /**

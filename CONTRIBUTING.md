@@ -13,7 +13,7 @@ Use **bun** everywhere. Do not use npm, yarn, or pnpm.
 ## Quick Setup
 
 ```bash
-git clone https://github.com/agent-audit/agent-audit.git
+git clone https://github.com/semiotic-agentium/agent-audit.git
 cd agent-audit
 bun install
 bun run build
@@ -29,15 +29,15 @@ This is a **Turborepo** monorepo with **bun workspaces**. All packages live unde
 ```
 agent-audit/
   packages/
-    shared/        @agent-audit/shared      - Shared types, constants, utilities
-    scanner/       @agent-audit/scanner     - Skill scanning engine and detectors
-    metrics/       @agent-audit/metrics     - Security scoring algorithms
-    policy/        @agent-audit/policy      - Policy rules and compliance engine
-    openclaw/      @agent-audit/openclaw    - OpenClaw (SKILL.md) format support
-    reporter/      @agent-audit/reporter    - Report generation (HTML, JSON, SARIF)
-    cli/           @agent-audit/cli         - CLI entry point (published as "agent-audit")
+    shared/        @agentsec/shared      - Shared types, constants, utilities
+    scanner/       @agentsec/scanner     - Skill scanning engine and detectors
+    metrics/       @agentsec/metrics     - Security scoring algorithms
+    policy/        @agentsec/policy      - Policy rules and compliance engine
+    openclaw/      @agentsec/openclaw    - OpenClaw (SKILL.md) format support
+    reporter/      @agentsec/reporter    - Report generation (HTML, JSON, SARIF)
+    cli/           @agentsec/cli         - CLI entry point (published as "agentsec")
   apps/
-    dashboard/     @agent-audit/dashboard   - Web dashboard
+    dashboard/     @agentsec/dashboard   - Web dashboard
 ```
 
 ### Dependency Graph
@@ -63,7 +63,7 @@ shared (no internal dependencies)
 bun run test
 
 # Run tests for a single package
-bun test --filter @agent-audit/scanner
+bun test --filter @agentsec/scanner
 
 # Watch mode (rerun on file changes)
 bun test --watch
@@ -96,7 +96,7 @@ Scanner rules live in `packages/scanner/src/rules/`. Each rule file exports a fu
 Create `packages/scanner/src/rules/your-rule.ts`:
 
 ```typescript
-import type { AgentSkill, SecurityFinding } from '@agent-audit/shared';
+import type { AgentSkill, SecurityFinding } from '@agentsec/shared';
 
 /**
  * Rule: Your Rule Name (AST-XX)
@@ -252,7 +252,7 @@ bunx biome check --write .
 Example:
 
 ```typescript
-import type { Finding } from '@agent-audit/shared';
+import type { Finding } from '@agentsec/shared';
 
 /**
  * Analyze a skill for security findings.
@@ -279,7 +279,7 @@ This is a **security-focused project**. Follow these rules strictly:
 
 ### Reporting Security Issues
 
-Found a vulnerability? **Do not open a public issue.** Email **security@agent-audit.dev** with a description, reproduction steps, and impact assessment. We respond within 48 hours.
+Found a vulnerability? **Do not open a public issue.** Email **security@agentsec.dev** with a description, reproduction steps, and impact assessment. We respond within 48 hours.
 
 ## Commit Conventions
 
@@ -322,7 +322,7 @@ Use a prefix that describes the type of change:
 bun install && bun run build && bun run test && bun run lint
 
 # Build a specific package
-turbo build --filter=@agent-audit/scanner
+turbo build --filter=@agentsec/scanner
 
 # Type check everything
 bun run check
@@ -340,13 +340,13 @@ bun run dev
 cd packages/scanner
 
 # Build this package and its dependencies
-turbo build --filter=@agent-audit/scanner
+turbo build --filter=@agentsec/scanner
 
 # Test this package only
-bun test --filter @agent-audit/scanner
+bun test --filter @agentsec/scanner
 
 # Watch mode (rebuilds on changes)
-turbo watch build --filter=@agent-audit/scanner
+turbo watch build --filter=@agentsec/scanner
 ```
 
 ## Continuous Integration
@@ -401,7 +401,7 @@ bunx biome check --write .
 - **General questions**: Create a GitHub Discussion
 - **Bug reports**: Create an Issue with `[BUG]` in the title
 - **Feature requests**: Create an Issue with `[FEATURE]` in the title
-- **Security issues**: Email security@agent-audit.dev
+- **Security issues**: Email security@agentsec.dev
 
 ## License
 

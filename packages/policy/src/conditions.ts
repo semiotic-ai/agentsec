@@ -1,9 +1,4 @@
-import type {
-  OWASPCategory,
-  PolicyCondition,
-  Severity,
-  SkillAuditResult,
-} from "@agent-audit/shared";
+import type { OWASPCategory, PolicyCondition, Severity, SkillAuditResult } from "@agentsec/shared";
 
 /**
  * Result of evaluating a condition against an audit result.

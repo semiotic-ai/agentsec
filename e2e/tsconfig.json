@@ -12,7 +12,7 @@
     "rootDir": ".",
     "types": ["bun-types"],
     "paths": {
-      "@agent-audit/*": ["../packages/*/src"]
+      "@agentsec/*": ["../packages/*/src"]
     }
   },
   "include": ["*.ts", "fixtures/**/*.ts"],

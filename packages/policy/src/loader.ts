@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { extname } from "node:path";
-import type { PolicyConfig } from "@agent-audit/shared";
+import type { PolicyConfig } from "@agentsec/shared";
 import { getPreset } from "./presets";
 
 /**

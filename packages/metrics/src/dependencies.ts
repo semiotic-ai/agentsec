@@ -1,4 +1,4 @@
-import type { AgentSkill } from "@agent-audit/shared";
+import type { AgentSkill } from "@agentsec/shared";
 
 export interface DependencyResult {
   /** Total number of declared dependencies */

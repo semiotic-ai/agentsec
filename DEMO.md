@@ -100,10 +100,10 @@ The `e2e/fixtures/` directory contains sample skills designed to trigger specifi
 
 ## Configuration Reference
 
-Create an `agent-audit.config.ts` in your project root:
+Create an `agentsec.config.ts` in your project root:
 
 ```typescript
-import { defineConfig } from "agent-audit";
+import { defineConfig } from "agentsec";
 
 export default defineConfig({
   // Directories to scan
@@ -168,7 +168,7 @@ Lume provides sandboxed macOS VMs for end-to-end testing. This is optional and o
 .lume/setup.sh
 ```
 
-This creates a macOS VM named `agent-audit-vm` with 4 CPUs, 8 GB RAM, and 50 GB disk.
+This creates a macOS VM named `agentsec-vm` with 4 CPUs, 8 GB RAM, and 50 GB disk.
 
 ### Run E2E tests against the VM
 
@@ -176,22 +176,22 @@ This creates a macOS VM named `agent-audit-vm` with 4 CPUs, 8 GB RAM, and 50 GB 
 cd e2e && bun test
 ```
 
-The E2E suite starts the VM, installs OpenClaw inside it, deploys the fixture skills, and runs `agent-audit` against the VM environment.
+The E2E suite starts the VM, installs OpenClaw inside it, deploys the fixture skills, and runs `agentsec` against the VM environment.
 
 ### Manual VM management
 
 ```bash
 # SSH into the VM
-lume ssh agent-audit-vm
+lume ssh agentsec-vm
 
 # Run a command inside the VM
-lume ssh agent-audit-vm "sw_vers"
+lume ssh agentsec-vm "sw_vers"
 
 # Stop the VM
-lume stop agent-audit-vm
+lume stop agentsec-vm
 
 # Delete the VM
-lume delete agent-audit-vm --force
+lume delete agentsec-vm --force
 ```
 
 ### Lume API

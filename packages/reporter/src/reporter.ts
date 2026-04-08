@@ -5,7 +5,7 @@
  * appropriate formatter.
  */
 
-import type { AuditReport, OutputFormat } from "@agent-audit/shared";
+import type { AuditReport, OutputFormat } from "@agentsec/shared";
 import { formatHtml } from "./formats/html.js";
 import { formatJson } from "./formats/json.js";
 import { formatSarif } from "./formats/sarif.js";

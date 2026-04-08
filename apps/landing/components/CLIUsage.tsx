@@ -11,7 +11,7 @@ const commands: Command[] = [
   {
     title: "Audit Your Agent",
     description: "Automatically discover and audit every skill your agent has installed.",
-    command: "npx agent-audit",
+    command: "npx agentsec",
     output: `Discovering installed skills...
 ✓ OpenClaw/my-webhook-skill: PASS
 ✓ Claude-Code/pdf-analyzer: PASS
@@ -24,7 +24,7 @@ Policy Compliance: 91%`,
   {
     title: "Generate Report",
     description: "Create detailed HTML/JSON reports for compliance documentation.",
-    command: "npx agent-audit --report json",
+    command: "npx agentsec --report json",
     output: `{
   "scannedAt": "2025-04-02T12:34:56Z",
   "skillCount": 12,
@@ -42,7 +42,7 @@ Policy Compliance: 91%`,
   {
     title: "Enforce Policy",
     description: "Integrate into CI/CD to block unsafe skills from deployment.",
-    command: "npx agent-audit --enforce --fail-threshold 85",
+    command: "npx agentsec --enforce --fail-threshold 85",
     output: `Discovering installed skills...
 Enforcing policy: min compliance 85%
 
@@ -54,7 +54,7 @@ Safe to deploy.`,
   {
     title: "Custom Rules",
     description: "Define organization-specific security policies and compliance rules.",
-    command: "npx agent-audit --policy ./policy.yaml",
+    command: "npx agentsec --policy ./policy.yaml",
     output: `Loading policy: ./policy.yaml
 Applying 8 custom rules...
 

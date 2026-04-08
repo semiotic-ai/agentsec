@@ -1,5 +1,5 @@
 /**
- * vm-manager.ts - Lume VM lifecycle management for agent-audit
+ * vm-manager.ts - Lume VM lifecycle management for agentsec
  *
  * Manages macOS VMs via the Lume HTTP API (default: http://localhost:7777).
  * Lume uses Apple's Virtualization Framework to run macOS/Linux VMs
@@ -537,7 +537,7 @@ export class LumeVM {
 async function main() {
   const args = process.argv.slice(2);
   const command = args[0];
-  const vmName = args[1] ?? "agent-audit-vm";
+  const vmName = args[1] ?? "agentsec-vm";
 
   const vm = new LumeVM({
     name: vmName,
@@ -600,7 +600,7 @@ Commands:
   snapshots [name]        List available snapshots
   exec    [name] <cmd>    Execute a command in the VM
 
-Default VM name: agent-audit-vm`);
+Default VM name: agentsec-vm`);
   }
 }
 

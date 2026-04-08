@@ -3,7 +3,7 @@
  *
  * Produces a richly-formatted, ANSI-colored report designed for direct
  * console output.  This is the default view users see when they run
- * `npx agent-audit`.
+ * `npx agentsec`.
  */
 
 import type {
@@ -12,7 +12,7 @@ import type {
   SecurityFinding,
   Severity,
   SkillAuditResult,
-} from "@agent-audit/shared";
+} from "@agentsec/shared";
 
 import {
   bold,

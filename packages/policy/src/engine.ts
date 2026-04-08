@@ -1,4 +1,4 @@
-import type { PolicyConfig, PolicyViolation, SkillAuditResult } from "@agent-audit/shared";
+import type { PolicyConfig, PolicyViolation, SkillAuditResult } from "@agentsec/shared";
 import { evaluateCondition } from "./conditions";
 import { getPreset } from "./presets";
 

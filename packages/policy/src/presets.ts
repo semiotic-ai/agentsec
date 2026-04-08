@@ -1,4 +1,4 @@
-import type { PolicyConfig } from "@agent-audit/shared";
+import type { PolicyConfig } from "@agentsec/shared";
 
 /**
  * Strict preset:

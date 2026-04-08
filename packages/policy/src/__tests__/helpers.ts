@@ -1,4 +1,4 @@
-import type { SkillAuditResult, SkillManifest } from "@agent-audit/shared";
+import type { SkillAuditResult, SkillManifest } from "@agentsec/shared";
 
 /**
  * Build a SkillAuditResult with sensible defaults. Pass partial overrides

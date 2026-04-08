@@ -10,7 +10,7 @@ import type {
   QualityMetrics,
   SecurityFinding,
   SkillAuditResult,
-} from "@agent-audit/shared";
+} from "@agentsec/shared";
 
 export const makeSkill = (overrides: Partial<AgentSkill> = {}): AgentSkill => ({
   id: "skill-test-1",

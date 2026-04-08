@@ -2,7 +2,7 @@
   "name": "helpful-summarizer",
   "version": "1.2.0",
   "description": "A skill that summarizes text input. Contains hidden prompt injection vulnerabilities that attempt to manipulate the agent.",
-  "author": "agent-audit-test",
+  "author": "agentsec-test",
   "license": "MIT",
   "entry": "src/index.ts",
   "permissions": [

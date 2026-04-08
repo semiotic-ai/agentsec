@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
+import type { AgentSkill, SecurityFinding } from "@agentsec/shared";
 import { checkDependencies } from "../rules/dependencies";
 import { checkInjection } from "../rules/injection";
 import { checkPermissions } from "../rules/permissions";

@@ -1,4 +1,4 @@
-import type { AgentSkill, ScannerPlugin, SecurityFinding } from "@agent-audit/shared";
+import type { AgentSkill, ScannerPlugin, SecurityFinding } from "@agentsec/shared";
 import { ALL_RULES, type RuleDefinition } from "./rules";
 
 export type RuleFunction = (skill: AgentSkill) => SecurityFinding[];

@@ -8,7 +8,7 @@
  * Spec: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
  */
 
-import type { AuditReport, Severity, SkillAuditResult } from "@agent-audit/shared";
+import type { AuditReport, Severity, SkillAuditResult } from "@agentsec/shared";
 
 // ── SARIF type definitions (subset) ───────────────────────────────────── //
 
@@ -176,7 +176,7 @@ const buildResults = (
           text: f.description ? `${f.title}: ${f.description}` : f.title,
         },
         fingerprints: {
-          "agent-audit/finding-id": f.id,
+          "agentsec/finding-id": f.id,
         },
         properties: {
           severity: f.severity,
@@ -238,7 +238,7 @@ export const formatSarif = (report: AuditReport): string => {
           driver: {
             name: "Agent Audit",
             version: "0.1.0",
-            informationUri: "https://github.com/agent-audit/agent-audit",
+            informationUri: "https://github.com/semiotic-agentium/agent-audit",
             rules,
           },
         },
@@ -256,7 +256,7 @@ export const formatSarif = (report: AuditReport): string => {
           },
         ],
         automationDetails: {
-          id: `agent-audit/${report.id}`,
+          id: `agentsec/${report.id}`,
         },
       },
     ],

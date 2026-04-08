@@ -16,9 +16,9 @@ Empower organizations to deploy agent skills confidently by providing comprehens
 ## Logo Usage
 
 ### Logo Files
-- **Primary**: `assets/agent-audit-logo.svg` (recommended for digital)
-- **Dark Variant**: `assets/agent-audit-logo-dark.svg` (for light backgrounds)
-- **Icon**: `assets/agent-audit-icon.svg` (favicon, small displays)
+- **Primary**: `assets/agentsec-logo.svg` (recommended for digital)
+- **Dark Variant**: `assets/agentsec-logo-dark.svg` (for light backgrounds)
+- **Icon**: `assets/agentsec-icon.svg` (favicon, small displays)
 
 ### Minimum Sizes
 - **Large displays**: 200px minimum width
@@ -279,7 +279,7 @@ Reports should be:
 
 ### In Documentation
 ```markdown
-![Agent Audit Certified](https://agent-audit.dev/badges/certified.svg)
+![Agent Audit Certified](https://agentsec.dev/badges/certified.svg)
 
 This skill has been audited and certified by Agent Audit.
 ```
@@ -288,13 +288,13 @@ This skill has been audited and certified by Agent Audit.
 ```yaml
 badges:
   - type: certified
-    url: https://agent-audit.dev/verify/skill-id
+    url: https://agentsec.dev/verify/skill-id
     date: 2026-04-02
 ```
 
 ### On Websites
 ```html
-<a href="https://agent-audit.dev/verify/skill-id">
+<a href="https://agentsec.dev/verify/skill-id">
   <img src="/badges/certified.svg" alt="Certified by Agent Audit" />
 </a>
 ```
@@ -326,10 +326,10 @@ badges:
 
 ### Repository Location
 All brand assets are in `/assets/`:
-- `agent-audit-logo.svg` — Full logo + wordmark
-- `agent-audit-icon.svg` — Icon only (favicon)
-- `agent-audit-badge-certified.svg` — Certification badge
-- `agent-audit-badge-scanned.svg` — Scanning badge
+- `agentsec-logo.svg` — Full logo + wordmark
+- `agentsec-icon.svg` — Icon only (favicon)
+- `agentsec-badge-certified.svg` — Certification badge
+- `agentsec-badge-scanned.svg` — Scanning badge
 - `architecture.svg` — Architecture diagram
 - `owasp-coverage.svg` — OWASP coverage chart
 
@@ -359,4 +359,4 @@ All brand assets are licensed under CC-BY-4.0 for use in compliance with Agent A
 
 ## Questions?
 
-For brand usage questions, guidelines clarifications, or asset requests, contact: brand@agent-audit.dev
+For brand usage questions, guidelines clarifications, or asset requests, contact: brand@agentsec.dev

@@ -5,7 +5,7 @@
  * piping into other tools or storing as an artifact.
  */
 
-import type { AuditReport } from "@agent-audit/shared";
+import type { AuditReport } from "@agentsec/shared";
 
 export const formatJson = (report: AuditReport): string => {
   return JSON.stringify(report, null, 2);

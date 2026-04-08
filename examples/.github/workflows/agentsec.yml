@@ -6,7 +6,7 @@ on:
     paths:
       - 'skills/**'
       - 'packages/**'
-      - '.github/workflows/agent-audit.yml'
+      - '.github/workflows/agentsec.yml'
   # Run on pushes to main
   push:
     branches:
@@ -27,7 +27,7 @@ permissions:
   security-events: write
 
 jobs:
-  agent-audit:
+  agentsec:
     name: Scan Agent Skills
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -53,7 +53,7 @@ jobs:
       - name: Scan skills with Agent Audit
         id: audit
         run: |
-          bun run --filter @agent-audit/cli -- audit \
+          bun run --filter @agentsec/cli -- audit \
             --output-dir ./audit-reports \
             --format json \
             --format sarif \
@@ -67,8 +67,8 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: ./audit-reports/agent-audit-report.sarif
-          category: agent-audit
+          sarif_file: ./audit-reports/agentsec-report.sarif
+          category: agentsec
           wait-for-processing: true
 
       # Comment on PR with results
@@ -81,7 +81,7 @@ jobs:
             const path = require('path');
 
             // Read the JSON report
-            const reportPath = './audit-reports/agent-audit-report.json';
+            const reportPath = './audit-reports/agentsec-report.json';
             if (!fs.existsSync(reportPath)) {
               console.log('No audit report found');
               return;
@@ -117,7 +117,7 @@ jobs:
               comment += `**Certification:** ${summary.certificationStatus}\n\n`;
             }
 
-            comment += '[View detailed report](./audit-reports/agent-audit-report.html)';
+            comment += '[View detailed report](./audit-reports/agentsec-report.html)';
 
             // Post the comment
             github.rest.issues.createComment({
@@ -132,7 +132,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: agent-audit-reports
+          name: agentsec-reports
           path: audit-reports/
           retention-days: 30
 
@@ -140,7 +140,7 @@ jobs:
       - name: Check for critical findings
         if: always()
         run: |
-          if grep -q '"severity": "critical"' ./audit-reports/agent-audit-report.json; then
+          if grep -q '"severity": "critical"' ./audit-reports/agentsec-report.json; then
             echo "❌ Critical security findings detected"
             exit 1
           else
@@ -170,20 +170,20 @@ jobs:
     name: Report results to Datadog
     runs-on: ubuntu-latest
     if: always() && secrets.DATADOG_API_KEY != ''
-    needs: agent-audit
+    needs: agentsec
 
     steps:
       - name: Download reports
         uses: actions/download-artifact@v3
         with:
-          name: agent-audit-reports
+          name: agentsec-reports
 
       - name: Send metrics to Datadog
         uses: DataDog/datadog-ci@v0.12.0
         with:
           api-key: ${{ secrets.DATADOG_API_KEY }}
           datadog-site: datadoghq.com
-          public-static-url-prefix: 'https://agent-audit.dev/'
+          public-static-url-prefix: 'https://agentsec.dev/'
           validate: true
         env:
           DATADOG_SITE: datadoghq.com
@@ -193,13 +193,13 @@ jobs:
     name: Create JIRA tickets for findings
     runs-on: ubuntu-latest
     if: always() && secrets.JIRA_API_TOKEN != ''
-    needs: agent-audit
+    needs: agentsec
 
     steps:
       - name: Download reports
         uses: actions/download-artifact@v3
         with:
-          name: agent-audit-reports
+          name: agentsec-reports
 
       - name: Create JIRA tickets
         uses: actions/github-script@v7
@@ -207,7 +207,7 @@ jobs:
           script: |
             const fs = require('fs');
 
-            const report = JSON.parse(fs.readFileSync('agent-audit-report.json', 'utf8'));
+            const report = JSON.parse(fs.readFileSync('agentsec-report.json', 'utf8'));
             const findings = report.findings || [];
 
             // Filter high and critical findings
@@ -227,10 +227,10 @@ jobs:
             // for (const finding of criticalFindings) {
             //   const ticket = await jira.create({
             //     project: 'SEC',
-            //     summary: `Agent Audit: ${finding.title}`,
-            //     description: `Security finding from Agent Audit\n\n${finding.description}`,
+            //     summary: `agentsec: ${finding.title}`,
+            //     description: `Security finding from agentsec\n\n${finding.description}`,
             //     severity: finding.severity,
-            //     labels: ['agent-audit', 'automated']
+            //     labels: ['agentsec', 'automated']
             //   });
             //   console.log(`Created ticket: ${ticket.key}`);
             // }
@@ -244,20 +244,20 @@ jobs:
     name: Generate trend analysis
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
-    needs: agent-audit
+    needs: agentsec
 
     steps:
       - name: Download reports
         uses: actions/download-artifact@v3
         with:
-          name: agent-audit-reports
+          name: agentsec-reports
 
       - name: Analyze trends
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync('agent-audit-report.json', 'utf8'));
+            const report = JSON.parse(fs.readFileSync('agentsec-report.json', 'utf8'));
 
             console.log('📊 Daily Trend Analysis');
             console.log('=======================\n');
@@ -272,12 +272,12 @@ jobs:
 
 # Environment-specific configurations:
 # For production scanning:
-#   - Set AGENT_AUDIT_POLICY_MAXSEVERITY=critical
-#   - Set AGENT_AUDIT_POLICY_FAILONSEVERITY=true
+#   - Set AGENTSEC_POLICY_MAXSEVERITY=critical
+#   - Set AGENTSEC_POLICY_FAILONSEVERITY=true
 #
 # For development scanning:
-#   - Set AGENT_AUDIT_POLICY_MAXSEVERITY=medium
-#   - Set AGENT_AUDIT_SCANNING_LEVEL=2
+#   - Set AGENTSEC_POLICY_MAXSEVERITY=medium
+#   - Set AGENTSEC_SCANNING_LEVEL=2
 #
 # Required secrets:
 #   - SLACK_WEBHOOK_URL (optional): Slack notifications
@@ -286,8 +286,8 @@ jobs:
 #   - GITHUB_TOKEN: Automatically available
 
 # Example: Running Agent Audit with custom config:
-# bun run --filter @agent-audit/cli -- audit \
-#   --config agent-audit.config.ts \
+# bun run --filter @agentsec/cli -- audit \
+#   --config agentsec.config.ts \
 #   --output-dir ./audit-reports \
 #   --format sarif \
 #   ./skills

@@ -1,6 +1,6 @@
 # Lume Test Environment
 
-Isolated macOS VM environment for end-to-end testing of agent-audit.
+Isolated macOS VM environment for end-to-end testing of agentsec.
 
 ## Overview
 
@@ -12,7 +12,7 @@ speed on Apple Silicon.
 The VM is used to:
 - Install openclaw (the skill runtime under audit)
 - Deploy a set of fixture skills (both well-behaved and intentionally flawed)
-- Run `agent-audit` against the VM to verify end-to-end audit behavior
+- Run `agentsec` against the VM to verify end-to-end audit behavior
 
 ## Requirements
 
@@ -39,27 +39,27 @@ cd e2e && bun test
 | `setup.sh` | Installs Lume CLI, pulls a macOS image, provisions the VM |
 | `Lumefile` | Declarative VM configuration (name, CPU, memory, disk, etc.) |
 | `../e2e/setup.ts` | Programmatic setup: starts VM, installs openclaw + fixtures |
-| `../e2e/audit.test.ts` | End-to-end tests that run agent-audit against the VM |
+| `../e2e/audit.test.ts` | End-to-end tests that run agentsec against the VM |
 | `../e2e/fixtures/` | Sample skills used as audit targets |
 
 ## Lume CLI Reference
 
 ```bash
 # Create a macOS VM
-lume create agent-audit-vm --os macos --ipsw latest --cpu 4 --memory 8GB --disk-size 50GB
+lume create agentsec-vm --os macos --ipsw latest --cpu 4 --memory 8GB --disk-size 50GB
 
 # Run headlessly (for CI)
-lume run agent-audit-vm --no-display
+lume run agentsec-vm --no-display
 
 # SSH into the VM (default user: lume, password: lume)
-lume ssh agent-audit-vm
+lume ssh agentsec-vm
 
 # Execute a command inside the VM
-lume ssh agent-audit-vm "sw_vers"
+lume ssh agentsec-vm "sw_vers"
 
 # Stop and delete the VM
-lume stop agent-audit-vm
-lume delete agent-audit-vm --force
+lume stop agentsec-vm
+lume delete agentsec-vm --force
 ```
 
 ## Lume HTTP API

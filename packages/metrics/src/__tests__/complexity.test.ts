@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { SkillFile } from "@agent-audit/shared";
+import type { SkillFile } from "@agentsec/shared";
 import { calculateComplexity, countTotalLinesOfCode } from "../complexity";
 
 /** Helper to build a SkillFile from source and language. */

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { AgentSkill, SkillFile } from "@agent-audit/shared";
+import type { AgentSkill, SkillFile } from "@agentsec/shared";
 import { MetricsAnalyzer } from "../analyzer";
 
 /** Build a mock SkillFile. */

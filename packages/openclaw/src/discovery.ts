@@ -6,8 +6,8 @@
 import { readdir } from "node:fs/promises";
 import { homedir, platform } from "node:os";
 import { join, resolve } from "node:path";
-import type { AgentSkill } from "@agent-audit/shared";
-import { OPENCLAW_SKILL_DIRS } from "@agent-audit/shared";
+import type { AgentSkill } from "@agentsec/shared";
+import { OPENCLAW_SKILL_DIRS } from "@agentsec/shared";
 import { type ParseOptions, SkillParser } from "./parser";
 
 export interface DiscoveryConfig {

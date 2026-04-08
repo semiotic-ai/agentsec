@@ -1,9 +1,9 @@
 /**
- * e2e/audit.test.ts -- End-to-end tests for agent-audit.
+ * e2e/audit.test.ts -- End-to-end tests for agentsec.
  *
  * These tests:
  *   1. Ensure the Lume VM is running with openclaw + fixture skills installed
- *   2. Run agent-audit against the VM's skill directory
+ *   2. Run agentsec against the VM's skill directory
  *   3. Verify that well-behaved skills pass and flawed skills are flagged
  */
 
@@ -68,15 +68,15 @@ const FIXTURE_SKILLS = [
 ] as const;
 
 /**
- * Run agent-audit against the VM's test-skills directory and parse results.
+ * Run agentsec against the VM's test-skills directory and parse results.
  */
 async function runAuditOnVm(): Promise<AuditReport> {
-  // Execute agent-audit inside the VM against ~/test-skills
+  // Execute agentsec inside the VM against ~/test-skills
   const output = await sshExec(
     `bash -c '
     export PATH="$HOME/.bun/bin:/opt/homebrew/bin:$PATH"
     cd ~/test-skills
-    agent-audit scan --format json --dir . 2>/dev/null || echo "{}"
+    agentsec scan --format json --dir . 2>/dev/null || echo "{}"
   '`,
     120,
   );
@@ -84,7 +84,7 @@ async function runAuditOnVm(): Promise<AuditReport> {
   try {
     return JSON.parse(output) as AuditReport;
   } catch {
-    // If agent-audit is not yet installed in the VM, run it from the host
+    // If agentsec is not yet installed in the VM, run it from the host
     // and point it at the fixtures directory for a local-only test
     console.log("[test] Could not parse VM audit output. Falling back to local audit...");
     return runAuditLocally();
@@ -92,13 +92,13 @@ async function runAuditOnVm(): Promise<AuditReport> {
 }
 
 /**
- * Fallback: run agent-audit locally against the fixtures directory.
+ * Fallback: run agentsec locally against the fixtures directory.
  * This works even when the VM is not fully provisioned.
  */
 async function runAuditLocally(): Promise<AuditReport> {
   try {
     const result =
-      await $`bun run --filter @agent-audit/cli -- audit scan --format json --dir ${CONFIG.fixturesDir}`.text();
+      await $`bun run --filter @agentsec/cli -- audit scan --format json --dir ${CONFIG.fixturesDir}`.text();
     return JSON.parse(result) as AuditReport;
   } catch {
     // Return a minimal structure so tests can still assert on shape
@@ -136,7 +136,7 @@ function hasFindings(result: SkillAuditResult | undefined, rulePattern: string |
 // Test suite
 // ---------------------------------------------------------------------------
 
-describe("agent-audit e2e", () => {
+describe("agentsec e2e", () => {
   let vmReady = false;
 
   beforeAll(async () => {

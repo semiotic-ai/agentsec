@@ -48,7 +48,7 @@ export function CTA(): React.ReactNode {
         {/* Links */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12 text-sm">
           <a
-            href="https://github.com/Markeljan/agent-audit"
+            href="https://github.com/semiotic-agentium/agent-audit"
             target="_blank"
             rel="noopener noreferrer"
             className="text-brand-blue hover:text-brand-teal transition-colors"

@@ -4,7 +4,7 @@
  */
 
 import { basename } from "node:path";
-import type { AgentSkill, SkillManifest } from "@agent-audit/shared";
+import type { AgentSkill, SkillManifest } from "@agentsec/shared";
 import { findAndParseManifest, type ManifestResult } from "./manifest";
 import { walkSkillDirectory } from "./walker";
 

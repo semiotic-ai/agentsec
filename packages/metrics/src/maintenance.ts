@@ -1,4 +1,4 @@
-import type { AgentSkill, SkillFile } from "@agent-audit/shared";
+import type { AgentSkill, SkillFile } from "@agentsec/shared";
 
 export interface MaintenanceResult {
   /** Overall maintenance health score, 0-100 */

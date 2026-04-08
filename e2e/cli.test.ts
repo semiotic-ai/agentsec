@@ -1,5 +1,5 @@
 /**
- * End-to-end tests for the agent-audit CLI.
+ * End-to-end tests for the agentsec CLI.
  *
  * Spawns the built CLI binary via Bun.spawn and asserts on stdout/stderr
  * and exit codes. Fixture skills under e2e/fixtures/ serve as scan targets.
@@ -23,7 +23,7 @@ interface RunResult {
 }
 
 /**
- * Run the agent-audit CLI with the given arguments and return captured output.
+ * Run the agentsec CLI with the given arguments and return captured output.
  * Uses Bun.spawn so the binary runs in a child process just like a real user.
  */
 async function runCli(args: string[], _timeoutMs = 30_000): Promise<RunResult> {
@@ -62,7 +62,7 @@ beforeAll(() => {
 // Tests
 // ---------------------------------------------------------------------------
 
-describe("agent-audit CLI", () => {
+describe("agentsec CLI", () => {
   // -----------------------------------------------------------------------
   // --help
   // -----------------------------------------------------------------------
@@ -72,7 +72,7 @@ describe("agent-audit CLI", () => {
 
       expect(exitCode).toBe(0);
       // Should mention the tool name and common flags
-      expect(stdout).toContain("agent-audit");
+      expect(stdout).toContain("agentsec");
       expect(stdout).toMatch(/usage|Usage|USAGE/i);
       // Should list known commands
       expect(stdout).toContain("audit");

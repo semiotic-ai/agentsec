@@ -354,7 +354,7 @@ META_EOF`,
 
 function parseArgs(argv: string[]): SetupConfig {
   const args = argv.slice(2);
-  let vmName = "agent-audit-vm";
+  let vmName = "agentsec-vm";
   let headless = true;
   let skipInstall = false;
   let takeSnapshot = false;
@@ -381,7 +381,7 @@ function parseArgs(argv: string[]): SetupConfig {
         console.log(`Usage: bun run cua-setup.ts [options]
 
 Options:
-  --vm-name <name>      VM name (default: agent-audit-vm)
+  --vm-name <name>      VM name (default: agentsec-vm)
   --no-headless         Open VNC display window
   --skip-install        Skip openclaw installation
   --snapshot [label]    Take snapshot after setup (default label: post-setup)

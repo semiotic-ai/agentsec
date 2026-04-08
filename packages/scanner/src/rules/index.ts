@@ -9,7 +9,7 @@ export { checkPermissions } from "./permissions";
 export { checkStorage } from "./storage";
 export { checkSupplyChain } from "./supply-chain";
 
-import type { AgentSkill, SecurityFinding } from "@agent-audit/shared";
+import type { AgentSkill, SecurityFinding } from "@agentsec/shared";
 import { checkDependencies } from "./dependencies";
 import { checkUnsafeDeserialization } from "./deserialization";
 import { checkDenialOfService } from "./dos";

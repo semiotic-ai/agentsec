@@ -9,7 +9,7 @@
  * @module clawhub
  */
 
-import type { AgentSkill, SkillManifest } from "@agent-audit/shared";
+import type { AgentSkill, SkillManifest } from "@agentsec/shared";
 
 // ---------------------------------------------------------------------------
 // ClawHub registry types

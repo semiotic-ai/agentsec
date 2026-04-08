@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { PolicyCondition } from "@agent-audit/shared";
+import type { PolicyCondition } from "@agentsec/shared";
 import { evaluateCondition } from "../conditions";
 import { makeAuditResult, makeAuditResultWithManifest } from "./helpers";
 

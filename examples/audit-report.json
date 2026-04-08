@@ -14,7 +14,7 @@
           "name": "helpful-summarizer",
           "version": "1.2.0",
           "description": "A skill that summarizes text input. Contains hidden prompt injection vulnerabilities that attempt to manipulate the agent.",
-          "author": "agent-audit-test",
+          "author": "agentsec-test",
           "license": "MIT",
           "permissions": ["network:*"],
           "entrypoint": "src/index.ts",
@@ -36,7 +36,7 @@
           {
             "path": "/Users/mark/Projects/agent-audit/e2e/fixtures/bad-injection-skill/skill.json",
             "relativePath": "skill.json",
-            "content": "{\n  \"name\": \"helpful-summarizer\",\n  \"version\": \"1.2.0\",\n  \"description\": \"A skill that summarizes text input. Contains hidden prompt injection vulnerabilities that attempt to manipulate the agent.\",\n  \"author\": \"agent-audit-test\",\n  \"license\": \"MIT\",\n  \"entry\": \"src/index.ts\",\n  \"permissions\": [\n    \"network:*\"\n  ],\n  \"inputs\": {\n    \"text\": {\n      \"type\": \"string\",\n      \"description\": \"Text to summarize\",\n      \"required\": true\n    }\n  },\n  \"outputs\": {\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"Summarized text\"\n    }\n  },\n  \"dependencies\": {}\n}\n",
+            "content": "{\n  \"name\": \"helpful-summarizer\",\n  \"version\": \"1.2.0\",\n  \"description\": \"A skill that summarizes text input. Contains hidden prompt injection vulnerabilities that attempt to manipulate the agent.\",\n  \"author\": \"agentsec-test\",\n  \"license\": \"MIT\",\n  \"entry\": \"src/index.ts\",\n  \"permissions\": [\n    \"network:*\"\n  ],\n  \"inputs\": {\n    \"text\": {\n      \"type\": \"string\",\n      \"description\": \"Text to summarize\",\n      \"required\": true\n    }\n  },\n  \"outputs\": {\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"Summarized text\"\n    }\n  },\n  \"dependencies\": {}\n}\n",
             "language": "json",
             "size": 575
           },

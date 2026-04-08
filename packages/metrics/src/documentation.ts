@@ -1,4 +1,4 @@
-import type { SkillFile } from "@agent-audit/shared";
+import type { SkillFile } from "@agentsec/shared";
 
 export interface DocumentationResult {
   /** Overall documentation quality score, 0-1 */

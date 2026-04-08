@@ -1,5 +1,5 @@
 {
-  "name": "agent-audit",
+  "name": "agentsec",
   "private": true,
   "workspaces": [
     "packages/*",

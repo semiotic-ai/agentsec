@@ -1,4 +1,4 @@
-import type { AgentSkill, QualityMetrics } from "@agent-audit/shared";
+import type { AgentSkill, QualityMetrics } from "@agentsec/shared";
 import type { ComplexityResult } from "./complexity";
 import { calculateComplexity, countTotalLinesOfCode } from "./complexity";
 import type { DependencyResult } from "./dependencies";

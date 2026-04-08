@@ -1,6 +1,6 @@
 # CLAUDE.md - Project Rules for Claude Code
 
-This file provides context and rules for Claude Code when working in the agent-audit monorepo.
+This file provides context and rules for Claude Code when working in the agentsec monorepo.
 
 ## Package Manager
 
@@ -19,19 +19,19 @@ This is a **Turborepo** monorepo with **bun workspaces**.
 ```
 agent-audit/
   packages/
-    shared/        @agent-audit/shared      - Shared types and utilities
-    scanner/       @agent-audit/scanner      - Skill scanner engine
-    metrics/       @agent-audit/metrics      - Security scoring and metrics
-    policy/        @agent-audit/policy       - Policy engine and rules
-    openclaw/      @agent-audit/openclaw     - OpenClaw format support
-    reporter/      @agent-audit/reporter     - Report generation
-    cli/           @agent-audit/cli          - CLI entry point
+    shared/        @agentsec/shared      - Shared types and utilities
+    scanner/       @agentsec/scanner      - Skill scanner engine
+    metrics/       @agentsec/metrics      - Security scoring and metrics
+    policy/        @agentsec/policy       - Policy engine and rules
+    openclaw/      @agentsec/openclaw     - OpenClaw format support
+    reporter/      @agentsec/reporter     - Report generation
+    cli/           @agentsec/cli          - CLI entry point
 ```
 
 ### Package Naming
 
-- Internal packages: `@agent-audit/<name>`
-- The published CLI package: `agent-audit`
+- Internal packages: `@agentsec/<name>`
+- The published CLI package: `agentsec`
 
 ### Dependency Graph
 
@@ -43,7 +43,7 @@ shared (types, constants, utilities)
   ^--- openclaw (OpenClaw SKILL.md parsing)
   ^--- reporter (HTML/JSON/PDF report generation)
 
-cli (command-line interface, published as "agent-audit")
+cli (command-line interface, published as "agentsec")
   depends on ALL 6 packages above
 ```
 
@@ -62,12 +62,12 @@ cli (command-line interface, published as "agent-audit")
 - Use `bun test` (not jest, vitest, or mocha)
 - Test files: `*.test.ts` or `*.spec.ts`
 - Run all tests: `bun run test` (uses turbo)
-- Run tests for one package: `bun test --filter @agent-audit/<name>`
+- Run tests for one package: `bun test --filter @agentsec/<name>`
 
 ## Build System
 
 - Build all: `bun run build` (uses turbo)
-- Build one package: `turbo build --filter=@agent-audit/<name>`
+- Build one package: `turbo build --filter=@agentsec/<name>`
 - Dev mode: `bun run dev`
 - Lint: `bun run lint`
 - Type check: `bun run check`
@@ -111,7 +111,7 @@ This is a **security-focused project**. Follow these rules strictly:
 bun install && bun run build && bun run test
 
 # Run the CLI locally
-bun run --filter @agent-audit/cli -- audit <target>
+bun run --filter @agentsec/cli -- audit <target>
 
 # Add a new package dependency
 cd packages/<name> && bun add <dependency>

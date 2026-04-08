@@ -1,5 +1,5 @@
 /**
- * e2e/setup.ts -- Programmatic Lume VM setup for agent-audit e2e tests.
+ * e2e/setup.ts -- Programmatic Lume VM setup for agentsec e2e tests.
  *
  * Uses the Lume HTTP API (localhost:7777) and CLI to:
  *   1. Create or reuse a macOS VM
@@ -23,7 +23,7 @@ import { $ } from "bun";
 // ---------------------------------------------------------------------------
 
 const CONFIG = {
-  vmName: process.env.LUME_VM_NAME ?? "agent-audit-vm",
+  vmName: process.env.LUME_VM_NAME ?? "agentsec-vm",
   cpu: Number(process.env.LUME_VM_CPU ?? 4),
   memory: process.env.LUME_VM_MEMORY ?? "8GB",
   diskSize: process.env.LUME_VM_DISK ?? "50GB",

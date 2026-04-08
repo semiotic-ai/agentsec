@@ -1,5 +1,5 @@
 {
-  "name": "@agent-audit/e2e",
+  "name": "@agentsec/e2e",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,10 +12,10 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@agent-audit/shared": "workspace:*",
-    "@agent-audit/scanner": "workspace:*",
-    "@agent-audit/policy": "workspace:*",
-    "@agent-audit/reporter": "workspace:*"
+    "@agentsec/shared": "workspace:*",
+    "@agentsec/scanner": "workspace:*",
+    "@agentsec/policy": "workspace:*",
+    "@agentsec/reporter": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "^1.2.0",

@@ -1,5 +1,5 @@
 /**
- * @agent-audit/reporter
+ * @agentsec/reporter
  *
  * Generates audit reports in multiple output formats:
  * - text:  ANSI-colored terminal output

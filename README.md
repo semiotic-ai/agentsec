@@ -8,10 +8,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Markeljan/agent-audit">
-    <img src="https://img.shields.io/github/stars/Markeljan/agent-audit.svg?style=social" alt="GitHub stars">
+  <a href="https://github.com/semiotic-agentium/agent-audit">
+    <img src="https://img.shields.io/github/stars/semiotic-agentium/agent-audit.svg?style=social" alt="GitHub stars">
   </a>
-  <a href="https://github.com/Markeljan/agent-audit/blob/main/LICENSE">
+  <a href="https://github.com/semiotic-agentium/agent-audit/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   </a>
   <a href="https://owasp.org/www-project-agentic-skills-top-10/">
@@ -31,7 +31,7 @@ Supports **Claude Code**, **OpenClaw**, **Codex**, and more coming soon.
 ## Quick Start
 
 ```bash
-npx agent-audit
+npx agentsec
 ```
 
 That's it. Scans your current directory, finds every installed skill, and reports what it finds.
@@ -59,24 +59,24 @@ That's it. Scans your current directory, finds every installed skill, and report
 
 ```bash
 # Scan current directory (auto-detects agent skills)
-npx agent-audit
+npx agentsec
 
 # Show detailed findings, score breakdowns, and recommendations
-npx agent-audit --verbose
+npx agentsec --verbose
 
 # Scan a specific path
-npx agent-audit scan ./my-project
+npx agentsec scan ./my-project
 
 # Apply a policy preset
-npx agent-audit scan --policy strict
-npx agent-audit scan --policy enterprise
+npx agentsec scan --policy strict
+npx agentsec scan --policy enterprise
 
 # Output formats
-npx agent-audit scan --format json
-npx agent-audit scan --format html --output report.html
+npx agentsec scan --format json
+npx agentsec scan --format html --output report.html
 
 # CI/CD gate -- exit 1 on policy violation
-npx agent-audit check --fail-on high
+npx agentsec check --fail-on high
 ```
 
 See [`examples/`](./examples/) for full report samples in HTML, JSON, SARIF, and text formats.
@@ -109,7 +109,7 @@ Browse the skills ecosystem at [skills.sh](https://skills.sh).
 
 ## Configuration
 
-Create `agent-audit.config.ts` to customize policies and rules. See [DEMO.md](DEMO.md) for the full configuration reference.
+Create `agentsec.config.ts` to customize policies and rules. See [DEMO.md](DEMO.md) for the full configuration reference.
 
 ## Contributing
 

@@ -10,7 +10,7 @@
 
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { SkillManifest } from "@agent-audit/shared";
+import type { SkillManifest } from "@agentsec/shared";
 import {
   detectManifestFormat,
   MANIFEST_FILENAMES,

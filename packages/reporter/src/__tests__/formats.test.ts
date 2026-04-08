@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import type { AuditGrade, Severity } from "@agent-audit/shared";
+import type { AuditGrade, Severity } from "@agentsec/shared";
 import {
   bold,
   box,
@@ -179,7 +179,7 @@ describe("formatSarif", () => {
   test("includes automationDetails with report id", () => {
     const output = formatSarif(makeReport());
     const parsed = JSON.parse(output);
-    expect(parsed.runs[0].automationDetails.id).toBe("agent-audit/report-123");
+    expect(parsed.runs[0].automationDetails.id).toBe("agentsec/report-123");
   });
 
   test("handles empty findings", () => {
@@ -211,7 +211,7 @@ describe("formatSarif", () => {
     const output = formatSarif(makeReport());
     const parsed = JSON.parse(output);
     const result = parsed.runs[0].results[0];
-    expect(result.fingerprints["agent-audit/finding-id"]).toBe("finding-1");
+    expect(result.fingerprints["agentsec/finding-id"]).toBe("finding-1");
   });
 
   test("includes security-severity in rule properties", () => {
@@ -322,7 +322,7 @@ describe("formatHtml", () => {
   test("contains footer with link", () => {
     const output = formatHtml(makeReport());
     expect(output).toContain("footer");
-    expect(output).toContain("agent-audit");
+    expect(output).toContain("agent-audit"); // repo name in GitHub URL
   });
 
   test("contains report metadata", () => {

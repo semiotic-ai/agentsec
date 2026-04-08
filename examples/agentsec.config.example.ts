@@ -1,16 +1,16 @@
-import type { Config } from "@agent-audit/cli";
+import type { Config } from "@agentsec/cli";
 
 /**
  * Agent Audit Configuration Example
  *
  * This file demonstrates all available configuration options for Agent Audit.
- * Copy this file to your project as `agent-audit.config.ts` and customize
+ * Copy this file to your project as `agentsec.config.ts` and customize
  * for your security requirements.
  *
  * Configuration is applied in this order (lowest to highest precedence):
  * 1. Built-in defaults
  * 2. Config file settings
- * 3. Environment variables (AGENT_AUDIT_*)
+ * 3. Environment variables (AGENTSEC_*)
  * 4. CLI arguments (--flag)
  */
 
@@ -203,7 +203,7 @@ export default {
      * null = use defaults
      */
     branding: {
-      logoUrl: "https://agent-audit.dev/logo.svg",
+      logoUrl: "https://agentsec.dev/logo.svg",
       companyName: "Agent Audit",
       reporterEmail: "security@yourorg.dev",
     },
@@ -237,9 +237,9 @@ export default {
 
     /**
      * Cache directory for scan results and vulnerability data
-     * Default: './.agent-audit-cache'
+     * Default: './.agentsec-cache'
      */
-    cacheDir: "./.agent-audit-cache",
+    cacheDir: "./.agentsec-cache",
 
     /**
      * Whether to save raw scan data alongside reports
@@ -368,7 +368,7 @@ export default {
       enabled: false,
       apiKey: process.env.DATADOG_API_KEY,
       site: "datadoghq.com",
-      tags: ["agent-audit", "security"],
+      tags: ["agentsec", "security"],
     },
   },
 
@@ -490,8 +490,8 @@ export default {
  * Configuration Tips:
  *
  * 1. Environment Variables:
- *    Prefix any config field with AGENT_AUDIT_ to override via env var
- *    Example: AGENT_AUDIT_POLICY_MAXSEVERITY=critical
+ *    Prefix any config field with AGENTSEC_ to override via env var
+ *    Example: AGENTSEC_POLICY_MAXSEVERITY=critical
  *
  * 2. Secrets Management:
  *    Never commit API keys or tokens to this file.
@@ -499,14 +499,14 @@ export default {
  *    Example: token: process.env.GITHUB_TOKEN
  *
  * 3. CI/CD Integration:
- *    Set AGENT_AUDIT_REPORT_FORMATS=sarif for integration with code scanners
- *    Use AGENT_AUDIT_POLICY_FAILONSEVERITY to fail builds on findings
+ *    Set AGENTSEC_REPORT_FORMATS=sarif for integration with code scanners
+ *    Use AGENTSEC_POLICY_FAILONSEVERITY to fail builds on findings
  *
  * 4. Multiple Environments:
- *    Create separate configs: agent-audit.dev.ts, agent-audit.prod.ts
- *    Load based on NODE_ENV: require(`./agent-audit.${process.env.NODE_ENV}.ts`)
+ *    Create separate configs: agentsec.dev.ts, agentsec.prod.ts
+ *    Load based on NODE_ENV: require(`./agentsec.${process.env.NODE_ENV}.ts`)
  *
  * 5. Validation:
- *    Run: bun run agent-audit config --validate
+ *    Run: bun run agentsec config --validate
  *    to check your configuration before deployment
  */
