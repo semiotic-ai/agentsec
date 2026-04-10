@@ -1,23 +1,3 @@
-interface Flag {
-  flag: string;
-  description: string;
-}
-
-const flags: Flag[] = [
-  {
-    flag: "--verbose",
-    description: "Show detailed findings, score breakdowns, and remediation.",
-  },
-  {
-    flag: "--format json",
-    description: "Machine-readable output for CI pipelines and dashboards.",
-  },
-  {
-    flag: "--fail-on high",
-    description: "Exit non-zero on high or critical findings (CI gate).",
-  },
-];
-
 const terminalOutput = `$ npx agentsec --verbose
 
   ✔ Found 6 skills
@@ -36,33 +16,23 @@ const terminalOutput = `$ npx agentsec --verbose
 
 export function CLIUsage(): React.ReactNode {
   return (
-    <section id="cli" className="section-pad bg-brand-secondary">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">CLI Examples</h2>
-          <p className="text-xl text-brand-muted max-w-2xl mx-auto">
-            Run audits from the command line or integrate into your CI/CD pipeline.
-          </p>
-        </div>
-
-        {/* Terminal */}
-        <div className="p-6 mb-8 border border-brand-border rounded-lg bg-brand-dark overflow-hidden">
-          <pre className="font-mono text-sm text-brand-muted overflow-x-auto whitespace-pre">
+    <section id="cli" className="bg-brand-dark py-20 md:py-24 border-t border-brand-border">
+      <div className="max-w-3xl mx-auto px-6">
+        <div className="rounded-lg border border-brand-border bg-brand-secondary overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          {/* Title bar */}
+          <div className="flex items-center gap-1.5 px-4 py-3 border-b border-brand-border bg-brand-card">
+            <span className="w-3 h-3 rounded-full bg-[#ff5f57]" aria-hidden="true" />
+            <span className="w-3 h-3 rounded-full bg-[#febc2e]" aria-hidden="true" />
+            <span className="w-3 h-3 rounded-full bg-[#28c840]" aria-hidden="true" />
+            <span className="flex-1 text-center text-xs text-brand-muted font-mono select-none">
+              agentsec — ~/my-project
+            </span>
+            <span className="w-[42px]" aria-hidden="true" />
+          </div>
+          {/* Body */}
+          <pre className="font-mono text-sm md:text-[13px] leading-relaxed text-brand-muted overflow-x-auto whitespace-pre px-6 py-5">
             {terminalOutput}
           </pre>
-        </div>
-
-        {/* Flags */}
-        <div className="grid md:grid-cols-3 gap-4">
-          {flags.map((item) => (
-            <div
-              key={item.flag}
-              className="p-5 border border-brand-border rounded-lg bg-brand-dark hover:border-brand-teal transition-colors duration-300"
-            >
-              <code className="block text-brand-teal font-mono text-sm mb-2">{item.flag}</code>
-              <p className="text-sm text-brand-muted">{item.description}</p>
-            </div>
-          ))}
         </div>
       </div>
     </section>
