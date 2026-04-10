@@ -1,17 +1,17 @@
 <p align="center">
-  <img src="./assets/banner.svg" alt="Agent Audit Banner" width="100%">
+  <img src="./assets/banner.svg" alt="AgentSec banner" width="100%">
 </p>
 
-<h1 align="center">Agent Audit</h1>
+<h1 align="center">AgentSec</h1>
 <p align="center">
   <strong>Audit every skill your AI agents run.</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/semiotic-agentium/agent-audit">
-    <img src="https://img.shields.io/github/stars/semiotic-agentium/agent-audit.svg?style=social" alt="GitHub stars">
+  <a href="https://github.com/semiotic-agentium">
+    <img src="https://img.shields.io/badge/GitHub-semiotic--agentium-181717?logo=github" alt="GitHub">
   </a>
-  <a href="https://github.com/semiotic-agentium/agent-audit/blob/main/LICENSE">
+  <a href="https://github.com/semiotic-agentium">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   </a>
   <a href="https://owasp.org/www-project-agentic-skills-top-10/">
@@ -24,9 +24,7 @@
 
 ---
 
-Install one skill. Every skill your agent uses gets audited automatically against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/).
-
-Supports **Claude Code**, **OpenClaw**, **Codex**, and more coming soon.
+Run one command to audit every skill your AI agent uses against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/). Supports **Claude Code**, **OpenClaw**, **Codex**, and more coming soon.
 
 ## Quick Start
 
@@ -34,7 +32,7 @@ Supports **Claude Code**, **OpenClaw**, **Codex**, and more coming soon.
 npx agentsec
 ```
 
-That's it. Scans your current directory, finds every installed skill, and reports what it finds.
+Scans your current directory, finds every installed skill, and reports what it finds.
 
 ### Example Output
 
