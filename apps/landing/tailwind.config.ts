@@ -9,7 +9,7 @@ export default {
         "brand-dark": "#0d1117",
         "brand-secondary": "#161b22",
         "brand-card": "#1c2333",
-        "brand-border": "#30363d",
+        "brand-border": "#606770",
         "brand-text": "#e6edf3",
         "brand-muted": "#8b949e",
         "brand-red": "#f85149",
