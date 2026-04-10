@@ -1,5 +1,3 @@
-"use client";
-
 interface Step {
   number: number;
   title: string;
@@ -10,25 +8,19 @@ interface Step {
 const steps: Step[] = [
   {
     number: 1,
-    title: "Install",
+    title: "Scan",
     description:
-      "Run npx agentsec. It automatically discovers every skill your agent has installed.",
-    icon: "🔌",
-  },
-  {
-    number: 2,
-    title: "Analyze",
-    description: "Each skill is scanned against OWASP AST10 vulnerabilities and policy rules.",
+      "Run npx agentsec. It discovers every installed skill and scans them against OWASP AST10.",
     icon: "🔍",
   },
   {
-    number: 3,
+    number: 2,
     title: "Report",
     description: "Get detailed findings with severity ratings and remediation guidance.",
     icon: "📊",
   },
   {
-    number: 4,
+    number: 3,
     title: "Enforce",
     description: "Integrate policies into your CI/CD pipeline and team dashboards.",
     icon: "🛡️",
@@ -42,11 +34,11 @@ export function HowItWorks(): React.ReactNode {
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">How It Works</h2>
           <p className="text-xl text-brand-muted max-w-2xl mx-auto">
-            From discovery to enforcement in four simple steps.
+            From discovery to enforcement in three simple steps.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           {steps.map((step) => (
             <div key={step.number} className="relative flex flex-col">
               {/* Card */}
@@ -63,7 +55,7 @@ export function HowItWorks(): React.ReactNode {
               </div>
 
               {/* Connector line (hidden on last item and on mobile) */}
-              {step.number < 4 && (
+              {step.number < 3 && (
                 <div className="hidden md:block absolute top-16 -right-6 w-12 h-1 bg-gradient-to-r from-brand-teal to-transparent" />
               )}
             </div>
@@ -72,10 +64,10 @@ export function HowItWorks(): React.ReactNode {
 
         {/* Bottom note */}
         <div className="mt-16 p-8 border border-brand-border rounded-lg bg-brand-secondary text-center">
-          <p className="text-brand-muted mb-4">
-            <span className="text-brand-teal font-semibold">One command.</span> Every skill audited.
+          <p className="text-brand-muted">
+            <span className="text-brand-teal font-semibold">No config.</span> No SaaS. Runs in your
+            repo.
           </p>
-          <code className="text-brand-blue font-mono text-sm">npx agentsec</code>
         </div>
       </div>
     </section>
