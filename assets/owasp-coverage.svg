@@ -124,6 +124,6 @@
   <!-- Badge explanation -->
   <g>
     <circle cx="50" cy="540" r="8" class="shield" />
-    <text x="65" y="545" class="text-primary" style="font-size: 11px;">Each risk is scanned and scored by Agent Audit</text>
+    <text x="65" y="545" class="text-primary" style="font-size: 11px;">Each risk is scanned and scored by AgentSec</text>
   </g>
 </svg>
