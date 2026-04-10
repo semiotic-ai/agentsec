@@ -1,6 +1,6 @@
-# Agent Audit Design System
+# AgentSec Design System
 
-This document defines the visual and interaction design standards for Agent Audit. All reports, dashboards, and UI components should conform to these specifications.
+This document defines the visual and interaction design standards for AgentSec. All reports, dashboards, and UI components should conform to these specifications.
 
 ## Color Palette
 
@@ -357,4 +357,4 @@ All colors defined in CSS custom properties at `:root`:
 
 **Design System Version**: 1.0.0
 **Last Updated**: 2026-04-02
-**Compatibility**: All Agent Audit reports v2.0+
+**Compatibility**: All AgentSec reports v2.0+

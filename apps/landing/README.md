@@ -1,6 +1,6 @@
-# Agent Audit Landing Page
+# AgentSec Landing Page
 
-Stunning marketing landing page for Agent Audit - Security scanning and compliance certification for AI agent skills.
+Marketing landing page for AgentSec — security scanning for AI agent skills.
 
 ## Tech Stack
 
@@ -16,14 +16,11 @@ Stunning marketing landing page for Agent Audit - Security scanning and complian
 - Dark theme with brand color system
 - Smooth scroll animations with Intersection Observer
 - Terminal-style code blocks
-- Hero section with CTA buttons
-- Problem statement cards
-- 4-step "How It Works" flow
-- OWASP AST10 risk categories grid
-- 6-feature card showcase
-- CLI usage examples
-- Email signup form
-- Trust badges and social proof
+- Header
+- Hero with copy-CTA
+- HowItWorks (3 steps)
+- CLIUsage (single terminal)
+- CTA
 
 ## Getting Started
 
@@ -66,10 +63,7 @@ apps/landing/
 ├── components/
 │   ├── Header.tsx          # Navigation header
 │   ├── Hero.tsx            # Hero section
-│   ├── Problem.tsx         # Problem statement cards
 │   ├── HowItWorks.tsx      # 4-step process flow
-│   ├── OWASP.tsx           # OWASP AST10 grid
-│   ├── Features.tsx        # Feature cards
 │   ├── CLIUsage.tsx        # CLI examples
 │   └── CTA.tsx             # Call-to-action footer
 ├── next.config.ts          # Next.js configuration
@@ -160,4 +154,4 @@ Contributions welcome! Please ensure:
 
 ## License
 
-Part of Agent Audit project. See root LICENSE file.
+Part of AgentSec. See root LICENSE file.

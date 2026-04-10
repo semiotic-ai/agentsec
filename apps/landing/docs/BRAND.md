@@ -1,8 +1,8 @@
-# Agent Audit Brand Guidelines
+# AgentSec Brand Guidelines
 
 ## Brand Identity
 
-**Agent Audit** is the leading security auditing platform for AI agent skills. Our brand represents trust, precision, and technical excellence. We're the standard for agentic skill security.
+**AgentSec** is the leading security auditing platform for AI agent skills. Our brand represents trust, precision, and technical excellence. We're the standard for agentic skill security.
 
 ### Mission
 Empower organizations to deploy agent skills confidently by providing comprehensive security auditing aligned with OWASP Agentic Skills Top 10 standards.
@@ -166,12 +166,12 @@ Used for:
 ## Badge Guidelines
 
 ### Certified Badge
-Indicates skills have passed Agent Audit's comprehensive security review.
+Indicates skills have passed AgentSec's comprehensive security review.
 
 **Visual**:
 - **Shape**: Rounded rectangle with teal background
 - **Icon**: Shield with checkmark
-- **Text**: "Certified by Agent Audit" or "Certified"
+- **Text**: "Certified by AgentSec" or "Certified"
 - **Size**: 120–160px width for display, 60–80px for thumbnail
 
 **Placement**:
@@ -279,23 +279,23 @@ Reports should be:
 
 ### In Documentation
 ```markdown
-![Agent Audit Certified](https://agentsec.dev/badges/certified.svg)
+![AgentSec Certified](https://agentsec.sh/badges/certified.svg)
 
-This skill has been audited and certified by Agent Audit.
+This skill has been audited and certified by AgentSec.
 ```
 
 ### In Skill Metadata
 ```yaml
 badges:
   - type: certified
-    url: https://agentsec.dev/verify/skill-id
+    url: https://agentsec.sh/verify/skill-id
     date: 2026-04-02
 ```
 
 ### On Websites
 ```html
-<a href="https://agentsec.dev/verify/skill-id">
-  <img src="/badges/certified.svg" alt="Certified by Agent Audit" />
+<a href="https://agentsec.sh/verify/skill-id">
+  <img src="/badges/certified.svg" alt="Certified by AgentSec" />
 </a>
 ```
 
@@ -334,7 +334,7 @@ All brand assets are in `/assets/`:
 - `owasp-coverage.svg` — OWASP coverage chart
 
 ### Asset Licenses
-All brand assets are licensed under CC-BY-4.0 for use in compliance with Agent Audit certification and auditing contexts. Commercial licensing available on request.
+All brand assets are licensed under CC-BY-4.0 for use in compliance with AgentSec certification and auditing contexts. Commercial licensing available on request.
 
 ## Quick Reference
 
@@ -359,4 +359,4 @@ All brand assets are licensed under CC-BY-4.0 for use in compliance with Agent A
 
 ## Questions?
 
-For brand usage questions, guidelines clarifications, or asset requests, contact: brand@agentsec.dev
+For brand usage questions, guidelines clarifications, or asset requests, contact: brand@agentsec.sh
