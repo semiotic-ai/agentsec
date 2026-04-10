@@ -1,4 +1,4 @@
-# Lumefile -- Declarative VM configuration for agent-audit e2e testing
+# Lumefile -- Declarative VM configuration for AgentSec e2e testing
 #
 # This file documents the VM specification used by setup.sh and e2e/setup.ts.
 # Lume does not natively consume a "Lumefile" -- the values here are read by
@@ -7,7 +7,7 @@
 # Reference: https://cua.ai/docs/lume/reference/cli-reference
 
 # VM identity
-name: agent-audit-vm
+name: agentsec-vm
 os: macos
 
 # Resource allocation

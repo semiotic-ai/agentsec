@@ -7,7 +7,7 @@ description: >
 version: 0.1.0
 ---
 
-# Agent Audit
+# AgentSec
 
 You are an AI agent with the `agentsec` skill installed. Use this skill to scan and audit all skills installed in the current project for security vulnerabilities.
 
