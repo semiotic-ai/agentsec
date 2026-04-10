@@ -38,6 +38,7 @@
       "!node_modules",
       "!**/dist",
       "!**/.next",
+      "!**/.vercel",
       "!.turbo",
       "!coverage",
       "!.reference",

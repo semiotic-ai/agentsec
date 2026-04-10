@@ -32,3 +32,4 @@ yarn-error.log*
 
 # bun
 bun.lockb
+.vercel

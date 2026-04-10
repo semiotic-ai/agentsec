@@ -148,14 +148,25 @@ body {
   }
 }
 
-/* Respect prefers-reduced-motion */
+/* Respect prefers-reduced-motion.
+ *
+ * The !important declarations below are part of the canonical WCAG pattern
+ * for honoring the reduce-motion preference. They intentionally override any
+ * utility-class or inline animation duration that might otherwise run. The
+ * Biome noImportantStyles rule does not distinguish this valid use from
+ * anti-pattern usage, so it is suppressed here and only here.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: canonical reduce-motion override */
     animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: canonical reduce-motion override */
     animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: canonical reduce-motion override */
     transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: canonical reduce-motion override */
     scroll-behavior: auto !important;
   }
 }
