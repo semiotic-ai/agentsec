@@ -103,12 +103,29 @@ export interface Spinner {
   stop(): void;
 }
 
+/**
+ * A no-op spinner that silently ignores all calls. Use this when the CLI
+ * is running in a machine-consumable mode (e.g. `--format json`) where any
+ * output to stdout would corrupt the JSON payload.
+ */
+export const noopSpinner: Spinner = {
+  start() {},
+  update() {},
+  succeed() {},
+  fail() {},
+  stop() {},
+};
+
 export function createSpinner(message: string): Spinner {
   let frameIndex = 0;
   let timer: ReturnType<typeof setInterval> | null = null;
   let currentMessage = message;
   let stopped = false;
 
+  // Spinner output goes to stdout — in text mode the interactive UI IS the
+  // report output. When callers need a machine-consumable mode (e.g.
+  // --format json) they must use `noopSpinner` instead so nothing gets
+  // written to stdout.
   function clearLine(): void {
     process.stdout.write("\r\x1b[K");
   }

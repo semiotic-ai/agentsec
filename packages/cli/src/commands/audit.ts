@@ -27,6 +27,7 @@ import {
   heading,
   info,
   keyValue,
+  noopSpinner,
   progressBar,
   severityBadge,
   success,
@@ -440,25 +441,93 @@ function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
 }
 
 // ---------------------------------------------------------------------------
+// Final status helpers (extracted to keep runAudit's complexity in check)
+// ---------------------------------------------------------------------------
+
+function printVerboseHint(verbose: boolean): void {
+  if (!verbose) {
+    console.log(color.dim("  Run with --verbose for detailed findings and recommendations."));
+  }
+}
+
+function printBlockedStatus(blockedCount: number, verbose: boolean): void {
+  console.log(
+    color.bgRed(color.bold(` FAIL `)) +
+      ` ${blockedCount} skill${blockedCount === 1 ? "" : "s"} blocked by policy`,
+  );
+  printVerboseHint(verbose);
+  console.log();
+}
+
+function printPassOrWarnStatus(summary: AuditSummary, verbose: boolean): void {
+  const highOrCritical = summary.criticalFindings + summary.highFindings;
+  if (highOrCritical > 0) {
+    console.log(
+      `${color.yellow(color.bold(` WARN `))} ${highOrCritical} high/critical finding(s) detected`,
+    );
+  } else {
+    console.log(`${color.bgGreen(color.bold(` PASS `))} All skills passed audit`);
+  }
+  printVerboseHint(verbose);
+  console.log();
+}
+
+function printNoSkillsHint(config: AuditConfig): void {
+  console.log();
+  info(
+    `Looked for ${color.bold(config.platform)} skills${config.path ? ` in ${config.path}` : ""}`,
+  );
+  info("Use --platform to target a different agent platform");
+  info("Use --path to specify a custom skill directory");
+  console.log();
+}
+
+function buildEmptyReport(platform: AuditConfig["platform"]): AuditReport {
+  return {
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+    platform,
+    skills: [],
+    summary: {
+      totalSkills: 0,
+      averageScore: 0,
+      criticalFindings: 0,
+      highFindings: 0,
+      mediumFindings: 0,
+      lowFindings: 0,
+      blockedSkills: 0,
+      certifiedSkills: 0,
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Command entry point
 // ---------------------------------------------------------------------------
 
 export async function runAudit(config: AuditConfig): Promise<number> {
+  // Quiet mode: machine-consumable formats skip all interactive chrome
+  // (spinners, headings, progress bars, status messages). Only the final
+  // report payload is emitted. Without this, stdout would be polluted and
+  // callers like `agentsec audit --format json | jq` would fail.
+  const isQuiet = config.format === "json" || config.format === "sarif";
+
   // 1. Discover skills
-  const discoverSpinner = createSpinner(`Discovering ${config.platform} skills...`);
+  const discoverSpinner = isQuiet
+    ? noopSpinner
+    : createSpinner(`Discovering ${config.platform} skills...`);
   discoverSpinner.start();
 
   const skills = await discoverSkills(config);
 
   if (skills.length === 0) {
     discoverSpinner.fail("No agent skills found");
-    console.log();
-    info(
-      `Looked for ${color.bold(config.platform)} skills${config.path ? ` in ${config.path}` : ""}`,
-    );
-    info("Use --platform to target a different agent platform");
-    info("Use --path to specify a custom skill directory");
-    console.log();
+    if (!isQuiet) {
+      printNoSkillsHint(config);
+      return 0;
+    }
+    // For quiet modes, emit an empty but valid report so callers can parse stdout.
+    if (!config.output) console.log(JSON.stringify(buildEmptyReport(config.platform), null, 2));
     return 0;
   }
 
@@ -468,23 +537,25 @@ export async function runAudit(config: AuditConfig): Promise<number> {
 
   // 2. Load policy if specified
   const policyConfig = await loadPolicy(config.policy);
-  if (config.policy && policyConfig) {
-    success(`Loaded policy: ${color.bold(policyConfig.name)}`);
-  } else if (config.policy) {
-    warn(`Could not load policy: ${config.policy}`);
+  if (!isQuiet) {
+    if (config.policy && policyConfig) {
+      success(`Loaded policy: ${color.bold(policyConfig.name)}`);
+    } else if (config.policy) {
+      warn(`Could not load policy: ${config.policy}`);
+    }
   }
 
   // 3. Scan each skill
-  heading("Scanning Skills");
+  if (!isQuiet) heading("Scanning Skills");
 
   const results: SkillAuditResult[] = [];
   let blockedCount = 0;
 
   for (let i = 0; i < skills.length; i++) {
     const skill = skills[i];
-    const scanSpinner = createSpinner(
-      `Scanning ${color.bold(skill.name)} (${i + 1}/${skills.length})...`,
-    );
+    const scanSpinner = isQuiet
+      ? noopSpinner
+      : createSpinner(`Scanning ${color.bold(skill.name)} (${i + 1}/${skills.length})...`);
     scanSpinner.start();
 
     // Run scanner
@@ -534,13 +605,13 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     results.push(result);
 
     // Show progress
-    if (skills.length > 1) {
+    if (skills.length > 1 && !isQuiet) {
       process.stdout.write(`\r${progressBar(i + 1, skills.length)}`);
       if (i < skills.length - 1) process.stdout.write("\n");
     }
   }
 
-  if (skills.length > 1) console.log();
+  if (skills.length > 1 && !isQuiet) console.log();
 
   // 4. Build summary
   const summary: AuditSummary = {
@@ -604,31 +675,12 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     await writeReport(report, config);
   }
 
-  // 8. Final status
+  // 8. Final status — part of the text report, skipped entirely in quiet modes
   if (blockedCount > 0) {
-    console.log(
-      color.bgRed(color.bold(` FAIL `)) +
-        ` ${blockedCount} skill${blockedCount === 1 ? "" : "s"} blocked by policy`,
-    );
-    if (!config.verbose) {
-      console.log(color.dim("  Run with --verbose for detailed findings and recommendations."));
-    }
-    console.log();
+    if (!isQuiet) printBlockedStatus(blockedCount, config.verbose);
     return 1;
   }
-
-  if (summary.criticalFindings > 0 || summary.highFindings > 0) {
-    console.log(
-      color.yellow(color.bold(` WARN `)) +
-        ` ${summary.criticalFindings + summary.highFindings} high/critical finding(s) detected`,
-    );
-  } else {
-    console.log(`${color.bgGreen(color.bold(` PASS `))} All skills passed audit`);
-  }
-  if (!config.verbose) {
-    console.log(color.dim("  Run with --verbose for detailed findings and recommendations."));
-  }
-  console.log();
+  if (!isQuiet) printPassOrWarnStatus(summary, config.verbose);
 
   return 0;
 }
