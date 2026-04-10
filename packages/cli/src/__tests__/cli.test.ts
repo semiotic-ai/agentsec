@@ -82,18 +82,18 @@ describe("CLI argument parsing", () => {
 // ---------------------------------------------------------------------------
 
 describe("printBanner", () => {
-  let logSpy: ReturnType<typeof spyOn>;
+  let errorSpy: ReturnType<typeof spyOn>;
   let captured: string[];
 
   beforeEach(() => {
     captured = [];
-    logSpy = spyOn(console, "log").mockImplementation((...args: unknown[]) => {
+    errorSpy = spyOn(console, "error").mockImplementation((...args: unknown[]) => {
       captured.push(args.map(String).join(" "));
     });
   });
 
   afterEach(() => {
-    logSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 
   it("outputs banner containing 'AgentSec' ASCII art", () => {
