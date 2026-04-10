@@ -26,7 +26,7 @@ export function CTA(): React.ReactNode {
             href="https://github.com/semiotic-agentium"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand-blue hover:text-brand-teal transition-colors"
+            className="inline-flex items-center min-h-[44px] px-2 text-brand-blue hover:text-brand-teal transition-colors"
           >
             GitHub
           </a>
@@ -34,13 +34,13 @@ export function CTA(): React.ReactNode {
             href="https://owasp.org/www-project-agentic-skills-top-10/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand-blue hover:text-brand-teal transition-colors"
+            className="inline-flex items-center min-h-[44px] px-2 text-brand-blue hover:text-brand-teal transition-colors"
           >
             OWASP AST10 Report
           </a>
           <a
             href="mailto:markeljan19@gmail.com"
-            className="text-brand-blue hover:text-brand-teal transition-colors"
+            className="inline-flex items-center min-h-[44px] px-2 text-brand-blue hover:text-brand-teal transition-colors"
           >
             Contact
           </a>

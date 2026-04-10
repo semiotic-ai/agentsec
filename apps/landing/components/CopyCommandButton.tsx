@@ -59,11 +59,13 @@ export function CopyCommandButton({
         <span className="text-brand-muted">$ </span>
         <span className="text-brand-teal">{command}</span>
       </span>
-      <span
-        className="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md bg-brand-teal text-brand-dark group-hover:bg-brand-text transition-colors"
-        aria-live="polite"
-      >
+      <span className="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md bg-brand-teal text-brand-dark group-hover:bg-brand-text transition-colors">
         {copied ? "Copied!" : "Copy"}
+      </span>
+      {/* Visually hidden live region so screen readers get a single announcement
+          when the copy succeeds, without polluting the button's accessible name. */}
+      <span role="status" aria-live="polite" className="sr-only">
+        {copied ? "Copied to clipboard" : ""}
       </span>
     </button>
   );
