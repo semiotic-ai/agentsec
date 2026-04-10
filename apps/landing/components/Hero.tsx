@@ -1,15 +1,6 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { CopyCommandButton } from "./CopyCommandButton";
 
 export function Hero(): React.ReactNode {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
-
   return (
     <section className="min-h-screen flex items-center justify-center bg-brand-dark relative overflow-hidden pt-20">
       {/* Animated background grid */}
@@ -20,13 +11,10 @@ export function Hero(): React.ReactNode {
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-blue rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-20">
-        <div
-          className={`text-center transition-all duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}
-        >
+        <div className="text-center">
           {/* Main headline */}
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Audit every skill
-            <br />
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            Audit every skill <br />
             your <span className="text-brand-teal">AI agents</span> run.
           </h1>
 
@@ -47,7 +35,7 @@ export function Hero(): React.ReactNode {
               href="https://github.com/semiotic-agentium"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-brand-teal transition-colors"
+              className="inline-flex items-center min-h-[44px] px-2 hover:text-brand-teal transition-colors"
             >
               View on GitHub →
             </a>
@@ -56,7 +44,7 @@ export function Hero(): React.ReactNode {
               href="https://owasp.org/www-project-agentic-skills-top-10/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-brand-teal transition-colors"
+              className="inline-flex items-center min-h-[44px] px-2 hover:text-brand-teal transition-colors"
             >
               OWASP AST10 →
             </a>
