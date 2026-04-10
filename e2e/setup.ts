@@ -403,20 +403,17 @@ async function main(): Promise<void> {
   console.log(`[setup]   Run tests: bun test`);
 }
 
-main().catch((err) => {
-  console.error("[setup] Fatal error:", err);
-  process.exit(1);
-});
+// Only run the setup pipeline when this file is executed directly
+// (e.g. `bun run e2e/setup.ts`). When imported by test files, the exports
+// above are all that are needed and the VM creation pipeline must NOT run.
+if (import.meta.main) {
+  main().catch((err) => {
+    console.error("[setup] Fatal error:", err);
+    process.exit(1);
+  });
+}
 
 // Export for use by tests
-export {
-  CONFIG,
-  deleteVm,
-  ensureLumeService,
-  ensureVm,
-  getVm,
-  sshExec,
-  stopVm,
-  vmReady,
-  waitForSsh,
-};
+// Note: `vmReady` is already exported at its declaration above (line 218)
+// using `export let vmReady = false`, so it is intentionally omitted here.
+export { CONFIG, deleteVm, ensureLumeService, ensureVm, getVm, sshExec, stopVm, waitForSsh };
