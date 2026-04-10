@@ -7,27 +7,28 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Agent Audit - Know What Your AI Agents Run",
+  title: "AgentSec — audit every skill your AI agents run",
   description:
-    "One command audits every skill your agent has installed. Security scanning and compliance verification against OWASP Agentic Skills Top 10.",
+    "One command audits every skill your AI agent has installed. Vulnerabilities, supply chain risks, and policy violations — checked against OWASP AST10, automatically.",
   keywords: [
-    "agent audit",
+    "agentsec",
     "security",
     "AI agents",
-    "agent auditing",
+    "AI agent security",
+    "OWASP AST10",
     "vulnerability scanning",
     "compliance",
   ],
-  authors: [{ name: "Agent Audit", url: "https://github.com/semiotic-agentium/agent-audit" }],
+  authors: [{ name: "AgentSec", url: "https://github.com/semiotic-agentium" }],
   openGraph: {
-    title: "Agent Audit - Know What Your AI Agents Run",
+    title: "AgentSec — audit every skill your AI agents run",
     description:
-      "One command audits every skill your agent has installed. Security scanning and compliance verification.",
-    url: "https://agentsec.dev",
-    siteName: "Agent Audit",
+      "One command audits every skill your AI agent has installed. Vulnerabilities, supply chain risks, and policy violations — checked against OWASP AST10, automatically.",
+    url: "https://agentsec.sh",
+    siteName: "AgentSec",
     images: [
       {
-        url: "https://agentsec.dev/og-image.png",
+        url: "https://agentsec.sh/og-image.png",
         width: 1200,
         height: 630,
       },
