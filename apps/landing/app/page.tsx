@@ -7,11 +7,19 @@ import { HowItWorks } from "@/components/HowItWorks";
 export default function Home(): React.ReactNode {
   return (
     <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-teal focus:text-brand-dark focus:rounded-lg focus:font-semibold"
+      >
+        Skip to main content
+      </a>
       <Header />
-      <Hero />
-      <HowItWorks />
-      <CLIUsage />
-      <CTA />
+      <main id="main">
+        <Hero />
+        <HowItWorks />
+        <CLIUsage />
+        <CTA />
+      </main>
     </>
   );
 }
