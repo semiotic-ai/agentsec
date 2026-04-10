@@ -6,12 +6,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/semiotic-agentium/agent-audit.git",
-    "directory": "packages/cli"
+    "url": "https://github.com/semiotic-agentium"
   },
-  "homepage": "https://github.com/semiotic-agentium/agent-audit",
+  "homepage": "https://agentsec.sh",
   "bugs": {
-    "url": "https://github.com/semiotic-agentium/agent-audit/issues"
+    "url": "https://github.com/semiotic-agentium"
   },
   "keywords": [
     "security",
