@@ -72,7 +72,7 @@ export const bgRgb = (r: number, g: number, b: number) => wrap(`48;2;${r};${g};$
 
 // --- Brand colors -------------------------------------------------------- //
 
-/** Teal accent used for the Agent Audit brand */
+/** Teal accent used for the AgentSec brand */
 export const teal = rgb(0, 210, 180);
 /** Background teal */
 export const bgTeal = bgRgb(0, 210, 180);
