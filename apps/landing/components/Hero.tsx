@@ -1,13 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function Hero(): React.ReactNode {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setIsLoaded(true);
+    return () => {
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
   }, []);
+
+  const copyCommand = async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText("npx agentsec");
+      setCopied(true);
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore clipboard errors on unsupported browsers
+    }
+  };
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-brand-dark relative overflow-hidden pt-20">
@@ -24,20 +44,62 @@ export function Hero(): React.ReactNode {
         >
           {/* Main headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Audit What Your
+            Audit every skill
             <br />
-            <span className="text-brand-teal">AI Agents</span> Run
+            your <span className="text-brand-teal">AI agents</span> run.
           </h1>
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl text-brand-muted mb-12 max-w-3xl mx-auto leading-relaxed">
             One command scans every skill your agent has installed. Security vulnerabilities, supply
-            chain risks, and policy violations -- automatically.
+            chain risks, and policy violations — automatically.
           </p>
 
-          {/* Terminal code block */}
+          {/* Primary CTA */}
+          <div className="mb-8 flex justify-center">
+            <button
+              type="button"
+              onClick={copyCommand}
+              aria-label="Copy install command npx agentsec"
+              className="group flex items-center gap-4 px-6 py-4 bg-brand-secondary border-2 border-brand-teal rounded-lg hover:bg-brand-card hover:shadow-[0_0_40px_rgba(0,210,180,0.3)] focus:outline-none focus:ring-2 focus:ring-brand-teal focus:ring-offset-2 focus:ring-offset-brand-dark transition-all duration-200 cursor-pointer"
+            >
+              <span className="font-mono text-lg md:text-xl text-brand-text">
+                <span className="text-brand-muted">$ </span>
+                <span className="text-brand-teal">npx agentsec</span>
+              </span>
+              <span
+                className="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md bg-brand-teal text-brand-dark group-hover:bg-brand-text transition-colors"
+                aria-live="polite"
+              >
+                {copied ? "Copied!" : "Copy"}
+              </span>
+            </button>
+          </div>
+
+          {/* Secondary links */}
+          <div className="mb-16 flex items-center justify-center gap-4 text-sm text-brand-muted">
+            <a
+              href="https://github.com/semiotic-agentium"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-teal transition-colors"
+            >
+              View on GitHub →
+            </a>
+            <span className="text-brand-border">·</span>
+            <a
+              href="https://owasp.org/www-project-agentic-skills-top-10/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-teal transition-colors"
+            >
+              OWASP AST10 →
+            </a>
+          </div>
+
+          {/* Decorative terminal demo block */}
           <div className="mb-12 flex justify-center">
-            <div className="w-full max-w-2xl bg-brand-secondary border border-brand-border rounded-lg p-6 overflow-x-auto terminal-block">
+            <div className="w-full max-w-xl bg-brand-secondary border border-brand-border rounded-lg p-5 overflow-x-auto terminal-block">
               <div className="flex items-center mb-4">
                 <div className="flex space-x-2">
                   <div className="w-3 h-3 rounded-full bg-brand-red" />
@@ -71,26 +133,6 @@ export function Hero(): React.ReactNode {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <a
-              href="https://github.com/semiotic-agentium/agent-audit"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary text-lg px-8 py-4 rounded-lg font-semibold text-center"
-            >
-              View on GitHub
-            </a>
-            <a
-              href="https://owasp.org/www-project-agentic-skills-top-10/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary text-lg px-8 py-4 rounded-lg font-semibold text-center"
-            >
-              OWASP AST10 Report
-            </a>
           </div>
 
           {/* Stats */}
