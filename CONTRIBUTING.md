@@ -1,6 +1,6 @@
-# Contributing to Agent Audit
+# Contributing to AgentSec
 
-Thank you for your interest in contributing to Agent Audit! We welcome contributions from security researchers, TypeScript developers, and anyone passionate about AI agent security.
+Thank you for your interest in contributing to AgentSec! We welcome contributions from security researchers, TypeScript developers, and anyone passionate about AI agent security.
 
 ## Prerequisites
 
@@ -13,8 +13,7 @@ Use **bun** everywhere. Do not use npm, yarn, or pnpm.
 ## Quick Setup
 
 ```bash
-git clone https://github.com/semiotic-agentium/agent-audit.git
-cd agent-audit
+# Clone the repo (ask the team for access -- it's currently private)
 bun install
 bun run build
 bun run test
@@ -27,7 +26,7 @@ If any step fails, see [Troubleshooting](#troubleshooting) below.
 This is a **Turborepo** monorepo with **bun workspaces**. All packages live under `packages/`:
 
 ```
-agent-audit/
+agentsec/
   packages/
     shared/        @agentsec/shared      - Shared types, constants, utilities
     scanner/       @agentsec/scanner     - Skill scanning engine and detectors
@@ -37,7 +36,7 @@ agent-audit/
     reporter/      @agentsec/reporter    - Report generation (HTML, JSON, SARIF)
     cli/           @agentsec/cli         - CLI entry point (published as "agentsec")
   apps/
-    dashboard/     @agentsec/dashboard   - Web dashboard
+    landing/       @agentsec/landing     - Marketing landing page
 ```
 
 ### Dependency Graph
@@ -279,7 +278,7 @@ This is a **security-focused project**. Follow these rules strictly:
 
 ### Reporting Security Issues
 
-Found a vulnerability? **Do not open a public issue.** Email **security@agentsec.dev** with a description, reproduction steps, and impact assessment. We respond within 48 hours.
+Found a vulnerability? **Do not open a public issue.** Email **security@agentsec.sh** with a description, reproduction steps, and impact assessment. We respond within 48 hours.
 
 ## Commit Conventions
 
@@ -401,8 +400,8 @@ bunx biome check --write .
 - **General questions**: Create a GitHub Discussion
 - **Bug reports**: Create an Issue with `[BUG]` in the title
 - **Feature requests**: Create an Issue with `[FEATURE]` in the title
-- **Security issues**: Email security@agentsec.dev
+- **Security issues**: Email security@agentsec.sh
 
 ## License
 
-By contributing to Agent Audit, you agree your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to AgentSec, you agree your contributions will be licensed under the [MIT License](LICENSE).

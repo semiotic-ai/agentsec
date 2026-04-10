@@ -17,7 +17,7 @@ Use **bun** everywhere. Do not use npm, yarn, or pnpm.
 This is a **Turborepo** monorepo with **bun workspaces**.
 
 ```
-agent-audit/
+agentsec/
   packages/
     shared/        @agentsec/shared      - Shared types and utilities
     scanner/       @agentsec/scanner      - Skill scanner engine
