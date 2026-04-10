@@ -53,14 +53,22 @@ const BANNER_LINES = [
   `        |___/                                   `,
 ];
 
+/**
+ * Print the AgentSec banner to **stderr**.
+ *
+ * Banners are informational chrome and must not pollute stdout, which
+ * is reserved for machine-consumable output (e.g. `agentsec audit
+ * --format json` writes a JSON report to stdout — a banner on stdout
+ * would break `JSON.parse`).
+ */
 export function printBanner(version: string): void {
   const gradient = [color.cyan, color.cyan, color.blue, color.blue, color.magenta, color.magenta];
-  console.log();
+  console.error();
   for (let i = 0; i < BANNER_LINES.length; i++) {
-    console.log(gradient[i](BANNER_LINES[i]));
+    console.error(gradient[i](BANNER_LINES[i]));
   }
-  console.log(color.dim(`  Security auditing for AI agent skills  v${version}`));
-  console.log();
+  console.error(color.dim(`  Security auditing for AI agent skills  v${version}`));
+  console.error();
 }
 
 // ---------------------------------------------------------------------------
