@@ -9,7 +9,6 @@ type NavLink = {
 };
 
 const NAV_LINKS: readonly NavLink[] = [
-  { href: "#how-it-works", label: "How It Works" },
   { href: "#cli", label: "CLI Examples" },
   {
     href: "https://github.com/semiotic-agentium",
