@@ -3,16 +3,14 @@
 import { useState } from "react";
 
 export function CTA(): React.ReactNode {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    if (email) {
-      setSubmitted(true);
-      setEmail("");
-      setTimeout(() => setSubmitted(false), 3000);
-    }
+  const copyCommand = async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText("npx agentsec");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
   };
 
   return (
@@ -22,33 +20,33 @@ export function CTA(): React.ReactNode {
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-blue rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" />
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6">Start Auditing Your Agents</h2>
+        <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready?</h2>
         <p className="text-xl text-brand-muted mb-12 max-w-2xl mx-auto">
-          One command. Every skill. Full visibility into what your AI agents are running.
+          One command. Every skill. Zero setup.
         </p>
 
-        {/* Email signup */}
-        <form
-          onSubmit={handleSubmit}
-          className="mb-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-        >
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            required
-            className="flex-1 px-4 py-3 rounded-lg bg-brand-secondary border border-brand-border text-brand-text placeholder-brand-muted focus:outline-none focus:border-brand-teal focus:ring-1 focus:ring-brand-teal"
-          />
-          <button type="submit" className="btn-primary px-6 py-3 whitespace-nowrap font-semibold">
-            {submitted ? "Thanks!" : "Get Updates"}
+        {/* Copy CTA */}
+        <div className="mb-12 flex justify-center">
+          <button
+            type="button"
+            onClick={copyCommand}
+            aria-label="Copy install command npx agentsec"
+            className="group inline-flex items-center gap-3 py-3 px-5 text-base font-mono rounded-lg bg-brand-secondary border border-brand-border hover:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal transition-colors"
+          >
+            <span className="text-brand-blue">$ npx agentsec</span>
+            <span
+              aria-live="polite"
+              className="text-xs font-sans px-2 py-1 rounded bg-brand-dark border border-brand-border text-brand-muted group-hover:text-brand-teal group-hover:border-brand-teal transition-colors"
+            >
+              {copied ? "Copied!" : "Copy"}
+            </span>
           </button>
-        </form>
+        </div>
 
         {/* Links */}
-        <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12 text-sm">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center text-sm">
           <a
-            href="https://github.com/semiotic-agentium/agent-audit"
+            href="https://github.com/semiotic-agentium"
             target="_blank"
             rel="noopener noreferrer"
             className="text-brand-blue hover:text-brand-teal transition-colors"
@@ -69,28 +67,6 @@ export function CTA(): React.ReactNode {
           >
             Contact
           </a>
-        </div>
-
-        {/* Footer stats */}
-        <div className="pt-12 border-t border-brand-border">
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8 text-brand-muted text-xs">
-            <div>
-              <div className="text-2xl font-bold text-brand-teal">10</div>
-              <div>OWASP Risk Categories</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-brand-green">119</div>
-              <div>Vulnerability Patterns</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-brand-blue">4</div>
-              <div>Output Formats</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-brand-yellow">100%</div>
-              <div>Open Source</div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
