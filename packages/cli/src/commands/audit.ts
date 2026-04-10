@@ -46,6 +46,11 @@ async function discoverSkills(config: AuditConfig): Promise<AgentSkill[]> {
     if (typeof SkillDiscovery === "function") {
       const discovery = new SkillDiscovery();
       if (config.path) {
+        // Try --path as a single skill directory first (better UX than
+        // forcing users to pass the parent directory). Fall back to parent-
+        // directory scanning so `--path ./skills` still discovers many skills.
+        const single = await discovery.parseSkill(config.path);
+        if (single) return [single];
         return await discovery.scanDirectory(config.path);
       }
       return await discovery.discover(config.platform);

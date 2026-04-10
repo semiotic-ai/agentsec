@@ -109,8 +109,8 @@ describe("agentsec CLI", () => {
       expect(exitCode).toBe(0);
       // Output should mention the skill name from the fixture manifest
       expect(stdout).toContain("code-formatter");
-      // Should show a passing grade (A or B)
-      expect(stdout).toMatch(/\b[AB]\b/);
+      // CLI prints a PASS status line when no skill is blocked by policy.
+      expect(stdout).toMatch(/\bPASS\b/);
     });
   });
 
@@ -119,10 +119,13 @@ describe("agentsec CLI", () => {
   // -----------------------------------------------------------------------
   describe("audit --path ./e2e/fixtures/injection-vuln-skill", () => {
     test("detects injection findings in a vulnerable skill", async () => {
+      // --verbose prints finding titles and descriptions; the compact default
+      // only shows counts, which these assertions can't match against.
       const { stdout, stderr } = await runCli([
         "audit",
         "--path",
         join(FIXTURES_DIR, "injection-vuln-skill"),
+        "--verbose",
       ]);
 
       const output = stdout + stderr;
@@ -139,10 +142,13 @@ describe("agentsec CLI", () => {
   // -----------------------------------------------------------------------
   describe("audit --path ./e2e/fixtures/excessive-perms-skill", () => {
     test("detects permission issues in an over-privileged skill", async () => {
+      // --verbose prints finding titles and descriptions; the compact default
+      // only shows counts, which these assertions can't match against.
       const { stdout, stderr } = await runCli([
         "audit",
         "--path",
         join(FIXTURES_DIR, "excessive-perms-skill"),
+        "--verbose",
       ]);
 
       const output = stdout + stderr;
