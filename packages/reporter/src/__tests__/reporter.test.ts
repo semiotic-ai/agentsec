@@ -131,10 +131,10 @@ describe("ReportGenerator", () => {
       expect(output).toMatch(/\x1b\[/);
     });
 
-    test("includes Agent Audit branding", () => {
+    test("includes AgentSec branding", () => {
       const output = generator.generate(makeReport(), "text");
       const plain = stripAnsi(output);
-      expect(plain).toContain("Agent Audit");
+      expect(plain).toContain("AgentSec");
     });
 
     test("includes summary, findings, and quality sections", () => {

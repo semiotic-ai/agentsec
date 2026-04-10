@@ -236,9 +236,9 @@ export const formatSarif = (report: AuditReport): string => {
       {
         tool: {
           driver: {
-            name: "Agent Audit",
+            name: "AgentSec",
             version: "0.1.0",
-            informationUri: "https://github.com/semiotic-agentium/agent-audit",
+            informationUri: "https://agentsec.sh",
             rules,
           },
         },

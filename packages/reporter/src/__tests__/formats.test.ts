@@ -122,7 +122,7 @@ describe("formatSarif", () => {
     const output = formatSarif(makeReport());
     const parsed = JSON.parse(output);
     const driver = parsed.runs[0].tool.driver;
-    expect(driver.name).toBe("Agent Audit");
+    expect(driver.name).toBe("AgentSec");
     expect(driver.rules).toBeArray();
     expect(driver.rules).toHaveLength(1);
     expect(driver.rules[0].id).toBe("no-eval");
@@ -253,12 +253,12 @@ describe("formatHtml", () => {
 
   test("contains title", () => {
     const output = formatHtml(makeReport());
-    expect(output).toContain("<title>Agent Audit Report</title>");
+    expect(output).toContain("<title>AgentSec Report</title>");
   });
 
-  test("contains header with Agent Audit", () => {
+  test("contains header with AgentSec", () => {
     const output = formatHtml(makeReport());
-    expect(output).toContain("Agent Audit");
+    expect(output).toContain("AgentSec");
   });
 
   test("contains CSS with key classes", () => {
@@ -322,7 +322,7 @@ describe("formatHtml", () => {
   test("contains footer with link", () => {
     const output = formatHtml(makeReport());
     expect(output).toContain("footer");
-    expect(output).toContain("agent-audit"); // repo name in GitHub URL
+    expect(output).toContain("agentsec.sh"); // product homepage link
   });
 
   test("contains report metadata", () => {
@@ -412,10 +412,10 @@ describe("formatText", () => {
     expect(output).toMatch(/\x1b\[/);
   });
 
-  test("contains Agent Audit banner", () => {
+  test("contains AgentSec banner", () => {
     const output = formatText(makeReport());
     const plain = stripAnsi(output);
-    expect(plain).toContain("Agent Audit");
+    expect(plain).toContain("AgentSec");
   });
 
   test("contains audit summary section", () => {
