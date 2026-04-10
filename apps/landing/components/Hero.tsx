@@ -1,33 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { CopyCommandButton } from "./CopyCommandButton";
 
 export function Hero(): React.ReactNode {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setIsLoaded(true);
-    return () => {
-      if (copyTimeoutRef.current !== null) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-    };
   }, []);
-
-  const copyCommand = async (): Promise<void> => {
-    try {
-      await navigator.clipboard.writeText("npx agentsec");
-      setCopied(true);
-      if (copyTimeoutRef.current !== null) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // ignore clipboard errors on unsupported browsers
-    }
-  };
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-brand-dark relative overflow-hidden pt-20">
@@ -57,23 +38,7 @@ export function Hero(): React.ReactNode {
 
           {/* Primary CTA */}
           <div className="mb-8 flex justify-center">
-            <button
-              type="button"
-              onClick={copyCommand}
-              aria-label="Copy install command npx agentsec"
-              className="group flex items-center gap-4 px-6 py-4 bg-brand-secondary border-2 border-brand-teal rounded-lg hover:bg-brand-card hover:shadow-[0_0_40px_rgba(0,210,180,0.3)] focus:outline-none focus:ring-2 focus:ring-brand-teal focus:ring-offset-2 focus:ring-offset-brand-dark transition-all duration-200 cursor-pointer"
-            >
-              <span className="font-mono text-lg md:text-xl text-brand-text">
-                <span className="text-brand-muted">$ </span>
-                <span className="text-brand-teal">npx agentsec</span>
-              </span>
-              <span
-                className="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md bg-brand-teal text-brand-dark group-hover:bg-brand-text transition-colors"
-                aria-live="polite"
-              >
-                {copied ? "Copied!" : "Copy"}
-              </span>
-            </button>
+            <CopyCommandButton command="npx agentsec" size="lg" />
           </div>
 
           {/* Secondary links */}

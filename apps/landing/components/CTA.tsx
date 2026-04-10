@@ -1,18 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { CopyCommandButton } from "./CopyCommandButton";
 
 export function CTA(): React.ReactNode {
-  const [copied, setCopied] = useState(false);
-
-  const copyCommand = async (): Promise<void> => {
-    try {
-      await navigator.clipboard.writeText("npx agentsec");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {}
-  };
-
   return (
     <section className="section-pad bg-brand-dark relative overflow-hidden">
       {/* Gradient orbs */}
@@ -27,20 +17,7 @@ export function CTA(): React.ReactNode {
 
         {/* Copy CTA */}
         <div className="mb-12 flex justify-center">
-          <button
-            type="button"
-            onClick={copyCommand}
-            aria-label="Copy install command npx agentsec"
-            className="group inline-flex items-center gap-3 py-3 px-5 text-base font-mono rounded-lg bg-brand-secondary border border-brand-border hover:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal transition-colors"
-          >
-            <span className="text-brand-blue">$ npx agentsec</span>
-            <span
-              aria-live="polite"
-              className="text-xs font-sans px-2 py-1 rounded bg-brand-dark border border-brand-border text-brand-muted group-hover:text-brand-teal group-hover:border-brand-teal transition-colors"
-            >
-              {copied ? "Copied!" : "Copy"}
-            </span>
-          </button>
+          <CopyCommandButton command="npx agentsec" size="md" />
         </div>
 
         {/* Links */}
