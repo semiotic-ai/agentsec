@@ -24,7 +24,7 @@
 
   <!-- Title -->
   <text x="400" y="30" class="text-primary text-title" text-anchor="middle" font-size="18" font-weight="700">
-    Agent Audit Monorepo Architecture
+    AgentSec Monorepo Architecture
   </text>
 
   <!-- Layer labels -->
@@ -34,7 +34,7 @@
 
   <!-- Shared (center, bottom) -->
   <rect x="300" y="400" width="200" height="70" class="card-bg card-stroke" rx="6" />
-  <text x="400" y="425" class="text-primary text-title" text-anchor="middle">@agent-audit/shared</text>
+  <text x="400" y="425" class="text-primary text-title" text-anchor="middle">@agentsec/shared</text>
   <text x="400" y="445" class="text-secondary text-desc" text-anchor="middle">Types • Constants • Utilities</text>
 
   <!-- Scanner -->
@@ -64,8 +64,8 @@
 
   <!-- CLI (top) -->
   <rect x="250" y="40" width="300" height="70" class="card-bg card-stroke" rx="6" />
-  <text x="400" y="63" class="text-primary text-title" text-anchor="middle" font-size="15" font-weight="700">@agent-audit/cli</text>
-  <text x="400" y="83" class="text-secondary text-desc" text-anchor="middle">CLI Entry Point (Published: agent-audit)</text>
+  <text x="400" y="63" class="text-primary text-title" text-anchor="middle" font-size="15" font-weight="700">@agentsec/cli</text>
+  <text x="400" y="83" class="text-secondary text-desc" text-anchor="middle">CLI Entry Point (Published: agentsec)</text>
 
   <!-- Connections: Core packages to Shared -->
   <path d="M 120 290 Q 280 350 350 400" class="connection" />

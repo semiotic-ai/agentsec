@@ -22,5 +22,5 @@
   </g>
 
   <!-- Badge text -->
-  <text class="badge-text" x="70" y="52">Scanned by Agent Audit</text>
+  <text class="badge-text" x="70" y="52">Scanned by AgentSec</text>
 </svg>
