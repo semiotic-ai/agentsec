@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # .lume/setup.sh -- Install Lume CLI, provision a macOS VM, and bootstrap
-# the agent-audit test environment inside it.
+# the AgentSec test environment inside it.
 #
 set -euo pipefail
 
@@ -12,7 +12,7 @@ LUMEFILE="$SCRIPT_DIR/Lumefile"
 # ---------------------------------------------------------------------------
 # Configuration (override via environment)
 # ---------------------------------------------------------------------------
-VM_NAME="${LUME_VM_NAME:-agent-audit-vm}"
+VM_NAME="${LUME_VM_NAME:-agentsec-vm}"
 VM_CPU="${LUME_VM_CPU:-4}"
 VM_MEMORY="${LUME_VM_MEMORY:-8GB}"
 VM_DISK="${LUME_VM_DISK:-50GB}"
@@ -287,7 +287,7 @@ verify_environment() {
 # Main
 # ---------------------------------------------------------------------------
 main() {
-  info "=== agent-audit Lume Test Environment Setup ==="
+  info "=== AgentSec Lume Test Environment Setup ==="
   info ""
 
   check_apple_silicon

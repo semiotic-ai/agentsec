@@ -104,7 +104,7 @@ class CUASetup {
   /** Run the full setup pipeline. */
   async run(): Promise<void> {
     console.log("=".repeat(60));
-    console.log("  CUA Agent Audit - VM Setup");
+    console.log("  CUA AgentSec - VM Setup");
     console.log("=".repeat(60));
     console.log(`  VM Name:        ${this.config.vmName}`);
     console.log(`  Headless:       ${this.config.headless}`);
