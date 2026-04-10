@@ -1,4 +1,4 @@
-name: Agent Audit Security Scan
+name: AgentSec Security Scan
 
 on:
   # Run on pull requests
@@ -49,8 +49,8 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      # Run Agent Audit scan
-      - name: Scan skills with Agent Audit
+      # Run AgentSec scan
+      - name: Scan skills with AgentSec
         id: audit
         run: |
           bun run --filter @agentsec/cli -- audit \
@@ -91,7 +91,7 @@ jobs:
             const summary = report.summary || {};
 
             // Format the comment
-            let comment = '## Agent Audit Results\n\n';
+            let comment = '## AgentSec Results\n\n';
 
             if (summary.totalFindings === 0) {
               comment += '✅ **No security findings detected**\n\n';
@@ -156,7 +156,7 @@ jobs:
           status: custom
           custom_payload: |
             {
-              text: `🔴 Agent Audit detected critical findings in ${process.env.GITHUB_REPOSITORY}`,
+              text: `🔴 AgentSec detected critical findings in ${process.env.GITHUB_REPOSITORY}`,
               attachments: [{
                 color: 'danger',
                 text: `Branch: ${process.env.GITHUB_REF}\nCommit: ${process.env.GITHUB_SHA.substring(0, 7)}\nCheck: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
@@ -183,7 +183,7 @@ jobs:
         with:
           api-key: ${{ secrets.DATADOG_API_KEY }}
           datadog-site: datadoghq.com
-          public-static-url-prefix: 'https://agentsec.dev/'
+          public-static-url-prefix: 'https://agentsec.sh/'
           validate: true
         env:
           DATADOG_SITE: datadoghq.com
@@ -285,7 +285,7 @@ jobs:
 #   - JIRA_API_TOKEN (optional): JIRA integration
 #   - GITHUB_TOKEN: Automatically available
 
-# Example: Running Agent Audit with custom config:
+# Example: Running AgentSec with custom config:
 # bun run --filter @agentsec/cli -- audit \
 #   --config agentsec.config.ts \
 #   --output-dir ./audit-reports \

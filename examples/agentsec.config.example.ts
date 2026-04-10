@@ -1,9 +1,9 @@
 import type { Config } from "@agentsec/cli";
 
 /**
- * Agent Audit Configuration Example
+ * AgentSec Configuration Example
  *
- * This file demonstrates all available configuration options for Agent Audit.
+ * This file demonstrates all available configuration options for AgentSec.
  * Copy this file to your project as `agentsec.config.ts` and customize
  * for your security requirements.
  *
@@ -17,7 +17,7 @@ import type { Config } from "@agentsec/cli";
 export default {
   /**
    * Scanning Configuration
-   * Controls how Agent Audit analyzes skills and generates findings.
+   * Controls how AgentSec analyzes skills and generates findings.
    */
   scanning: {
     /**
@@ -194,17 +194,17 @@ export default {
 
     /**
      * Title for the report
-     * Default: "Agent Audit Security Report"
+     * Default: "AgentSec Security Report"
      */
-    title: "Agent Audit Security Report",
+    title: "AgentSec Security Report",
 
     /**
      * Custom branding in reports
      * null = use defaults
      */
     branding: {
-      logoUrl: "https://agentsec.dev/logo.svg",
-      companyName: "Agent Audit",
+      logoUrl: "https://agentsec.sh/logo.svg",
+      companyName: "AgentSec",
       reporterEmail: "security@yourorg.dev",
     },
 
@@ -321,7 +321,7 @@ export default {
 
   /**
    * Integration Configuration
-   * Connect Agent Audit with other tools and platforms.
+   * Connect AgentSec with other tools and platforms.
    */
   integrations: {
     /**
@@ -503,7 +503,7 @@ export default {
  *    Use AGENTSEC_POLICY_FAILONSEVERITY to fail builds on findings
  *
  * 4. Multiple Environments:
- *    Create separate configs: agentsec.dev.ts, agentsec.prod.ts
+ *    Create separate configs: agentsec.staging.ts, agentsec.production.ts
  *    Load based on NODE_ENV: require(`./agentsec.${process.env.NODE_ENV}.ts`)
  *
  * 5. Validation:

@@ -29,7 +29,7 @@ Scanning Skills
   ██████████████████████████████ 100% (8/8)
 
   helpful-summarizer v1.2.0   F (30) 
-  /Users/mark/Projects/agent-audit/e2e/fixtures/bad-injection-skill
+  /Users/mark/Projects/agentsec/e2e/fixtures/bad-injection-skill
     Security             0/100
     Quality              65/100
     Maintenance          50/100
@@ -47,7 +47,7 @@ Scanning Skills
     ... and 8 more (use --verbose to see all)
 
   note-taker v2.0.0   F (30) 
-  /Users/mark/Projects/agent-audit/e2e/fixtures/bad-permissions-skill
+  /Users/mark/Projects/agentsec/e2e/fixtures/bad-permissions-skill
     Security             0/100
     Quality              65/100
     Maintenance          50/100
@@ -65,7 +65,7 @@ Scanning Skills
     ... and 12 more (use --verbose to see all)
 
   template-renderer v0.8.3   F (30) 
-  /Users/mark/Projects/agent-audit/e2e/fixtures/injection-vuln-skill
+  /Users/mark/Projects/agentsec/e2e/fixtures/injection-vuln-skill
     Security             0/100
     Quality              65/100
     Maintenance          50/100
@@ -83,7 +83,7 @@ Scanning Skills
     ... and 5 more (use --verbose to see all)
 
   git-changelog v1.5.2   F (30) 
-  /Users/mark/Projects/agent-audit/e2e/fixtures/insecure-storage-skill
+  /Users/mark/Projects/agentsec/e2e/fixtures/insecure-storage-skill
     Security             0/100
     Quality              65/100
     Maintenance          50/100
@@ -101,7 +101,7 @@ Scanning Skills
     ... and 19 more (use --verbose to see all)
 
   csv-analyzer v1.0.0   C (62) 
-  /Users/mark/Projects/agent-audit/e2e/fixtures/bad-deps-skill
+  /Users/mark/Projects/agentsec/e2e/fixtures/bad-deps-skill
     Security             64/100
     Quality              65/100
     Maintenance          50/100
@@ -112,7 +112,7 @@ Scanning Skills
      MEDIUM    No logging found in skill
 
   i18n-translator v3.2.1   F (30) 
-  /Users/mark/Projects/agent-audit/e2e/fixtures/supply-chain-skill
+  /Users/mark/Projects/agentsec/e2e/fixtures/supply-chain-skill
     Security             0/100
     Quality              65/100
     Maintenance          50/100
@@ -130,7 +130,7 @@ Scanning Skills
     ... and 10 more (use --verbose to see all)
 
   markdown-previewer v2.1.0   F (30) 
-  /Users/mark/Projects/agent-audit/e2e/fixtures/excessive-perms-skill
+  /Users/mark/Projects/agentsec/e2e/fixtures/excessive-perms-skill
     Security             0/100
     Quality              65/100
     Maintenance          50/100
@@ -148,7 +148,7 @@ Scanning Skills
     ... and 28 more (use --verbose to see all)
 
   code-formatter v1.2.0   D (56) 
-  /Users/mark/Projects/agent-audit/e2e/fixtures/good-skill
+  /Users/mark/Projects/agentsec/e2e/fixtures/good-skill
     Security             52/100
     Quality              65/100
     Maintenance          50/100
