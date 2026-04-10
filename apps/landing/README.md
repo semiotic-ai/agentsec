@@ -12,15 +12,11 @@ Marketing landing page for AgentSec — security scanning for AI agent skills.
 
 ## Features
 
-- Full-screen responsive design
-- Dark theme with brand color system
-- Smooth scroll animations with Intersection Observer
-- Terminal-style code blocks
-- Header
-- Hero with copy-CTA
-- HowItWorks (3 steps)
-- CLIUsage (single terminal)
-- CTA
+- Minimal, responsive single-page design
+- Dark macOS-themed palette (teal `#00d2b4` on charcoal `#0d1117`)
+- Terminal-style code blocks with traffic-light window chrome
+- Click-to-copy install command in the Hero
+- Sections: Header → Hero → CLIUsage → Footer
 
 ## Getting Started
 
@@ -61,11 +57,11 @@ apps/landing/
 │   ├── page.tsx            # Home page
 │   └── globals.css         # Global styles and animations
 ├── components/
-│   ├── Header.tsx          # Navigation header
-│   ├── Hero.tsx            # Hero section
-│   ├── HowItWorks.tsx      # 4-step process flow
-│   ├── CLIUsage.tsx        # CLI examples
-│   └── CTA.tsx             # Call-to-action footer
+│   ├── Header.tsx             # Navigation header with mobile menu
+│   ├── Hero.tsx               # Headline + copy-to-clipboard CTA
+│   ├── CopyCommandButton.tsx  # Reusable macOS terminal copy button
+│   ├── CLIUsage.tsx           # Verbose CLI output in a macOS window
+│   └── CTA.tsx                # Page footer (wordmark + links)
 ├── next.config.ts          # Next.js configuration
 ├── tailwind.config.ts      # Tailwind CSS configuration
 ├── postcss.config.js       # PostCSS configuration
