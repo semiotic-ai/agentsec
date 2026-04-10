@@ -96,10 +96,10 @@ describe("printBanner", () => {
     logSpy.mockRestore();
   });
 
-  it("outputs banner containing 'Agent Audit' ASCII art", () => {
+  it("outputs banner containing 'AgentSec' ASCII art", () => {
     printBanner("0.1.0");
     const output = captured.join("\n");
-    expect(output).toContain("___/");
+    expect(output).toContain("_");
     expect(output).toContain("auditing");
   });
 
