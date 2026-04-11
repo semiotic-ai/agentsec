@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /** The shell command typed at the top of the animation. */
 const COMMAND = "$ npx AgentSec";
@@ -87,34 +87,47 @@ export function AnimatedTerminal(): ReactNode {
   const [progressFill, setProgressFill] = useState(0);
   const [summaryShown, setSummaryShown] = useState(false);
   const [showCursor, setShowCursor] = useState(true);
-  const [started, setStarted] = useState(false);
   const [caretOn, setCaretOn] = useState(true);
+  // 0 = not yet started, >=1 = run number (bumped to replay).
+  const [runToken, setRunToken] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  const clearAllTimers = useCallback((): void => {
+    const timeouts = timeoutsRef.current;
+    for (const handle of timeouts) clearTimeout(handle);
+    timeouts.clear();
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  }, []);
+
+  const replay = useCallback((): void => {
+    clearAllTimers();
+    setTypedLength(0);
+    setRevealedSkills(0);
+    setProgressFill(0);
+    setSummaryShown(false);
+    setShowCursor(true);
+    setCaretOn(true);
+    setRunToken((t) => t + 1);
+  }, [clearAllTimers]);
 
   useEffect(() => {
     const node = containerRef.current;
     if (!node) return;
-
-    const timeouts = timeoutsRef.current;
-    const clearAllTimers = (): void => {
-      for (const handle of timeouts) clearTimeout(handle);
-      timeouts.clear();
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-    };
 
     const prefersReducedMotion =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 
     if (prefersReducedMotion) {
+      setReducedMotion(true);
       setTypedLength(COMMAND.length);
       setRevealedSkills(SKILLS.length);
       setProgressFill(PROGRESS_BAR_WIDTH);
       setSummaryShown(true);
       setShowCursor(false);
-      setStarted(true);
       return clearAllTimers;
     }
 
@@ -122,7 +135,7 @@ export function AnimatedTerminal(): ReactNode {
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting && entry.intersectionRatio >= VISIBILITY_THRESHOLD) {
-            setStarted(true);
+            setRunToken(1);
             observer.disconnect();
             break;
           }
@@ -136,13 +149,12 @@ export function AnimatedTerminal(): ReactNode {
       observer.disconnect();
       clearAllTimers();
     };
-  }, []);
+  }, [clearAllTimers]);
 
-  // Drive the full typing + streaming animation as a single sequenced script
-  // kicked off when `started` flips true. Keeping it in one effect avoids
-  // stale-closure deps and makes cleanup trivial.
+  // Drive the full typing + streaming animation as a single sequenced script.
+  // Each `runToken` bump (initial start or replay) triggers a fresh run.
   useEffect(() => {
-    if (!started) return;
+    if (runToken === 0) return;
 
     let cancelled = false;
     const timeouts = timeoutsRef.current;
@@ -202,7 +214,7 @@ export function AnimatedTerminal(): ReactNode {
     return () => {
       cancelled = true;
     };
-  }, [started]);
+  }, [runToken]);
 
   useEffect(() => {
     if (!showCursor) {
@@ -219,6 +231,19 @@ export function AnimatedTerminal(): ReactNode {
   const bar = progressBarCells(progressFill, PROGRESS_BAR_WIDTH);
   const percent = revealedSkills === 0 ? 0 : Math.round((revealedSkills / SKILLS.length) * 100);
   const runFinished = revealedSkills >= SKILLS.length;
+  const canReplay = summaryShown && !reducedMotion;
+
+  const handleClick = (): void => {
+    if (!canReplay) return;
+    replay();
+  };
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
+    if (!canReplay) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      replay();
+    }
+  };
 
   return (
     <section id="cli" className="bg-brand-dark pt-4 pb-20 md:pb-24">
@@ -237,11 +262,24 @@ export function AnimatedTerminal(): ReactNode {
             </span>
             <span className="w-[42px]" aria-hidden="true" />
           </div>
-          {/* Body */}
+          {/* Body — div with button role because the content contains block
+              elements which are invalid inside a semantic <button>. */}
+          {/* biome-ignore lint/a11y/useSemanticElements: block-level content forbidden in <button> */}
           <div
-            role="img"
-            aria-label="Animated terminal showing an AgentSec audit run against 8 skills"
-            className="font-mono text-sm md:text-[13px] leading-relaxed text-brand-text whitespace-pre overflow-x-auto px-6 py-5 min-h-[280px]"
+            role="button"
+            aria-label={
+              canReplay
+                ? "Click to replay animated terminal showing an AgentSec audit run"
+                : "Animated terminal showing an AgentSec audit run against 8 skills"
+            }
+            aria-disabled={!canReplay}
+            title={canReplay ? "Click to replay" : undefined}
+            tabIndex={canReplay ? 0 : -1}
+            onClick={handleClick}
+            onKeyDown={handleKeyDown}
+            className={`font-mono text-[11px] md:text-[13px] leading-relaxed text-brand-text whitespace-pre-wrap break-all md:whitespace-pre md:break-normal md:overflow-x-auto px-4 py-4 md:px-6 md:py-5 h-[505px] ${
+              canReplay ? "cursor-pointer" : ""
+            }`}
           >
             {/* Command line */}
             <div>
@@ -266,7 +304,8 @@ export function AnimatedTerminal(): ReactNode {
                 </div>
                 <div>&nbsp;</div>
                 <div>Scanning Skills</div>
-                <div className="text-brand-border">{"\u2500".repeat(40)}</div>
+                <div className="text-brand-border hidden md:block">{"\u2500".repeat(40)}</div>
+                <div className="text-brand-border md:hidden">{"\u2500".repeat(24)}</div>
                 {visibleSkills.map((skill, i) => {
                   const isCurrentStreaming = i === revealedSkills - 1 && !runFinished;
                   return (
@@ -307,14 +346,14 @@ export function AnimatedTerminal(): ReactNode {
                 {summaryShown && (
                   <>
                     <div>&nbsp;</div>
-                    <div>
+                    <div className="hidden md:block">
                       {"  "}8 skills scanned{"  "}
                       <span className="text-brand-muted">{"\u2022"}</span>
                       {"  "}avg score 37{"  "}
                       <span className="text-brand-muted">{"\u2022"}</span>
                       {"  "}0 certified
                     </div>
-                    <div>
+                    <div className="hidden md:block">
                       {"  "}Findings: <span className="text-brand-red">17 critical</span>
                       <span className="text-brand-muted">, </span>
                       <span className="text-brand-red">30 high</span>
@@ -323,8 +362,19 @@ export function AnimatedTerminal(): ReactNode {
                       <span className="text-brand-muted">, </span>
                       <span className="text-brand-blue">33 low</span>
                     </div>
+                    <div className="md:hidden">{"  "}8 skills, avg 37, 0 certified</div>
+                    <div className="md:hidden">
+                      {"  "}
+                      <span className="text-brand-red">17 C</span>
+                      <span className="text-brand-muted">{" \u00b7 "}</span>
+                      <span className="text-brand-red">30 H</span>
+                      <span className="text-brand-muted">{" \u00b7 "}</span>
+                      <span className="text-brand-yellow">39 M</span>
+                      <span className="text-brand-muted">{" \u00b7 "}</span>
+                      <span className="text-brand-blue">33 L</span>
+                    </div>
                     <div>&nbsp;</div>
-                    <div>
+                    <div className="hidden md:block">
                       {" "}
                       <span className="bg-brand-yellow text-brand-dark font-semibold px-1">
                         {" WARN "}
@@ -332,6 +382,12 @@ export function AnimatedTerminal(): ReactNode {
                       <span className="text-brand-yellow">
                         {"  "}47 high/critical finding(s) detected
                       </span>
+                    </div>
+                    <div className="md:hidden">
+                      <span className="bg-brand-yellow text-brand-dark font-semibold px-1">
+                        {" WARN "}
+                      </span>
+                      <span className="text-brand-yellow">{" 47 high/critical"}</span>
                     </div>
                   </>
                 )}

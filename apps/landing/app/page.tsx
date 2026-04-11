@@ -1,5 +1,4 @@
 import { AnimatedTerminal } from "@/components/AnimatedTerminal";
-import { ContactForm } from "@/components/ContactForm";
 import { CTA } from "@/components/CTA";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
@@ -20,7 +19,6 @@ export default function Home(): React.ReactNode {
         <Hero />
         <AnimatedTerminal />
         <TenCommandments />
-        <ContactForm />
       </main>
       <StickyCopy />
       <CTA />

@@ -17,8 +17,8 @@ Marketing landing page for AgentSec — security scanning for AI agent skills.
 - Scroll-triggered animated terminal that streams a real AgentSec audit run
 - Floating sticky `npx agentsec` copy CTA that follows the reader
 - OWASP AST10 "Ten Commandments" reference section
-- Working contact form (mailto → mark@semiotic.ai)
-- Sections: Header → Hero → AnimatedTerminal → TenCommandments → ContactForm → Footer
+- Footer `Contact` link → mark@semiotic.ai
+- Sections: Header → Hero → AnimatedTerminal → TenCommandments → Footer
 
 ## Getting Started
 
@@ -63,8 +63,7 @@ apps/landing/
 │   ├── Hero.tsx               # Headline and link row
 │   ├── AnimatedTerminal.tsx   # Scroll-triggered animated CLI output
 │   ├── StickyCopy.tsx         # Floating bottom-right copy CTA
-│   ├── TenCommandments.tsx    # OWASP AST10 reference table
-│   ├── ContactForm.tsx        # Mailto-backed contact form
+│   ├── TenCommandments.tsx    # OWASP AST10 reference with expandable rows
 │   └── CTA.tsx                # Page footer (wordmark + links)
 ├── next.config.ts          # Next.js configuration
 ├── tailwind.config.ts      # Tailwind CSS configuration
