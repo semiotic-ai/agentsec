@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import { DEPLOYMENT_URL } from "vercel-url";
 import {
   BRAND_COLORS,
@@ -79,7 +80,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactNode {
   return (
     <html lang="en">
-      <body className="bg-brand-dark text-brand-text">{children}</body>
+      <body className="bg-brand-dark text-brand-text">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
