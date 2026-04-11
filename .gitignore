@@ -30,6 +30,9 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
+# Claude Code coordinator worktrees (ephemeral agent session scratch space)
+.claude/worktrees/
+
 # Vercel
 .vercel/
 
