@@ -1,16 +1,18 @@
 {
   "name": "agentsec",
-  "version": "0.1.0",
-  "description": "Security auditing CLI for AI agent skills — OWASP Agentic Skills Top 10",
+  "version": "0.1.1",
+  "description": "Security auditing CLI for AI agent skills — OWASP Agentic Skills Top 10 (AST10)",
   "type": "module",
   "license": "MIT",
+  "author": "AgentSec Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/semiotic-agentium"
+    "url": "git+https://github.com/semiotic-agentium/agent-audit.git",
+    "directory": "packages/cli"
   },
   "homepage": "https://agentsec.sh",
   "bugs": {
-    "url": "https://github.com/semiotic-agentium"
+    "url": "https://github.com/semiotic-agentium/agent-audit/issues"
   },
   "keywords": [
     "security",
@@ -19,9 +21,13 @@
     "agent",
     "skills",
     "owasp",
+    "ast10",
     "openclaw",
+    "claude-code",
+    "codex",
     "vulnerability",
     "scanner",
+    "sarif",
     "cli"
   ],
   "main": "dist/cli.js",
@@ -31,10 +37,14 @@
   },
   "files": [
     "dist",
+    "README.md",
     "LICENSE"
   ],
   "engines": {
     "bun": ">=1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "bun build src/cli.ts --outdir dist --target bun",

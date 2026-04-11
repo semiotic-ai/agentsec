@@ -8,10 +8,16 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/semiotic-agentium">
-    <img src="https://img.shields.io/badge/GitHub-semiotic--agentium-181717?logo=github" alt="GitHub">
+  <a href="https://www.npmjs.com/package/agentsec">
+    <img src="https://img.shields.io/npm/v/agentsec.svg?color=cb3837&logo=npm" alt="npm version">
   </a>
-  <a href="https://github.com/semiotic-agentium">
+  <a href="https://www.npmjs.com/package/agentsec">
+    <img src="https://img.shields.io/npm/dm/agentsec.svg?color=blue" alt="npm downloads">
+  </a>
+  <a href="https://github.com/semiotic-agentium/agent-audit">
+    <img src="https://img.shields.io/badge/GitHub-agent--audit-181717?logo=github" alt="GitHub">
+  </a>
+  <a href="./LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   </a>
   <a href="https://owasp.org/www-project-agentic-skills-top-10/">
@@ -63,18 +69,19 @@ npx agentsec
 npx agentsec --verbose
 
 # Scan a specific path
-npx agentsec scan ./my-project
+npx agentsec scan --path ./my-project
 
 # Apply a policy preset
-npx agentsec scan --policy strict
-npx agentsec scan --policy enterprise
+npx agentsec audit --policy strict
+npx agentsec audit --policy enterprise
 
 # Output formats
-npx agentsec scan --format json
-npx agentsec scan --format html --output report.html
+npx agentsec --format json --output audit.json
+npx agentsec --format sarif --output audit.sarif
+npx agentsec --format html --output report.html
 
-# CI/CD gate -- exit 1 on policy violation
-npx agentsec check --fail-on high
+# Generate a report from a saved audit
+npx agentsec report audit.json --format html --output report.html
 ```
 
 See [`examples/`](./examples/) for full report samples in HTML, JSON, SARIF, and text formats.
@@ -98,9 +105,9 @@ Every scan checks for all 10 risk categories:
 
 ## Supported Agents
 
-- **Claude Code** -- scans installed skills and MCP servers
-- **OpenClaw** -- full SKILL.md manifest analysis
-- **Codex** -- skill and plugin scanning
+- **Claude Code** — scans installed skills and MCP servers
+- **OpenClaw** — full SKILL.md manifest analysis
+- **Codex** — skill and plugin scanning
 - More platforms coming soon
 
 Browse the skills ecosystem at [skills.sh](https://skills.sh).

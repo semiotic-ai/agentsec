@@ -8,7 +8,12 @@
  * Spec: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
  */
 
-import type { AuditReport, Severity, SkillAuditResult } from "@agentsec/shared";
+import {
+  AUDIT_VERSION,
+  type AuditReport,
+  type Severity,
+  type SkillAuditResult,
+} from "@agentsec/shared";
 
 // ── SARIF type definitions (subset) ───────────────────────────────────── //
 
@@ -237,7 +242,7 @@ export const formatSarif = (report: AuditReport): string => {
         tool: {
           driver: {
             name: "AgentSec",
-            version: "0.1.0",
+            version: AUDIT_VERSION,
             informationUri: "https://agentsec.sh",
             rules,
           },
