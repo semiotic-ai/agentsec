@@ -94,7 +94,6 @@ const commandments: readonly Commandment[] = [
 ];
 
 const OWASP_PROJECT_URL = "https://owasp.org/www-project-agentic-skills-top-10/";
-const OWASP_REPO_URL = "https://github.com/OWASP/www-project-agentic-skills-top-10";
 
 export function TenCommandments(): React.ReactNode {
   return (
@@ -116,7 +115,7 @@ export function TenCommandments(): React.ReactNode {
           >
             OWASP Agentic Skills Top 10
           </a>{" "}
-          — the ten risks AgentSec audits. Original research by the OWASP AST10 team.
+          — researched by the OWASP AST10 team.
         </p>
         <ul className="border-t border-brand-border/50">
           {commandments.map((item) => (
@@ -159,28 +158,6 @@ export function TenCommandments(): React.ReactNode {
             </li>
           ))}
         </ul>
-        <p className="text-xs text-brand-muted text-center mt-8">
-          Risks and labels based on the OWASP Agentic Skills Top 10 (CC BY-SA 4.0). Read the full
-          project on{" "}
-          <a
-            href={OWASP_PROJECT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brand-teal hover:underline"
-          >
-            OWASP.org
-          </a>{" "}
-          and contribute on{" "}
-          <a
-            href={OWASP_REPO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brand-teal hover:underline"
-          >
-            GitHub
-          </a>
-          .
-        </p>
       </div>
     </section>
   );

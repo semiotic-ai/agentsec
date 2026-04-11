@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const COMMAND = "npx agentsec";
-const SCROLL_THRESHOLD = 400;
+const SCROLL_THRESHOLD = 10;
 const COPIED_DURATION_MS = 2000;
 const HIGHLIGHT_DURATION_MS = 500;
 
@@ -61,7 +61,7 @@ export function StickyCopy(): React.ReactNode {
 
   return (
     <div
-      className={`hidden md:block fixed bottom-6 right-6 z-50 transition-opacity duration-300 motion-reduce:transition-none ${
+      className={`hidden md:block fixed bottom-12 right-24 z-50 transition-opacity duration-300 motion-reduce:transition-none ${
         visible ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
     >

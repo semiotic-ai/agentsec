@@ -9,27 +9,11 @@ export function Hero(): React.ReactNode {
           </h1>
           <p className="text-lg md:text-xl text-brand-muted mb-6 max-w-2xl mx-auto leading-relaxed">
             One command scans every skill your agent has installed — vulnerabilities, supply chain
-            risks, policy violations.
+            risks, policy violations.{" "}
+            <a href="/skill.md" className="text-brand-teal hover:underline">
+              skill.md
+            </a>
           </p>
-          <div className="flex items-center justify-center gap-4 text-sm text-brand-muted">
-            <a
-              href="https://github.com/semiotic-agentium"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center min-h-[44px] px-2 hover:text-brand-teal transition-colors"
-            >
-              View on GitHub →
-            </a>
-            <span className="text-brand-border">·</span>
-            <a
-              href="https://owasp.org/www-project-agentic-skills-top-10/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center min-h-[44px] px-2 hover:text-brand-teal transition-colors"
-            >
-              OWASP AST10 →
-            </a>
-          </div>
         </div>
       </div>
     </section>
