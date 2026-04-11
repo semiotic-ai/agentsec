@@ -1,40 +1,78 @@
 import type { Metadata, Viewport } from "next";
+import { DEPLOYMENT_URL } from "vercel-url";
+import {
+  BRAND_COLORS,
+  GITHUB_URL,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+  SITE_TWITTER,
+} from "./_brand/constants";
 import "./globals.css";
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: BRAND_COLORS.dark,
 };
 
 export const metadata: Metadata = {
-  title: "AgentSec — audit every skill your AI agents run",
-  description:
-    "One command audits every skill your AI agent has installed. Vulnerabilities, supply chain risks, and policy violations — checked against OWASP AST10, automatically.",
+  metadataBase: new URL(DEPLOYMENT_URL),
+  title: {
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  generator: "Next.js",
+  referrer: "origin-when-cross-origin",
   keywords: [
     "agentsec",
-    "security",
-    "AI agents",
+    "agent audit",
     "AI agent security",
+    "AI security scanner",
+    "skill scanner",
     "OWASP AST10",
+    "OWASP Agentic Skills Top 10",
+    "supply chain security",
     "vulnerability scanning",
-    "compliance",
+    "LLM security",
+    "prompt injection",
+    "AI compliance",
+    "OpenClaw",
   ],
-  authors: [{ name: "AgentSec", url: "https://github.com/semiotic-agentium" }],
+  authors: [{ name: SITE_NAME, url: GITHUB_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "security",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "AgentSec — audit every skill your AI agents run",
-    description:
-      "One command audits every skill your AI agent has installed. Vulnerabilities, supply chain risks, and policy violations — checked against OWASP AST10, automatically.",
-    url: "https://agentsec.sh",
-    siteName: "AgentSec",
-    images: [
-      {
-        url: "https://agentsec.sh/og-image.png",
-        width: 1200,
-        height: 630,
-      },
-    ],
-    locale: "en_US",
     type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    creator: SITE_TWITTER,
+    site: SITE_TWITTER,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 
