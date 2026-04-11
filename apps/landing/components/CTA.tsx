@@ -24,7 +24,7 @@ export function CTA(): React.ReactNode {
             OWASP AST10
           </a>
           <a
-            href="mailto:markeljan19@gmail.com"
+            href="mailto:mark@semiotic.ai"
             className="inline-flex items-center min-h-[44px] px-2 text-brand-muted hover:text-brand-teal transition-colors"
           >
             Contact

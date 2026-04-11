@@ -1,7 +1,10 @@
-import { CLIUsage } from "@/components/CLIUsage";
+import { AnimatedTerminal } from "@/components/AnimatedTerminal";
+import { ContactForm } from "@/components/ContactForm";
 import { CTA } from "@/components/CTA";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
+import { StickyCopy } from "@/components/StickyCopy";
+import { TenCommandments } from "@/components/TenCommandments";
 
 export default function Home(): React.ReactNode {
   return (
@@ -15,8 +18,11 @@ export default function Home(): React.ReactNode {
       <Header />
       <main id="main">
         <Hero />
-        <CLIUsage />
+        <AnimatedTerminal />
+        <TenCommandments />
+        <ContactForm />
       </main>
+      <StickyCopy />
       <CTA />
     </>
   );

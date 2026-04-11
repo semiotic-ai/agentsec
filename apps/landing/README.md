@@ -14,9 +14,11 @@ Marketing landing page for AgentSec — security scanning for AI agent skills.
 
 - Minimal, responsive single-page design
 - Dark macOS-themed palette (teal `#00d2b4` on charcoal `#0d1117`)
-- Terminal-style code blocks with traffic-light window chrome
-- Click-to-copy install command in the Hero
-- Sections: Header → Hero → CLIUsage → Footer
+- Scroll-triggered animated terminal that streams a real AgentSec audit run
+- Floating sticky `npx agentsec` copy CTA that follows the reader
+- OWASP AST10 "Ten Commandments" reference section
+- Working contact form (mailto → mark@semiotic.ai)
+- Sections: Header → Hero → AnimatedTerminal → TenCommandments → ContactForm → Footer
 
 ## Getting Started
 
@@ -58,9 +60,11 @@ apps/landing/
 │   └── globals.css         # Global styles and animations
 ├── components/
 │   ├── Header.tsx             # Navigation header with mobile menu
-│   ├── Hero.tsx               # Headline + copy-to-clipboard CTA
-│   ├── CopyCommandButton.tsx  # Reusable macOS terminal copy button
-│   ├── CLIUsage.tsx           # Verbose CLI output in a macOS window
+│   ├── Hero.tsx               # Headline and link row
+│   ├── AnimatedTerminal.tsx   # Scroll-triggered animated CLI output
+│   ├── StickyCopy.tsx         # Floating bottom-right copy CTA
+│   ├── TenCommandments.tsx    # OWASP AST10 reference table
+│   ├── ContactForm.tsx        # Mailto-backed contact form
 │   └── CTA.tsx                # Page footer (wordmark + links)
 ├── next.config.ts          # Next.js configuration
 ├── tailwind.config.ts      # Tailwind CSS configuration
