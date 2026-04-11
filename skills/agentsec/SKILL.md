@@ -1,119 +1,236 @@
 ---
 name: agentsec
 description: >
-  Audit all installed AI agent skills for security vulnerabilities.
-  Scans every skill in the current project against the OWASP Agentic Skills
-  Top 10 and reports findings with severity ratings and remediation guidance.
+  Audit AI agent skills against the OWASP Agentic Skills Top 10. Scans every
+  installed skill in a project, scores it, and reports findings with severity
+  ratings and remediation guidance.
 version: 0.1.0
+homepage: https://agentsec.sh
 ---
 
-# AgentSec
+# agentsec
 
-You are an AI agent with the `agentsec` skill installed. Use this skill to scan and audit all skills installed in the current project for security vulnerabilities.
+`agentsec` is a security auditing CLI for AI agent skills. It scans every skill installed in a project against the OWASP Agentic Skills Top 10 and reports vulnerabilities, misconfigurations, and governance gaps.
 
-## When to Use This Skill
+## When to Use
 
-Use agentsec when:
+Use `agentsec` when the user asks to:
 
-- The user asks to audit, scan, or check their agent skills for security issues
-- The user wants to know if their installed skills are safe
-- The user asks about OWASP compliance for their agent setup
-- Before recommending or installing new skills, to verify the current security posture
-- The user asks "are my skills secure?" or similar questions
+- Audit, scan, or check agent skills for security issues
+- Verify installed skills are safe before running them
+- Check OWASP compliance of an agent setup
+- Gate a CI/CD pipeline on skill security
+- Generate a security report for stakeholders
 
-## Running an Audit
+## Quick Start
 
-### Default Scan
-
-Run a full audit of all skills in the current directory:
+The fastest path to a result — no install, no flags:
 
 ```bash
 npx agentsec
 ```
 
-This auto-detects all installed agent skills (Claude Code, OpenClaw, Codex, etc.) and scans them against the OWASP Agentic Skills Top 10.
+This auto-detects every skill in the current directory and audits it against the OWASP Agentic Skills Top 10. Always try this first.
 
-### Scan a Specific Path
+## Core Commands
 
-```bash
-npx agentsec scan ./path/to/project
-```
-
-### Policy Presets
-
-Apply a policy preset to control which findings cause a failure:
+Every workflow starts from one of four commands. Run them with `npx agentsec` — no install needed.
 
 ```bash
-# Standard policy (default) -- fails on critical findings
-npx agentsec scan --policy standard
+# Full audit (scan + policy evaluation). Default command.
+npx agentsec
 
-# Strict policy -- fails on high and above
-npx agentsec scan --policy strict
+# Scan only (no policy evaluation)
+npx agentsec scan
 
-# Enterprise policy -- fails on medium and above, requires governance checks
-npx agentsec scan --policy enterprise
+# Generate a report from a previously saved audit JSON
+npx agentsec report audit.json
+
+# Manage and inspect policy presets
+npx agentsec policy list
 ```
 
-### Output Formats
+## Installation
+
+`npx agentsec` needs no install. For repeated use, install globally:
 
 ```bash
-# Plain text (default, best for terminal display)
-npx agentsec scan --format text
+# bun (recommended)
+bun add -g agentsec
 
-# JSON (for programmatic processing or CI integration)
-npx agentsec scan --format json
+# npm
+npm install -g agentsec
 
-# HTML report (for sharing with stakeholders)
-npx agentsec scan --format html --output report.html
+# pnpm
+pnpm add -g agentsec
 
-# SARIF (for IDE integration)
-npx agentsec scan --format sarif --output report.sarif
+# yarn
+yarn global add agentsec
 ```
 
-### CI/CD Gating
-
-Use the `check` command to fail a CI pipeline when policy is violated:
+Then drop the `npx` prefix:
 
 ```bash
-npx agentsec check --fail-on high
+agentsec
+agentsec scan --path ./my-skills
 ```
 
-This exits with code 1 if any finding meets or exceeds the specified severity.
+## Flags
 
-## Understanding the Output
+All flags work with any command.
 
-By default, output is compact: each skill shows its grade and score, followed by a one-line summary of finding counts and a PASS/WARN/FAIL status.
+| Flag         | Short | Values                          | Default    | Purpose                        |
+| ------------ | ----- | ------------------------------- | ---------- | ------------------------------ |
+| `--format`   | `-f`  | `text`, `json`, `sarif`, `html` | `text`     | Output format                  |
+| `--output`   | `-o`  | path                            | stdout     | Write report to file           |
+| `--policy`   | `-p`  | preset name or path             | `default`  | Apply a policy preset          |
+| `--platform` |       | `openclaw`, `claude`, `codex`   | `openclaw` | Agent platform to target       |
+| `--path`     |       | path                            | cwd        | Custom skill directory to scan |
+| `--verbose`  | `-v`  |                                 | off        | Show detailed findings         |
+| `--no-color` |       |                                 | off        | Disable colored output         |
+| `--help`     | `-h`  |                                 |            | Show help                      |
+| `--version`  | `-V`  |                                 |            | Print version                  |
 
-Use `--verbose` to see the full details for each skill:
+## Common Recipes
 
-- **Score breakdown** -- security, quality, and maintenance scores
-- **Findings** -- rule ID, description, severity, file and line number
-- **Remediation** -- suggested fix for each finding
-- **Recommendations** -- prioritized improvement suggestions
+### Show detailed findings and remediation
 
-A summary at the end shows total skills scanned, finding counts by severity, and whether the active policy passed or failed.
+```bash
+npx agentsec --verbose
+```
+
+### Scan a specific directory
+
+```bash
+npx agentsec scan --path ./my-skills
+```
+
+### Target a specific agent platform
+
+```bash
+npx agentsec --platform claude
+npx agentsec --platform codex
+```
+
+### Audit with a strict policy and save JSON
+
+```bash
+npx agentsec --policy strict --format json --output audit.json
+```
+
+### Generate an HTML report for stakeholders
+
+```bash
+npx agentsec --format html --output report.html
+```
+
+### Generate a SARIF report for IDE / code-scanning integration
+
+```bash
+npx agentsec --format sarif --output report.sarif
+```
+
+### List available policy presets
+
+```bash
+npx agentsec policy list
+```
+
+### Inspect the rules in a preset
+
+```bash
+npx agentsec policy show strict
+```
+
+### Validate a custom policy config file
+
+```bash
+npx agentsec policy validate ./my-policy.json
+```
+
+### Replay a previous audit as an HTML report
+
+```bash
+npx agentsec report audit.json --format html --output report.html
+```
+
+## Policy Presets
+
+| Name                 | Use Case                                                             |
+| -------------------- | -------------------------------------------------------------------- |
+| `default`            | Balanced policy. Blocks critical findings.                           |
+| `strict`             | Enterprise-grade. Blocks high and critical findings, enforces tests. |
+| `permissive`         | Lenient. Only blocks critical CVEs. Good for development.            |
+| `owasp-agent-top-10` | Built directly from the OWASP Agentic Skills Top 10.                 |
+
+## Configuration File
+
+`agentsec` auto-loads `.agentsecrc`, `.agentsecrc.json`, or `agentsec.config.json` from the current directory (or any parent):
+
+```json
+{
+  "format": "text",
+  "output": null,
+  "policy": "strict",
+  "platform": "openclaw",
+  "path": null,
+  "verbose": false
+}
+```
+
+CLI flags always override config file values.
 
 ## OWASP Agentic Skills Top 10
 
-The ten risk categories agentsec checks:
+Every audit checks all ten risk categories:
 
-| ID | Risk |
-|----|------|
-| AST01 | Malicious Skills |
+| ID    | Risk                    |
+| ----- | ----------------------- |
+| AST01 | Malicious Skills        |
 | AST02 | Supply Chain Compromise |
-| AST03 | Over-Privileged Skills |
-| AST04 | Insecure Metadata |
-| AST05 | Unsafe Deserialization |
-| AST06 | Weak Isolation |
-| AST07 | Update Drift |
-| AST08 | Poor Scanning |
-| AST09 | No Governance |
-| AST10 | Cross-Platform Reuse |
+| AST03 | Over-Privileged Skills  |
+| AST04 | Insecure Metadata       |
+| AST05 | Unsafe Deserialization  |
+| AST06 | Weak Isolation          |
+| AST07 | Update Drift            |
+| AST08 | Poor Scanning           |
+| AST09 | No Governance           |
+| AST10 | Cross-Platform Reuse    |
+
+## Understanding the Output
+
+Default output is compact: each skill shows its grade and score, followed by a one-line finding summary and a PASS/WARN/FAIL status.
+
+```
+✔ Found 6 skills
+
+✔ fetch-data     v1.0.0  D (42)
+✔ deploy-helper  v2.3.0  C (68)
+✔ code-review    v1.1.0  A (95)
+
+6 skills scanned  •  avg score 78  •  4 certified
+Findings: 2 critical, 1 high, 2 medium
+
+⚠ WARN  3 high/critical finding(s) detected
+```
+
+Use `--verbose` for score breakdowns, rule IDs, file/line locations, and remediation for each finding.
+
+## Exit Codes
+
+- `0` — audit passed the active policy
+- `1` — policy violation or fatal error
+
+Use the exit code directly to gate CI pipelines — no special flag required:
+
+```bash
+npx agentsec --policy strict || exit 1
+```
 
 ## Tips
 
-- Run `npx agentsec` with no arguments for the fastest path to results
-- Use `--format json` when you need to parse results programmatically
-- The `enterprise` policy preset is the most comprehensive and includes governance checks
-- Point users to [skills.sh](https://skills.sh) to browse the skills ecosystem
-- If a skill fails audit, recommend the user review the specific AST rule before using it
+- Start with `npx agentsec` — no install, no flags. Iterate from there.
+- Add `--verbose` whenever you need to act on specific findings.
+- Pipe `--format json` into `jq` or a custom script for programmatic handling.
+- `strict` is the most common preset for production repositories.
+- Browse the agent skills ecosystem at [skills.sh](https://skills.sh).

@@ -109,11 +109,12 @@ export function StickyCopy(): React.ReactNode {
         <div className="px-4 py-2.5 font-mono text-sm text-left">
           <span className="text-brand-muted">$ </span>
           <span
-            className={`text-brand-teal rounded-sm transition-colors duration-500 motion-reduce:transition-none ${
+            className={`rounded-sm transition-colors duration-500 motion-reduce:transition-none ${
               highlighted ? "bg-brand-teal/20" : "bg-transparent"
             }`}
           >
-            {COMMAND}
+            <span className="text-white">npx</span>
+            <span className="text-brand-teal"> agentsec</span>
           </span>
         </div>
         {/* Visually hidden live region so screen readers get a single announcement

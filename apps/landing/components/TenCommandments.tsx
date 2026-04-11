@@ -106,7 +106,6 @@ export function TenCommandments(): React.ReactNode {
           The 10 Agent Security Commandments
         </h2>
         <p className="text-brand-muted text-center mb-12">
-          The{" "}
           <a
             href={OWASP_PROJECT_URL}
             target="_blank"
@@ -115,7 +114,7 @@ export function TenCommandments(): React.ReactNode {
           >
             OWASP Agentic Skills Top 10
           </a>{" "}
-          — researched by the OWASP AST10 team.
+          — research by the OWASP Foundation.
         </p>
         <ul className="border-t border-brand-border/50">
           {commandments.map((item) => (

@@ -128,12 +128,12 @@ Every scan checks all 10 risk categories from the [OWASP AST10](https://owasp.or
 
 ## Output Formats
 
-| Format | Flag              | Best For                              |
-| ------ | ----------------- | ------------------------------------- |
-| Text   | `--format text`   | Terminal, human-readable (default)    |
-| JSON   | `--format json`   | CI pipelines, programmatic processing |
-| SARIF  | `--format sarif`  | VS Code, GitHub Code Scanning         |
-| HTML   | `--format html`   | Stakeholder reports, dashboards       |
+| Format | Flag             | Best For                              |
+| ------ | ---------------- | ------------------------------------- |
+| Text   | `--format text`  | Terminal, human-readable (default)    |
+| JSON   | `--format json`  | CI pipelines, programmatic processing |
+| SARIF  | `--format sarif` | VS Code, GitHub Code Scanning         |
+| HTML   | `--format html`  | Stakeholder reports, dashboards       |
 
 ## CI/CD Integration
 

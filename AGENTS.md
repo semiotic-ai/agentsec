@@ -122,7 +122,7 @@ bun run check
 
 ## OWASP Agentic Skills Top 10
 
-This project implements scanning and auditing based on the OWASP Agentic Skills Top 10 (AST10). Reference materials are in `.reference/owasp-agentic-skills-top-10/`. The ten risk categories are:
+This project implements scanning and auditing based on OWASP Agentic Skills Top 10 (AST10). Reference materials are in `.reference/owasp-agentic-skills-top-10/`. The ten risk categories are:
 
 | ID    | Risk                    |
 | ----- | ----------------------- |

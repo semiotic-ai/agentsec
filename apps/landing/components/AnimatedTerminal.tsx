@@ -4,7 +4,11 @@ import type { KeyboardEvent, ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /** The shell command typed at the top of the animation. */
-const COMMAND = "$ npx AgentSec";
+const COMMAND = "$ npx agentsec";
+
+/** Indices for coloring the typed command: `$ `, `npx`, ` agentsec`. */
+const CMD_PROMPT_LEN = 2;
+const CMD_NPX_END = 5;
 
 /** Characters per second for the initial command typing animation. */
 const TYPING_CHARS_PER_SEC = 28;
@@ -68,7 +72,7 @@ function progressBarCells(filled: number, total: number): { filled: string; empt
 }
 
 /**
- * Scroll-triggered animated terminal that types `$ npx AgentSec` then streams
+ * Scroll-triggered animated terminal that types `$ npx agentsec` then streams
  * a full audit run against the bundled fixtures. Honors `prefers-reduced-motion`
  * by rendering the whole output immediately when reduced motion is requested.
  * Uses a single `IntersectionObserver` to kick off the animation the first time
@@ -269,8 +273,8 @@ export function AnimatedTerminal(): ReactNode {
             role="button"
             aria-label={
               canReplay
-                ? "Click to replay animated terminal showing an AgentSec audit run"
-                : "Animated terminal showing an AgentSec audit run against 8 skills"
+                ? "Click to replay animated terminal showing an agentsec audit run"
+                : "Animated terminal showing an agentsec audit run against 8 skills"
             }
             aria-disabled={!canReplay}
             title={canReplay ? "Click to replay" : undefined}
@@ -283,8 +287,13 @@ export function AnimatedTerminal(): ReactNode {
           >
             {/* Command line */}
             <div>
-              <span className="text-brand-muted">{typedCommand.slice(0, 2)}</span>
-              <span className="text-brand-teal">{typedCommand.slice(2)}</span>
+              <span className="text-brand-muted">
+                {typedCommand.slice(0, Math.min(typedLength, CMD_PROMPT_LEN))}
+              </span>
+              <span className="text-white">
+                {typedCommand.slice(CMD_PROMPT_LEN, Math.min(typedLength, CMD_NPX_END))}
+              </span>
+              <span className="text-brand-teal">{typedCommand.slice(CMD_NPX_END)}</span>
               {showCursor && !commandFinished && (
                 <span
                   aria-hidden="true"

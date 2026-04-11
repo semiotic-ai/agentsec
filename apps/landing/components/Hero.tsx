@@ -5,7 +5,7 @@ export function Hero(): React.ReactNode {
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-5 leading-tight">
             Audit every skill <br />
-            your <span className="text-brand-teal">AI agents</span> run.
+            your <span className="text-brand-teal">AI Agents</span> run.
           </h1>
           <p className="text-lg md:text-xl text-brand-muted mb-6 max-w-2xl mx-auto leading-relaxed">
             One command scans every skill your agent has installed — vulnerabilities, supply chain
