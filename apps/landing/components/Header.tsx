@@ -29,6 +29,10 @@ const NPM_ICON = (
 
 const NAV_LINKS: readonly NavLink[] = [
   {
+    href: "/examples",
+    label: "Examples",
+  },
+  {
     href: "https://github.com/semiotic-agentium",
     label: "GitHub",
     icon: GITHUB_ICON,
@@ -73,9 +77,12 @@ export function Header(): React.ReactNode {
       }`}
     >
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="text-2xl font-bold">
+        <a
+          href="/"
+          className="text-2xl font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal rounded"
+        >
           <span className="text-brand-teal">AgentSec</span>
-        </div>
+        </a>
 
         <div className="hidden md:flex items-center gap-8 text-sm">
           {NAV_LINKS.map((link) => (

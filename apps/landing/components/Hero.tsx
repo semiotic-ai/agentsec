@@ -12,6 +12,10 @@ export function Hero(): React.ReactNode {
             risks, policy violations.{" "}
             <a href="/skill.md" className="text-brand-teal hover:underline">
               skill.md
+            </a>{" "}
+            ·{" "}
+            <a href="/examples" className="text-brand-teal hover:underline">
+              Example outputs
             </a>
           </p>
         </div>

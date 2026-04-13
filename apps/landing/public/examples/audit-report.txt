@@ -1,0 +1,176 @@
+
+    _                    _        _             _ _ _   
+   / \   __ _  ___ _ __ | |_     / \  _   _  __| (_) |_ 
+  / _ \ / _` |/ _ \ '_ \| __|   / _ \| | | |/ _` | | __|
+ / ___ \ (_| |  __/ | | | |_   / ___ \ |_| | (_| | | |_ 
+/_/   \_\__, |\___|_| |_|\__| /_/   \_\__,_|\__,_|_|\__|
+        |___/                                            
+  Security auditing for AI agent skills  v0.1.0
+
+[K  ⠁ Discovering openclaw skills...[K  ✔ Found 8 skills
+
+Scanning Skills
+────────────────────────────────────────────────────────────
+[K  ⠁ Scanning helpful-summarizer (1/8)...[K  ✔ helpful-summarizer v1.2.0  F (30) 
+  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  13% (1/8)
+[K  ⠁ Scanning note-taker (2/8)...[K  ✔ note-taker v2.0.0  F (30) 
+  ████████░░░░░░░░░░░░░░░░░░░░░░  25% (2/8)
+[K  ⠁ Scanning template-renderer (3/8)...[K  ✔ template-renderer v0.8.3  F (30) 
+  ███████████░░░░░░░░░░░░░░░░░░░  38% (3/8)
+[K  ⠁ Scanning git-changelog (4/8)...[K  ✔ git-changelog v1.5.2  F (30) 
+  ███████████████░░░░░░░░░░░░░░░  50% (4/8)
+[K  ⠁ Scanning csv-analyzer (5/8)...[K  ✔ csv-analyzer v1.0.0  C (62) 
+  ███████████████████░░░░░░░░░░░  63% (5/8)
+[K  ⠁ Scanning i18n-translator (6/8)...[K  ✔ i18n-translator v3.2.1  F (30) 
+  ███████████████████████░░░░░░░  75% (6/8)
+[K  ⠁ Scanning markdown-previewer (7/8)...[K  ✔ markdown-previewer v2.1.0  F (30) 
+  ██████████████████████████░░░░  88% (7/8)
+[K  ⠁ Scanning code-formatter (8/8)...[K  ✔ code-formatter v1.2.0  D (56) 
+  ██████████████████████████████ 100% (8/8)
+
+  helpful-summarizer v1.2.0   F (30) 
+  /Users/mark/Projects/agentsec/e2e/fixtures/bad-injection-skill
+    Security             0/100
+    Quality              65/100
+    Maintenance          50/100
+
+     CRITICAL  Use of eval() detected
+      src/index.ts:47
+     CRITICAL  Dynamic Function constructor detected
+      src/index.ts:68
+     CRITICAL  Remote code execution via pipe to shell
+      src/index.ts:32
+     HIGH      Weak hash algorithm used
+      src/index.ts:69
+     MEDIUM    Network request detected
+      src/index.ts:19
+    ... and 8 more (use --verbose to see all)
+
+  note-taker v2.0.0   F (30) 
+  /Users/mark/Projects/agentsec/e2e/fixtures/bad-permissions-skill
+    Security             0/100
+    Quality              65/100
+    Maintenance          50/100
+
+     CRITICAL  Dangerous permission requested: shell:execute
+      skill.json
+     CRITICAL  Dangerous permission requested: system:admin
+      skill.json
+     HIGH      Process spawn detected
+      src/index.ts:81
+     HIGH      Process spawn detected
+      src/index.ts:105
+     HIGH      Process spawn detected
+      src/index.ts:124
+    ... and 12 more (use --verbose to see all)
+
+  template-renderer v0.8.3   F (30) 
+  /Users/mark/Projects/agentsec/e2e/fixtures/injection-vuln-skill
+    Security             0/100
+    Quality              65/100
+    Maintenance          50/100
+
+     CRITICAL  Shell command execution detected
+      src/processor.ts:1
+     CRITICAL  Use of eval() detected
+      src/index.ts:67
+     CRITICAL  Dynamic Function constructor detected
+      src/index.ts:25
+     CRITICAL  Dynamic Function constructor detected
+      src/index.ts:111
+     CRITICAL  Shell command execution detected
+      src/index.ts:90
+    ... and 5 more (use --verbose to see all)
+
+  git-changelog v1.5.2   F (30) 
+  /Users/mark/Projects/agentsec/e2e/fixtures/insecure-storage-skill
+    Security             0/100
+    Quality              65/100
+    Maintenance          50/100
+
+     CRITICAL  Hardcoded token detected
+      src/config.ts:18
+     CRITICAL  Hardcoded token detected
+      src/config.ts:19
+     HIGH      Untrusted variable interpolation in template
+      src/index.ts:160
+     HIGH      Untrusted variable interpolation in template
+      src/index.ts:173
+     HIGH      Filesystem write operation detected
+      src/index.ts:66
+    ... and 19 more (use --verbose to see all)
+
+  csv-analyzer v1.0.0   C (62) 
+  /Users/mark/Projects/agentsec/e2e/fixtures/bad-deps-skill
+    Security             64/100
+    Quality              65/100
+    Maintenance          50/100
+
+     MEDIUM    Dangerous permission requested: clipboard:read
+      skill.json
+     MEDIUM    No .gitignore file found
+     MEDIUM    No logging found in skill
+
+  i18n-translator v3.2.1   F (30) 
+  /Users/mark/Projects/agentsec/e2e/fixtures/supply-chain-skill
+    Security             0/100
+    Quality              65/100
+    Maintenance          50/100
+
+     CRITICAL  Network request with user-controlled URL
+      src/index.ts:84
+     CRITICAL  Suspicious preinstall script detected
+      package.json
+     CRITICAL  Node.js VM module used for deserialization
+      src/index.ts:119
+     HIGH      Node.js VM module usage detected
+      src/index.ts:119
+     HIGH      Filesystem write operation detected
+      src/index.ts:152
+    ... and 10 more (use --verbose to see all)
+
+  markdown-previewer v2.1.0   F (30) 
+  /Users/mark/Projects/agentsec/e2e/fixtures/excessive-perms-skill
+    Security             0/100
+    Quality              65/100
+    Maintenance          50/100
+
+     CRITICAL  Dangerous permission requested: shell:execute
+      skill.json
+     CRITICAL  Dangerous permission requested: credentials:access
+      skill.json
+     HIGH      Dangerous permission requested: filesystem:write
+      skill.json
+     HIGH      Dangerous permission requested: network:unrestricted
+      skill.json
+     HIGH      Filesystem write operation detected
+      src/telemetry.ts:104
+    ... and 28 more (use --verbose to see all)
+
+  code-formatter v1.2.0   D (56) 
+  /Users/mark/Projects/agentsec/e2e/fixtures/good-skill
+    Security             52/100
+    Quality              65/100
+    Maintenance          50/100
+
+     MEDIUM    Dangerous permission requested: clipboard:read
+      skill.json
+     MEDIUM    Dangerous permission requested: clipboard:write
+      skill.json
+     MEDIUM    No .gitignore file found
+     MEDIUM    No logging found in skill
+
+Audit Summary
+────────────────────────────────────────────────────────────
+  Skills scanned         8
+  Average score          37
+  Certified skills       0
+  Blocked skills         0
+
+  Critical findings      17
+  High findings          30
+  Medium findings        39
+  Low findings           33
+
+ WARN  47 high/critical finding(s) detected
+

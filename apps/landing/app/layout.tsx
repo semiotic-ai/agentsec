@@ -1,5 +1,5 @@
-import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/react";
+import type { Metadata, Viewport } from "next";
 import { DEPLOYMENT_URL } from "vercel-url";
 import {
   BRAND_COLORS,
