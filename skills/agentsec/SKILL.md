@@ -4,7 +4,7 @@ description: >
   Audit AI agent skills against the OWASP Agentic Skills Top 10. Scans every
   installed skill in a project, scores it, and reports findings with severity
   ratings and remediation guidance.
-version: 0.1.2
+version: 0.1.3
 homepage: https://agentsec.sh
 ---
 
