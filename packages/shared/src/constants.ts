@@ -19,6 +19,11 @@ export const OPENCLAW_CONFIG_FILES = {
   originFile: ".clawhub/origin.json",
 };
 
+/**
+ * @deprecated Use `CLAUDE_SKILL_DIRS_V2` from `./defaults/claude` instead.
+ * This legacy map only covers darwin and the old `commands` directory layout.
+ * It will be removed once all consumers switch to the v2 export.
+ */
 export const CLAUDE_SKILL_DIRS: Record<string, string[]> = {
   darwin: ["~/.claude/commands", ".claude/commands"],
 };
