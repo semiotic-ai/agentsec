@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/banner.svg" alt="AgentSec banner" width="100%">
+  <img src="https://agentsec.sh/assets/agentsec-banner-3247x1700.png" alt="AgentSec banner" width="100%">
 </p>
 
 <h1 align="center">AgentSec</h1>
