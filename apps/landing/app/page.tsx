@@ -1,6 +1,7 @@
 import { AnimatedTerminal } from "@/components/AnimatedTerminal";
 import { Footer } from "@/components/Footer";
 import { Formats } from "@/components/Formats";
+import { HashScroll } from "@/components/HashScroll";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
@@ -18,6 +19,7 @@ export default function Home(): React.ReactNode {
         Skip to main content
       </a>
       <Header />
+      <HashScroll />
       <main id="main">
         <Hero />
         <AnimatedTerminal />

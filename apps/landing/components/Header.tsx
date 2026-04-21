@@ -10,9 +10,9 @@ type NavLink = {
 };
 
 const NAV_LINKS: readonly NavLink[] = [
-  { href: "#commandments", label: "Commandments" },
-  { href: "#formats", label: "Outputs" },
-  { href: "#policy", label: "Policies" },
+  { href: "/#commandments", label: "Commandments" },
+  { href: "/#formats", label: "Outputs" },
+  { href: "/#policy", label: "Policies" },
   { href: "/examples", label: "Examples" },
 ];
 
@@ -87,7 +87,7 @@ export function Header(): React.ReactNode {
             <span className="sr-only">GitHub</span>
           </a>
           <a
-            href="#install"
+            href="/#install"
             className="inline-flex items-center gap-2 bg-brand-teal text-brand-dark text-[13px] font-medium px-4 py-2 rounded-lg shadow-brand-teal hover:bg-brand-teal-dim hover:-translate-y-[1px] hover:shadow-brand-teal-strong transition-all duration-200"
           >
             Install
@@ -135,9 +135,8 @@ export function Header(): React.ReactNode {
               </a>
             </li>
             <li>
-              {/* biome-ignore lint/a11y/useValidAnchor: fragment link uses onClick to close menu */}
               <a
-                href="#install"
+                href="/#install"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center py-3 text-base text-brand-teal font-medium"
               >

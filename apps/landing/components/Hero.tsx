@@ -47,13 +47,11 @@ export function Hero(): React.ReactNode {
             </div>
 
             <h1 className="font-display mb-6 text-brand-text">
-              Audit every skill
+              Audit every
               <br />
-              your{" "}
               <span className="bg-gradient-to-b from-brand-teal to-brand-teal-dim bg-clip-text text-transparent">
-                AI agents
-              </span>{" "}
-              run.
+                Agent Skill
+              </span>
             </h1>
 
             <p className="font-lead max-w-[540px] mb-8">

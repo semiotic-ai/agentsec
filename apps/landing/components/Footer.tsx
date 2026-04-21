@@ -9,16 +9,16 @@ const COLS: readonly FooterCol[] = [
   {
     title: "Product",
     items: [
-      { label: "Features", href: "#formats" },
-      { label: "OWASP AST-10", href: "#commandments" },
-      { label: "Policies", href: "#policy" },
+      { label: "Features", href: "/#formats" },
+      { label: "OWASP AST-10", href: "/#commandments" },
+      { label: "Policies", href: "/#policy" },
       { label: "Examples", href: "/examples" },
     ],
   },
   {
     title: "Docs",
     items: [
-      { label: "Quick start", href: "#install" },
+      { label: "Quick start", href: "/#install" },
       { label: "skill.md", href: "/skill.md" },
       { label: "Examples", href: "/examples" },
       {

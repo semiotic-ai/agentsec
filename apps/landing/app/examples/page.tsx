@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { SITE_NAME } from "../_brand/constants";
 
@@ -16,143 +17,178 @@ export const metadata: Metadata = {
   },
 };
 
-type TreeFile = {
-  name: string;
+type FormatKey = "html" | "text" | "json" | "sarif";
+
+type Report = {
+  format: FormatKey;
+  filename: string;
+  tagline: string;
+  audience: string;
   href: string;
-  description: string;
-  /** Primary command(s) shown under the row */
-  commands: string[];
-  /** Optional short note under commands */
-  note?: string;
+  cmd: string;
 };
 
-type TreeDir = {
-  name: string;
-  children: TreeNode[];
-};
-
-type TreeNode = TreeFile | TreeDir;
-
-function isDir(n: TreeNode): n is TreeDir {
-  return "children" in n;
-}
-
-/** Featured report formats: HTML, plain text, JSON (in that order). */
-const PRIMARY_REPORTS: TreeNode[] = [
+const REPORTS: readonly Report[] = [
   {
-    name: "audit-report.html",
-    href: "/examples/audit-report.html",
-    description: "Self-contained HTML report for browsers.",
-    commands: [
-      "agentsec audit --path ./e2e/fixtures --format html --output examples/audit-report.html",
-      "agentsec report examples/audit-report.json --format html --output examples/audit-report.html",
-    ],
-  },
-  {
-    name: "audit-report.txt",
+    format: "text",
+    filename: "audit-report.txt",
+    tagline: "Plain-text summary, no ANSI codes — diffable and log-friendly.",
+    audience: "For CLI, logs & diffs",
     href: "/examples/audit-report.txt",
-    description: "Plain-text report (no ANSI), suitable for logs and diffs.",
-    commands: [
-      "agentsec audit --path ./e2e/fixtures --format text --output examples/audit-report.txt",
-      "agentsec report examples/audit-report.json --format text --output examples/audit-report.txt",
-    ],
+    cmd: "agentsec audit --path ./e2e/fixtures --format text --output examples/audit-report.txt",
   },
   {
-    name: "audit-report.json",
+    format: "html",
+    filename: "audit-report.html",
+    tagline: "Self-contained HTML — shareable, printable, opens in any browser.",
+    audience: "For stakeholders & reviewers",
+    href: "/examples/audit-report.html",
+    cmd: "agentsec audit --path ./e2e/fixtures --format html --output examples/audit-report.html",
+  },
+  {
+    format: "json",
+    filename: "audit-report.json",
+    tagline: "Full machine-readable audit — skills, findings, scores, metadata.",
+    audience: "For CI, tooling & re-rendering",
     href: "/examples/audit-report.json",
-    description: "Full machine-readable audit payload (skills, findings, scores).",
-    commands: [
-      "agentsec audit --path ./e2e/fixtures --format json --output examples/audit-report.json",
-    ],
+    cmd: "agentsec audit --path ./e2e/fixtures --format json --output examples/audit-report.json",
+  },
+  {
+    format: "sarif",
+    filename: "audit-report.sarif",
+    tagline: "SARIF 2.1 — inline findings in VS Code and GitHub Advanced Security.",
+    audience: "For IDEs & code-scanning",
+    href: "/examples/audit-report.sarif",
+    cmd: "agentsec audit --path ./e2e/fixtures --format sarif --output examples/audit-report.sarif",
   },
 ];
 
-const TREE: TreeNode[] = [
+const FORMAT_META: Record<FormatKey, { tone: string; badge: string }> = {
+  html: { tone: "text-brand-blue", badge: "bg-brand-blue/10 border-brand-blue/30" },
+  text: { tone: "text-brand-teal", badge: "bg-brand-teal/10 border-brand-teal/30" },
+  json: { tone: "text-brand-yellow", badge: "bg-brand-yellow/10 border-brand-yellow/30" },
+  sarif: { tone: "text-brand-purple", badge: "bg-brand-purple/10 border-brand-purple/30" },
+};
+
+type ArtifactIcon = "readme" | "config" | "workflow";
+
+type Artifact = {
+  name: string;
+  path: string;
+  href: string;
+  desc: string;
+  note?: string;
+  icon: ArtifactIcon;
+};
+
+const ARTIFACTS: readonly Artifact[] = [
   {
     name: "README.md",
+    path: "examples/README.md",
     href: "/examples/README.md",
-    description: "Overview of these files and how to regenerate reports.",
-    commands: [],
+    desc: "Overview of every file in this folder and how to regenerate each report.",
+    icon: "readme",
+  },
+  {
+    name: "agentsec.yml",
+    path: ".github/workflows/agentsec.yml",
+    href: "/examples/.github/workflows/agentsec.yml",
+    desc: "GitHub Actions workflow running AgentSec on push and pull-request with SARIF upload.",
+    icon: "workflow",
   },
   {
     name: "agentsec.config.example.ts",
+    path: "examples/agentsec.config.example.ts",
     href: "/examples/agentsec.config.example.ts",
-    description: "TypeScript policy and scanner configuration template.",
-    commands: [
-      "# Copy or adapt as agentsec.config.ts / your bundler entry; see file header comments.",
-    ],
-    note: "Not produced by audit — reference configuration only.",
-  },
-  {
-    name: "audit-report.sarif",
-    href: "/examples/audit-report.sarif",
-    description: "SARIF 2.1 for VS Code, GitHub, and other SARIF consumers.",
-    commands: [
-      "agentsec audit --path ./e2e/fixtures --format sarif --output examples/audit-report.sarif",
-      "agentsec report examples/audit-report.json --format sarif --output examples/audit-report.sarif",
-    ],
-  },
-  {
-    name: ".github",
-    children: [
-      {
-        name: "workflows",
-        children: [
-          {
-            name: "agentsec.yml",
-            href: "/examples/.github/workflows/agentsec.yml",
-            description: "Example GitHub Actions workflow running AgentSec on push/PR.",
-            commands: ["# Uses agentsec in CI; open the file for the exact job steps and flags."],
-          },
-        ],
-      },
-    ],
+    desc: "Typed policy and scanner configuration template — copy as your entry point.",
+    note: "Reference config — not produced by audit.",
+    icon: "config",
   },
 ];
 
-function renderTree(nodes: TreeNode[], prefix: string): React.ReactNode {
-  return (
-    <ul className="space-y-0">
-      {nodes.map((node, i) => {
-        const isLast = i === nodes.length - 1;
-        const branch = isLast ? "└── " : "├── ";
-        const childPrefix = prefix + (isLast ? "    " : "│   ");
+type Flag = {
+  flag: string;
+  desc: string;
+  example: string;
+};
 
-        if (isDir(node)) {
-          return (
-            <li key={node.name} className="list-none mb-1">
-              <div className="font-mono text-sm text-brand-muted select-none whitespace-pre">
-                {prefix}
-                {branch}
-                {node.name}
-                <span className="text-brand-border">/</span>
-              </div>
-              <div className="mt-0.5">{renderTree(node.children, childPrefix)}</div>
-            </li>
-          );
-        }
+const FLAGS: readonly Flag[] = [
+  {
+    flag: "--path <dir>",
+    desc: "Directory or single skill to scan.",
+    example: "./e2e/fixtures",
+  },
+  {
+    flag: "-f, --format",
+    desc: "Output format — one of text, json, html, sarif.",
+    example: "text · json · html · sarif",
+  },
+  {
+    flag: "-o, --output",
+    desc: "Write to a file instead of stdout.",
+    example: "examples/audit-report.html",
+  },
+  {
+    flag: "report <audit.json>",
+    desc: "Re-render a saved JSON audit into any other format.",
+    example: "agentsec report audit.json --format html",
+  },
+];
 
-        return (
-          <li key={node.name} className="list-none mb-6 last:mb-0">
-            <div className="font-mono text-sm whitespace-pre-wrap break-words">
-              <span className="text-brand-muted select-none">{prefix + branch}</span>
-              <a href={node.href} className="text-brand-teal hover:underline">
-                {node.name}
-              </a>
-            </div>
-            <p className="mt-1.5 text-sm text-brand-muted pl-0 sm:pl-[2ch]">{node.description}</p>
-            {node.commands.length > 0 && (
-              <pre className="mt-2 p-3 rounded-lg bg-brand-secondary/80 border border-brand-border text-xs text-brand-text overflow-x-auto whitespace-pre-wrap break-words">
-                {node.commands.join("\n\n")}
-              </pre>
-            )}
-            {node.note && <p className="mt-2 text-xs text-brand-muted">{node.note}</p>}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
+const ICONS: Record<ArtifactIcon, React.ReactNode> = {
+  readme: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="M16 13H8M16 17H8M10 9H8" />
+    </svg>
+  ),
+  config: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" />
+    </svg>
+  ),
+  workflow: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+      <path d="M6.5 10v4a2 2 0 002 2H10" />
+      <path d="M17.5 10v2" />
+    </svg>
+  ),
+};
 
 export default function ExamplesPage(): React.ReactNode {
   return (
@@ -164,93 +200,250 @@ export default function ExamplesPage(): React.ReactNode {
         Skip to main content
       </a>
       <Header />
-      <main id="examples-main" className="pt-24 md:pt-28 pb-16 md:pb-24">
-        <div className="max-w-3xl mx-auto px-6">
-          <p className="text-sm text-brand-muted mb-2">
-            <Link href="/" className="text-brand-teal hover:underline">
-              Home
-            </Link>
-            <span className="mx-2 text-brand-border">/</span>
-            <span className="text-brand-text">examples</span>
-          </p>
-          <h1 className="text-3xl md:text-4xl font-bold text-brand-text mb-3">Example outputs</h1>
-          <p className="text-brand-muted leading-relaxed mb-8">
-            Pre-generated artifacts from scanning the repo&apos;s E2E fixture skills. Open any file
-            below; each entry lists the CLI flags and example commands used to produce it.
-          </p>
-
-          <section aria-labelledby="primary-heading" className="mb-12">
-            <h2 id="primary-heading" className="text-lg font-semibold text-brand-text mb-1">
-              Sample reports
-            </h2>
-            <p className="text-sm text-brand-muted mb-4">
-              HTML for browsers, plain text for logs and diffs, JSON for tooling and re-rendering
-              other formats.
-            </p>
-            <div className="font-mono text-sm text-brand-muted mb-2 select-none">examples/</div>
-            {renderTree(PRIMARY_REPORTS, "")}
-          </section>
-
-          <section
-            aria-labelledby="flags-heading"
-            className="mb-10 p-4 rounded-lg border border-brand-border bg-brand-secondary/40"
-          >
-            <h2 id="flags-heading" className="text-sm font-semibold text-brand-text mb-2">
-              Common flags
-            </h2>
-            <dl className="grid gap-2 text-sm text-brand-muted">
-              <div>
-                <dt className="inline font-mono text-brand-teal">--path</dt>
-                <dd className="inline ml-2">
-                  Directory or single skill to scan (repo example uses{" "}
-                  <span className="font-mono text-brand-text/90">./e2e/fixtures</span>).
-                </dd>
-              </div>
-              <div>
-                <dt className="inline font-mono text-brand-teal">-f / --format</dt>
-                <dd className="inline ml-2">
-                  <span className="font-mono text-brand-text/90">text</span>,{" "}
-                  <span className="font-mono text-brand-text/90">json</span>,{" "}
-                  <span className="font-mono text-brand-text/90">html</span>,{" "}
-                  <span className="font-mono text-brand-text/90">sarif</span>.
-                </dd>
-              </div>
-              <div>
-                <dt className="inline font-mono text-brand-teal">-o / --output</dt>
-                <dd className="inline ml-2">Write the report to a file instead of only stdout.</dd>
-              </div>
-              <div>
-                <dt className="inline font-mono text-brand-teal">report</dt>
-                <dd className="inline ml-2">
-                  <span className="font-mono text-brand-text/90">
-                    agentsec report &lt;audit.json&gt;
-                  </span>{" "}
-                  re-renders from a saved JSON audit using{" "}
-                  <span className="font-mono text-brand-text/90">--format</span> and{" "}
-                  <span className="font-mono text-brand-text/90">--output</span>.
-                </dd>
-              </div>
-            </dl>
-            <p className="mt-3 text-xs text-brand-muted">
-              From this repository root you can run the same commands with{" "}
-              <span className="font-mono text-brand-text/90">bun packages/cli/src/cli.ts</span>{" "}
-              instead of <span className="font-mono text-brand-text/90">agentsec</span>.
-            </p>
-          </section>
-
-          <section aria-labelledby="tree-heading">
-            <h2 id="tree-heading" className="text-lg font-semibold text-brand-text mb-1">
-              All example files
-            </h2>
-            <p className="text-sm text-brand-muted mb-4">
-              README, config template, SARIF export, and CI workflow — same tree as the repository{" "}
-              <span className="font-mono text-brand-text/90">examples/</span> folder.
-            </p>
-            <div className="font-mono text-sm text-brand-muted mb-2 select-none">examples/</div>
-            {renderTree(TREE, "")}
-          </section>
-        </div>
+      <main id="examples-main">
+        <ExamplesHero />
+        <ReportsSection />
+        <FlagsSection />
+        <ArtifactsSection />
+        <RegenerateCTA />
       </main>
+      <Footer />
     </>
+  );
+}
+
+function ExamplesHero(): React.ReactNode {
+  return (
+    <section className="relative overflow-hidden pt-[140px] pb-14">
+      <div className="bg-grid pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-52 w-[900px] h-[600px] opacity-40"
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(0,210,180,0.16), transparent 60%)",
+        }}
+      />
+      <div className="relative max-w-[1200px] mx-auto px-6">
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-6 font-mono text-[13px] text-brand-dim animate-fade-up"
+        >
+          <Link href="/" className="hover:text-brand-teal transition-colors">
+            home
+          </Link>
+          <span className="mx-2 text-brand-border">/</span>
+          <span className="text-brand-text">examples</span>
+        </nav>
+        <div className="animate-fade-up" style={{ animationDelay: "0.08s" }}>
+          <div className="flex items-center flex-wrap gap-3 mb-6">
+            <span className="inline-flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.04em] uppercase px-3 py-1.5 rounded-full border border-brand-teal/25 bg-brand-teal/10 text-brand-teal">
+              <span
+                className="w-1.5 h-1.5 rounded-full bg-brand-teal animate-pulse-teal"
+                aria-hidden="true"
+              />
+              Example outputs
+            </span>
+            <span className="text-[13px] text-brand-dim">
+              scanned against <span className="font-mono text-brand-text/90">./e2e/fixtures</span>
+            </span>
+          </div>
+          <h1 className="font-display mb-6 text-brand-text">
+            One scan.
+            <br />
+            <span className="bg-gradient-to-b from-brand-teal to-brand-teal-dim bg-clip-text text-transparent">
+              Every artifact.
+            </span>
+          </h1>
+          <p className="font-lead max-w-[640px]">
+            Pre-generated from the repository&apos;s E2E fixture skills. Open any file to inspect —
+            or copy the CLI command to regenerate it against your own project.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ReportsSection(): React.ReactNode {
+  return (
+    <section className="section-pad border-t border-brand-border/60">
+      <div className="max-w-[1200px] mx-auto px-6">
+        <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] items-end mb-12">
+          <div>
+            <div className="font-eyebrow mb-3">Sample reports</div>
+            <h2 className="font-h1 text-brand-text">
+              Four formats.
+              <br />
+              One scan.
+            </h2>
+          </div>
+          <p className="font-lead max-w-[520px]">
+            Pick the format that fits the audience. All four come from a single{" "}
+            <code className="font-mono text-brand-teal text-[14px]">agentsec audit</code> run — or
+            re-render any of them from the JSON with{" "}
+            <code className="font-mono text-brand-teal text-[14px]">agentsec report</code>.
+          </p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          {REPORTS.map((r) => (
+            <ReportCard key={r.format} {...r} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ReportCard({ format, filename, tagline, audience, href, cmd }: Report): React.ReactNode {
+  const meta = FORMAT_META[format];
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative rounded-xl border border-brand-border bg-brand-card p-6 hover:border-brand-border-strong hover:-translate-y-0.5 transition-all duration-200 block no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal"
+    >
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <span
+          className={`px-2.5 py-1 rounded-md font-mono text-xs border ${meta.badge} ${meta.tone}`}
+        >
+          --format {format}
+        </span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-brand-dim">
+          {audience}
+        </span>
+      </div>
+      <div className="font-mono text-[17px] font-semibold text-brand-text mb-2 tracking-tight group-hover:text-brand-teal transition-colors break-all">
+        {filename}
+      </div>
+      <p className="text-[14px] leading-[1.55] text-brand-muted mb-5">{tagline}</p>
+      <div className="bg-brand-dark rounded-lg border border-brand-border/60 px-3.5 py-3 font-mono text-[11.5px] text-brand-muted overflow-x-auto whitespace-pre leading-[1.55]">
+        <span className="text-brand-teal">$</span> {cmd}
+      </div>
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <span className="font-mono text-[11px] text-brand-dim truncate">examples/{filename}</span>
+        <span className="text-sm text-brand-teal inline-flex items-center gap-1 whitespace-nowrap">
+          open <span aria-hidden="true">→</span>
+        </span>
+      </div>
+    </a>
+  );
+}
+
+function FlagsSection(): React.ReactNode {
+  return (
+    <section className="section-pad bg-brand-darker border-t border-b border-brand-border/60">
+      <div className="max-w-[1200px] mx-auto px-6">
+        <div className="text-center mb-12">
+          <div className="font-eyebrow mb-3">CLI reference</div>
+          <h2 className="font-h1 mb-4 text-brand-text">The flags behind every example.</h2>
+          <p className="font-lead max-w-[640px] mx-auto">
+            Each sample was generated by composing these four. Swap{" "}
+            <code className="font-mono text-brand-teal">--path</code> with your repo and you&apos;ll
+            get the same set of artifacts.
+          </p>
+        </div>
+        <div className="max-w-[960px] mx-auto grid gap-4 md:grid-cols-2">
+          {FLAGS.map((f) => (
+            <div
+              key={f.flag}
+              className="rounded-xl border border-brand-border bg-brand-card p-5 hover:border-brand-border-strong transition-colors"
+            >
+              <div className="font-mono text-sm text-brand-teal mb-1.5">{f.flag}</div>
+              <div className="text-[15px] text-brand-text mb-2 leading-[1.5]">{f.desc}</div>
+              <div className="font-mono text-[12px] text-brand-dim break-all">{f.example}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ArtifactsSection(): React.ReactNode {
+  return (
+    <section className="section-pad">
+      <div className="max-w-[1200px] mx-auto px-6">
+        <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] items-end mb-12">
+          <div>
+            <div className="font-eyebrow mb-3">Configuration</div>
+            <h2 className="font-h1 text-brand-text">More configuration examples.</h2>
+          </div>
+          <p className="font-lead max-w-[520px]">
+            A README describing every artifact, a ready-to-copy CI workflow, and a typed config
+            template. Mirrors the repository&apos;s{" "}
+            <code className="font-mono text-brand-teal text-[14px]">examples/</code> directory.
+          </p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {ARTIFACTS.map((a) => (
+            <ArtifactCard key={a.name} {...a} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ArtifactCard({ name, path, href, desc, note, icon }: Artifact): React.ReactNode {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group rounded-xl border border-brand-border bg-brand-card p-6 hover:border-brand-border-strong hover:-translate-y-0.5 transition-all duration-200 flex flex-col no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal"
+    >
+      <div className="flex items-center gap-3 mb-5">
+        <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-brand-secondary border border-brand-border text-brand-teal shrink-0">
+          {ICONS[icon]}
+        </div>
+        <div className="font-mono text-[11px] text-brand-dim truncate">{path}</div>
+      </div>
+      <div className="font-mono text-[15px] font-semibold text-brand-text mb-2 group-hover:text-brand-teal transition-colors break-all">
+        {name}
+      </div>
+      <p className="text-sm leading-[1.55] text-brand-muted">{desc}</p>
+      {note && <p className="text-xs text-brand-dim mt-3 italic">{note}</p>}
+      <div className="mt-auto pt-5 text-sm text-brand-teal inline-flex items-center gap-1">
+        view file <span aria-hidden="true">→</span>
+      </div>
+    </a>
+  );
+}
+
+function RegenerateCTA(): React.ReactNode {
+  return (
+    <section className="section-pad relative overflow-hidden border-t border-brand-border/60">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,210,180,0.1), transparent 60%)",
+        }}
+      />
+      <div className="relative max-w-[880px] mx-auto px-6 text-center">
+        <div className="font-eyebrow mb-4">Regenerate</div>
+        <h2 className="font-h1 mb-5 text-brand-text">Run it on your own project.</h2>
+        <p className="font-lead max-w-[520px] mx-auto mb-8">
+          Run <code className="font-mono text-brand-teal">npx agentsec</code> in your project and
+          you&apos;ll get the same four artifacts in seconds.
+        </p>
+        <div className="flex flex-wrap gap-3 justify-center">
+          <a
+            href="/#install"
+            className="inline-flex items-center gap-2 bg-brand-teal text-brand-dark text-sm font-medium px-5 py-3 rounded-lg shadow-brand-teal hover:bg-brand-teal-dim hover:-translate-y-[1px] hover:shadow-brand-teal-strong transition-all duration-200"
+          >
+            Run AgentSec
+          </a>
+          <a
+            href="/#commandments"
+            className="inline-flex items-center gap-2 bg-transparent border border-brand-border text-brand-text text-sm font-medium px-5 py-3 rounded-lg hover:bg-brand-card hover:border-brand-border-strong transition-colors"
+          >
+            Read the Top 10 →
+          </a>
+        </div>
+      </div>
+    </section>
   );
 }
