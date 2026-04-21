@@ -250,11 +250,17 @@ export function AnimatedTerminal(): ReactNode {
   };
 
   return (
-    <section id="cli" className="bg-brand-dark pt-4 pb-20 md:pb-24">
-      <div className="max-w-3xl mx-auto px-6">
+    <section id="cli" className="bg-brand-dark pt-10 pb-20 md:pb-24">
+      <div className="max-w-[1200px] mx-auto px-6">
+        <div className="text-center mb-8">
+          <div className="font-eyebrow mb-3">The audit, live</div>
+          <h2 className="font-h1 max-w-[700px] mx-auto text-brand-text">
+            Zero install. Zero config. <span className="text-brand-muted">Just run it.</span>
+          </h2>
+        </div>
         <div
           ref={containerRef}
-          className="rounded-lg border border-brand-border bg-brand-secondary overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+          className="max-w-[820px] mx-auto rounded-[14px] border border-brand-border bg-brand-secondary overflow-hidden shadow-brand-3"
         >
           {/* Title bar */}
           <div className="flex items-center gap-1.5 px-4 py-3 border-b border-brand-border bg-brand-card">
@@ -404,6 +410,10 @@ export function AnimatedTerminal(): ReactNode {
             )}
           </div>
         </div>
+        <p className="text-center text-[13px] text-brand-dim mt-5">
+          Auto-detects every skill · Scans against OWASP AST-10 · Exits with code 1 on policy
+          violation
+        </p>
       </div>
     </section>
   );

@@ -1,8 +1,11 @@
 import { AnimatedTerminal } from "@/components/AnimatedTerminal";
-import { CTA } from "@/components/CTA";
+import { Footer } from "@/components/Footer";
+import { Formats } from "@/components/Formats";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
-import { StickyCopy } from "@/components/StickyCopy";
+import { HowItWorks } from "@/components/HowItWorks";
+import { Install } from "@/components/Install";
+import { Policy } from "@/components/Policy";
 import { TenCommandments } from "@/components/TenCommandments";
 
 export default function Home(): React.ReactNode {
@@ -18,10 +21,13 @@ export default function Home(): React.ReactNode {
       <main id="main">
         <Hero />
         <AnimatedTerminal />
+        <HowItWorks />
         <TenCommandments />
+        <Formats />
+        <Policy />
+        <Install />
       </main>
-      <StickyCopy />
-      <CTA />
+      <Footer />
     </>
   );
 }
