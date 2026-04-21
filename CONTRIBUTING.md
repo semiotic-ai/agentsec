@@ -13,7 +13,8 @@ Use **bun** everywhere. Do not use npm, yarn, or pnpm.
 ## Quick Setup
 
 ```bash
-# Clone the repo (ask the team for access -- it's currently private)
+git clone https://github.com/semiotic-agentium/agent-audit.git
+cd agent-audit
 bun install
 bun run build
 bun run test
