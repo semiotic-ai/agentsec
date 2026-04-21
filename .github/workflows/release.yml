@@ -27,7 +27,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      id-token: write
 
     steps:
       - name: Checkout
@@ -57,7 +56,7 @@ jobs:
         if: ${{ !inputs.dry-run }}
         run: |
           cd packages/cli
-          npm publish --provenance --access public
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
