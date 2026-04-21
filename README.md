@@ -59,6 +59,18 @@ Scans your current directory, finds every installed skill, and reports what it f
   Run with --verbose for detailed findings and recommendations.
 ```
 
+## Auto-discovery
+
+Running `npx agentsec` with no arguments scans every default skills directory for the agent platforms agentsec supports:
+
+| Platform            | Paths scanned                                                                                                              |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Claude Code         | `~/.claude/skills`, `./.claude/skills`, `~/.claude/plugins/*/skills/*`, `~/.claude/commands`, `./.claude/commands` (legacy) |
+| OpenClaw / ClawHub  | `~/.openclaw/workspace/skills`, `~/.openclaw/workspace-*/skills` (profiles via `OPENCLAW_PROFILE`), `~/.openclaw/skills`   |
+| Codex / skills.sh   | `~/.agents/skills`, `./.agents/skills`, `../.agents/skills`, `/etc/codex/skills`                                           |
+
+Pass `--path <dir>` to audit a specific directory instead, or `--platform <claude|openclaw|codex>` to narrow to one platform.
+
 ## CLI Commands
 
 ```bash
