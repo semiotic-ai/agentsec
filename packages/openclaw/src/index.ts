@@ -1,3 +1,4 @@
+export { type DiscoverAllOptions, discoverAll } from "./auto-discover";
 export {
   CLAWHUB_REGISTRY_URL,
   type ClawHubClient,
