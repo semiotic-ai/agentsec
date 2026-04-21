@@ -5,7 +5,8 @@
  * and the ASCII banner used on startup.
  */
 
-import type { AuditGrade, Severity } from "@agentsec/shared";
+import { homedir } from "node:os";
+import type { AgentPlatform, AuditGrade, Severity } from "@agentsec/shared";
 
 // ---------------------------------------------------------------------------
 // Color support
@@ -259,4 +260,50 @@ export function error(msg: string): void {
 
 export function success(msg: string): void {
   console.log(`  ${color.green("\u2714")} ${msg}`);
+}
+
+// ---------------------------------------------------------------------------
+// Platform formatting
+// ---------------------------------------------------------------------------
+
+const HOME = homedir();
+
+/**
+ * Render an absolute path in a user-friendly short form. Replaces the
+ * current user's home directory with `~` so logs read like the command
+ * the user would type.
+ */
+export function prettyPath(absPath: string): string {
+  if (!absPath) return absPath;
+  if (absPath === HOME) return "~";
+  if (absPath.startsWith(`${HOME}/`)) return `~/${absPath.slice(HOME.length + 1)}`;
+  return absPath;
+}
+
+/** Canonical display label for each agent platform. */
+export function platformLabel(platform: AgentPlatform | null | undefined): string {
+  switch (platform) {
+    case "claude":
+      return "Claude Code";
+    case "openclaw":
+      return "OpenClaw";
+    case "codex":
+      return "Codex / skills.sh";
+    default:
+      return "Other";
+  }
+}
+
+/** Color a platform label consistently across the CLI. */
+export function platformColor(platform: AgentPlatform | null | undefined): (s: string) => string {
+  switch (platform) {
+    case "claude":
+      return color.magenta;
+    case "openclaw":
+      return color.cyan;
+    case "codex":
+      return color.yellow;
+    default:
+      return color.gray;
+  }
 }

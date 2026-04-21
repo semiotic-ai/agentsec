@@ -7,6 +7,7 @@
  */
 
 import type {
+  AgentPlatform,
   AgentSkill,
   AuditReport,
   AuditSummary,
@@ -28,6 +29,9 @@ import {
   info,
   keyValue,
   noopSpinner,
+  platformColor,
+  platformLabel,
+  prettyPath,
   progressBar,
   severityBadge,
   success,
@@ -405,7 +409,11 @@ function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
     `  ${color.bold(result.skill.name)} ${color.dim(`v${result.skill.version}`)}  ` +
       formatGrade(result.score.grade, result.score.overall),
   );
-  console.log(`  ${color.dim(result.skill.path)}`);
+  const platform = (result.skill.discoveredAs ?? null) as AgentPlatform | null;
+  const prefix = platform
+    ? `${platformColor(platform)(platformLabel(platform))} ${color.dim("·")} `
+    : "";
+  console.log(`  ${prefix}${color.dim(prettyPath(result.skill.path))}`);
 
   // Score breakdown
   keyValue("  Security", `${result.score.security}/100`);
@@ -504,41 +512,72 @@ function printNoSkillsHint(config: AuditConfig): void {
   console.log();
 }
 
+/** Order platforms appear in output. `null` ("Other") comes last. */
+const PLATFORM_ORDER: (AgentPlatform | null)[] = ["claude", "openclaw", "codex", null];
+
 /**
- * Print a one-line summary of where skills were found, grouped by `sourceRoot`.
- *
- * Only shown in zero-arg auto-discover mode where multiple platforms are
- * scanned. If no skill carries a `sourceRoot` (legacy single-platform
- * fallback), this prints nothing — the caller shows a simpler total instead.
+ * Bucket skills by their `discoveredAs` platform. Unknown/missing
+ * platforms land in the `null` bucket ("Other"). Buckets are returned
+ * in a consistent order (claude, openclaw, codex, other).
+ */
+function groupByPlatform(skills: AgentSkill[]): Map<AgentPlatform | null, AgentSkill[]> {
+  const buckets = new Map<AgentPlatform | null, AgentSkill[]>();
+  for (const key of PLATFORM_ORDER) buckets.set(key, []);
+  for (const skill of skills) {
+    const key = (skill.discoveredAs ?? null) as AgentPlatform | null;
+    const bucket = buckets.get(key) ?? [];
+    bucket.push(skill);
+    buckets.set(key, bucket);
+  }
+  for (const [key, bucket] of buckets) {
+    if (bucket.length === 0) buckets.delete(key);
+  }
+  return buckets;
+}
+
+/**
+ * Print a platform-grouped summary of where skills were found, with
+ * per-root counts. Shown in zero-arg auto-discover mode. When no skill
+ * carries a `sourceRoot` (legacy fallback), prints nothing.
  */
 function printDiscoveryRoots(skills: AgentSkill[]): void {
-  const groups = new Map<string, { platform?: string; count: number }>();
+  const roots = new Map<string, { platform: AgentPlatform | null; count: number }>();
   for (const skill of skills) {
     if (!skill.sourceRoot) continue;
-    const existing = groups.get(skill.sourceRoot);
+    const existing = roots.get(skill.sourceRoot);
     if (existing) {
       existing.count += 1;
     } else {
-      groups.set(skill.sourceRoot, { platform: skill.discoveredAs, count: 1 });
+      roots.set(skill.sourceRoot, {
+        platform: (skill.discoveredAs ?? null) as AgentPlatform | null,
+        count: 1,
+      });
     }
   }
-  if (groups.size === 0) return;
+  if (roots.size === 0) return;
 
-  const platforms = [...new Set([...groups.values()].map((g) => g.platform).filter(Boolean))];
-  const platformLabel =
-    platforms.length > 0
-      ? ` across ${platforms.map((p) => titleCase(p as string)).join(", ")}`
-      : "";
-  info(
-    `Scanned ${color.bold(String(groups.size))} default location${groups.size === 1 ? "" : "s"}${platformLabel}`,
-  );
-  for (const [root, { count }] of groups) {
-    console.log(`    ${color.dim(root)} ${color.dim(`(${count} skill${count === 1 ? "" : "s"})`)}`);
+  const byPlatform = new Map<AgentPlatform | null, { root: string; count: number }[]>();
+  for (const [root, { platform, count }] of roots) {
+    const list = byPlatform.get(platform) ?? [];
+    list.push({ root, count });
+    byPlatform.set(platform, list);
   }
-}
 
-function titleCase(s: string): string {
-  return s.length === 0 ? s : s[0].toUpperCase() + s.slice(1);
+  const platformsOrdered = PLATFORM_ORDER.filter((p) => byPlatform.has(p));
+  const platformNames = platformsOrdered.map((p) => platformLabel(p));
+  info(
+    `Scanned ${color.bold(String(roots.size))} location${roots.size === 1 ? "" : "s"} across ${platformNames.join(", ")}`,
+  );
+  for (const platform of platformsOrdered) {
+    const entries = byPlatform.get(platform) ?? [];
+    const badge = platformColor(platform)(platformLabel(platform));
+    console.log(`    ${badge}`);
+    for (const { root, count } of entries) {
+      console.log(
+        `      ${color.dim(prettyPath(root))} ${color.dim(`(${count} skill${count === 1 ? "" : "s"})`)}`,
+      );
+    }
+  }
 }
 
 /**
@@ -573,6 +612,91 @@ async function runDiscoveryStep(
   }
 
   return skills;
+}
+
+/**
+ * Scan a single skill: run the security scanner, compute metrics, build score,
+ * evaluate policy, and generate recommendations. Returns the full audit result.
+ */
+async function auditOneSkill(
+  skill: AgentSkill,
+  policyConfig: PolicyConfig | null,
+): Promise<SkillAuditResult> {
+  const findings = await scanSkill(skill);
+  const qualityMetrics = await calculateMetrics(skill);
+  const score = buildAuditScore(findings, qualityMetrics, qualityMetrics.maintenanceHealth);
+  const result: SkillAuditResult = {
+    skill,
+    score,
+    securityFindings: findings,
+    qualityMetrics,
+    policyViolations: [],
+    recommendations: [],
+  };
+  if (policyConfig) {
+    result.policyViolations = await evaluatePolicy(policyConfig, result);
+  }
+  result.recommendations = generateRecommendations(findings, qualityMetrics);
+  return result;
+}
+
+/**
+ * Scan all skills with appropriate per-skill spinners, progress bar, and
+ * platform-grouped subheadings in zero-arg auto-discover mode.
+ */
+async function runScanStep(
+  skills: AgentSkill[],
+  config: AuditConfig,
+  policyConfig: PolicyConfig | null,
+  isQuiet: boolean,
+): Promise<{ results: SkillAuditResult[]; blockedCount: number }> {
+  const results: SkillAuditResult[] = [];
+  let blockedCount = 0;
+  const autoDiscover = isAutoDiscoverMode(config);
+  const groups = autoDiscover
+    ? groupByPlatform(skills)
+    : new Map<AgentPlatform | null, AgentSkill[]>([[null, skills]]);
+  const showPlatformHeaders = autoDiscover && groups.size > 1;
+  let scanned = 0;
+
+  for (const [platform, platformSkills] of groups) {
+    if (showPlatformHeaders && !isQuiet) {
+      const label = platformColor(platform)(platformLabel(platform));
+      console.log();
+      console.log(
+        `  ${label} ${color.dim(`(${platformSkills.length} skill${platformSkills.length === 1 ? "" : "s"})`)}`,
+      );
+    }
+
+    for (const skill of platformSkills) {
+      scanned += 1;
+      const scanSpinner = isQuiet
+        ? noopSpinner
+        : createSpinner(`Scanning ${color.bold(skill.name)} (${scanned}/${skills.length})...`);
+      scanSpinner.start();
+
+      const result = await auditOneSkill(skill, policyConfig);
+      const isBlocked = result.policyViolations.some((v) => v.action === "block");
+      if (isBlocked) blockedCount++;
+
+      const line = `${skill.name} ${color.dim(`v${skill.version}`)} ${formatGrade(result.score.grade, result.score.overall)}`;
+      if (isBlocked) {
+        scanSpinner.fail(`${line} ${color.red("BLOCKED")}`);
+      } else {
+        scanSpinner.succeed(line);
+      }
+
+      results.push(result);
+
+      if (skills.length > 1 && !isQuiet) {
+        process.stdout.write(`\r${progressBar(scanned, skills.length)}`);
+        if (scanned < skills.length) process.stdout.write("\n");
+      }
+    }
+  }
+
+  if (skills.length > 1 && !isQuiet) console.log();
+  return { results, blockedCount };
 }
 
 function buildEmptyReport(platform: AuditConfig["platform"]): AuditReport {
@@ -627,73 +751,10 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     }
   }
 
-  // 3. Scan each skill
+  // 3. Scan each skill, grouped by platform in zero-arg auto-discover mode
   if (!isQuiet) heading("Scanning Skills");
 
-  const results: SkillAuditResult[] = [];
-  let blockedCount = 0;
-
-  for (let i = 0; i < skills.length; i++) {
-    const skill = skills[i];
-    const scanSpinner = isQuiet
-      ? noopSpinner
-      : createSpinner(`Scanning ${color.bold(skill.name)} (${i + 1}/${skills.length})...`);
-    scanSpinner.start();
-
-    // Run scanner
-    const findings = await scanSkill(skill);
-
-    // Calculate metrics
-    const qualityMetrics = await calculateMetrics(skill);
-
-    // Build score
-    const score = buildAuditScore(findings, qualityMetrics, qualityMetrics.maintenanceHealth);
-
-    // Build partial result for policy eval
-    const result: SkillAuditResult = {
-      skill,
-      score,
-      securityFindings: findings,
-      qualityMetrics,
-      policyViolations: [],
-      recommendations: [],
-    };
-
-    // Evaluate policy
-    if (policyConfig) {
-      result.policyViolations = await evaluatePolicy(policyConfig, result);
-    }
-
-    // Generate recommendations
-    result.recommendations = generateRecommendations(findings, qualityMetrics);
-
-    // Check if blocked
-    const isBlocked = result.policyViolations.some((v) => v.action === "block");
-    if (isBlocked) blockedCount++;
-
-    if (isBlocked) {
-      scanSpinner.fail(
-        `${skill.name} ${color.dim(`v${skill.version}`)} ` +
-          formatGrade(score.grade, score.overall) +
-          ` ${color.red("BLOCKED")}`,
-      );
-    } else {
-      scanSpinner.succeed(
-        `${skill.name} ${color.dim(`v${skill.version}`)} ` +
-          formatGrade(score.grade, score.overall),
-      );
-    }
-
-    results.push(result);
-
-    // Show progress
-    if (skills.length > 1 && !isQuiet) {
-      process.stdout.write(`\r${progressBar(i + 1, skills.length)}`);
-      if (i < skills.length - 1) process.stdout.write("\n");
-    }
-  }
-
-  if (skills.length > 1 && !isQuiet) console.log();
+  const { results, blockedCount } = await runScanStep(skills, config, policyConfig, isQuiet);
 
   // 4. Build summary
   const summary: AuditSummary = {

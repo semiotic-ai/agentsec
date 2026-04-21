@@ -52,13 +52,28 @@ function printHelp(): void {
   console.log(`  ${color.cyan("-o, --output")}     Write report to file`);
   console.log(`  ${color.cyan("-p, --policy")}     Policy preset name or path to config file`);
   console.log(
-    `  ${color.cyan("    --platform")}   Agent platform: openclaw, claude, codex ${color.dim("(default: openclaw)")}`,
+    `  ${color.cyan("    --platform")}   Narrow to one agent platform: openclaw, claude, codex`,
   );
   console.log(`  ${color.cyan("    --path")}       Custom skill directory to scan`);
   console.log(`  ${color.cyan("-v, --verbose")}    Show detailed output`);
   console.log(`  ${color.cyan("    --no-color")}   Disable colored output`);
   console.log(`  ${color.cyan("-h, --help")}       Show help`);
   console.log(`  ${color.cyan("-V, --version")}    Print version`);
+  console.log();
+
+  console.log(color.bold("AUTO-DISCOVERY"));
+  console.log(
+    `  With no ${color.cyan("--path")} or ${color.cyan("--platform")} flag, agentsec scans every default`,
+  );
+  console.log(`  skill location on this machine, grouped by platform:`);
+  console.log();
+  console.log(`    ${color.magenta("Claude Code")}        ~/.claude/skills, ./.claude/skills,`);
+  console.log(`                       ~/.claude/plugins/*/skills/*, ~/.claude/commands`);
+  console.log(`    ${color.cyan("OpenClaw")}           ~/.openclaw/workspace/skills,`);
+  console.log(`                       ~/.openclaw/workspace-*/skills, ~/.openclaw/skills`);
+  console.log(`    ${color.yellow("Codex / skills.sh")}  ~/.agents/skills, ./.agents/skills,`);
+  console.log(`                       ../.agents/skills, /etc/codex/skills`);
+  console.log(`    ${color.gray("Other")}              ./skills (and up to two levels deep)`);
   console.log();
 
   console.log(color.bold("EXAMPLES"));

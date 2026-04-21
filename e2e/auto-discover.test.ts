@@ -1,20 +1,16 @@
 /**
- * e2e/auto-discover.test.ts -- Zero-argument auto-discovery integration test.
+ * e2e/auto-discover.test.ts — Zero-argument auto-discovery integration test.
  *
  * Exercises `agentsec audit` with no arguments against a synthetic $HOME that
  * contains skills laid out for three agent platforms:
  *
- *   ~/.openclaw/skills/demo-openclaw   (OpenClaw default)
- *   ~/.agents/skills/demo-codex        (Codex / skills.sh default)
- *   ~/.claude/skills/demo-claude       (Claude Code default -- not yet scanned)
+ *   ~/.openclaw/workspace/skills/demo-openclaw  (OpenClaw workspace default)
+ *   ~/.agents/skills/demo-codex                 (Codex / skills.sh default)
+ *   ~/.claude/skills/demo-claude                (Claude Code personal default)
+ *   <cwd>/skills/demo-generic                   (generic cwd walk)
  *
- * The OpenClaw and Codex fixtures live at paths that are already default scan
- * roots (see OPENCLAW_SKILL_DIRS in @agentsec/shared/constants), so those
- * assertions pass today. The Claude fixture is asserted by a TODO-gated line
- * that unblocks once Claude Code default-path discovery ships.
- *
- * We also override cwd to a clean temp directory so the CLI doesn't pick up
- * skills from the repo's own `./skills` folder.
+ * We override cwd to a controlled temp directory containing a generic
+ * `./skills/demo-generic` fixture, which exercises the cwd-walk path.
  */
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
@@ -29,28 +25,32 @@ let tempHome: string;
 let tempCwd: string;
 
 /**
- * Fixture layout: [relative path under $HOME, skill name used in SKILL.md].
+ * Fixture layout: [root ("home" or "cwd"), relative path, skill name].
  *
- * Keep the set small -- each entry exercises one platform's default root.
+ * Each entry exercises one platform's default root or the cwd generic walk.
  */
-const FIXTURES: ReadonlyArray<readonly [string, string]> = [
-  [".openclaw/skills/demo-openclaw", "demo-openclaw"],
-  [".agents/skills/demo-codex", "demo-codex"],
-  [".claude/skills/demo-claude", "demo-claude"],
+const FIXTURES: ReadonlyArray<readonly ["home" | "cwd", string, string]> = [
+  ["home", ".openclaw/workspace/skills/demo-openclaw", "demo-openclaw"],
+  ["home", ".agents/skills/demo-codex", "demo-codex"],
+  ["home", ".claude/skills/demo-claude", "demo-claude"],
+  ["cwd", "skills/demo-generic", "demo-generic"],
 ];
+
+function writeSkill(dir: string, name: string): void {
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(
+    join(dir, "SKILL.md"),
+    `---\nname: ${name}\nversion: 1.0.0\ndescription: e2e auto-discover demo skill\n---\nBody.\n`,
+  );
+}
 
 beforeAll(() => {
   tempHome = mkdtempSync(join(tmpdir(), "agentsec-e2e-home-"));
-  // A clean cwd avoids discovering `./skills` from the repo root.
   tempCwd = mkdtempSync(join(tmpdir(), "agentsec-e2e-cwd-"));
 
-  for (const [rel, name] of FIXTURES) {
-    const dir = join(tempHome, rel);
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(
-      join(dir, "SKILL.md"),
-      `---\nname: ${name}\nversion: 1.0.0\ndescription: e2e auto-discover demo skill\n---\nBody.\n`,
-    );
+  for (const [root, rel, name] of FIXTURES) {
+    const base = root === "home" ? tempHome : tempCwd;
+    writeSkill(join(base, rel), name);
   }
 });
 
@@ -86,19 +86,10 @@ describe("agentsec audit (zero-arg auto-discover)", () => {
   test("discovers skills across default platform locations", async () => {
     const { output, exitCode } = await runAuditIsolated();
 
-    // CLI should not crash. Zero-skill scans also exit 0, so we can't
-    // assert on exitCode alone -- the output contents matter.
     expect(exitCode).toBe(0);
-
-    // OpenClaw default root (~/.openclaw/skills) is already scanned today.
     expect(output).toContain("demo-openclaw");
-
-    // Codex / skills.sh default root (~/.agents/skills) is already scanned
-    // today -- it's listed in OPENCLAW_SKILL_DIRS for both darwin and linux.
     expect(output).toContain("demo-codex");
-
-    // TODO: once Claude Code default-path discovery ships (scanning
-    // ~/.claude/skills and ./.claude/skills in zero-arg mode), uncomment:
-    // expect(output).toContain("demo-claude");
+    expect(output).toContain("demo-claude");
+    expect(output).toContain("demo-generic");
   }, 60_000);
 });

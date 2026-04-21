@@ -30,7 +30,16 @@ The fastest path to a result — no install, no flags:
 npx agentsec
 ```
 
-This auto-detects every skill in the current directory and audits it against the OWASP Agentic Skills Top 10. Always try this first.
+This scans every default skills directory on the machine — grouped by platform — plus any `./skills` folder in the current project (up to two levels deep), and audits each installed skill against the OWASP Agentic Skills Top 10. Always try this first.
+
+### Auto-discovery locations
+
+| Platform               | Paths scanned                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Claude Code**        | `~/.claude/skills`, `./.claude/skills`, `~/.claude/plugins/*/skills/*`, `~/.claude/commands`, `./.claude/commands`         |
+| **OpenClaw / ClawHub** | `~/.openclaw/workspace/skills`, `~/.openclaw/workspace-*/skills` (profiles via `OPENCLAW_PROFILE`), `~/.openclaw/skills`  |
+| **Codex / skills.sh**  | `~/.agents/skills`, `./.agents/skills`, `../.agents/skills`, `/etc/codex/skills`                                          |
+| **Other** (generic)    | Any `skills/` directory found within the current project, up to two levels deep                                           |
 
 ## Core Commands
 
@@ -84,8 +93,8 @@ All flags work with any command.
 | `--format`   | `-f`  | `text`, `json`, `sarif`, `html` | `text`     | Output format                  |
 | `--output`   | `-o`  | path                            | stdout     | Write report to file           |
 | `--policy`   | `-p`  | preset name or path             | `default`  | Apply a policy preset          |
-| `--platform` |       | `openclaw`, `claude`, `codex`   | `openclaw` | Agent platform to target       |
-| `--path`     |       | path                            | cwd        | Custom skill directory to scan |
+| `--platform` |       | `openclaw`, `claude`, `codex`   | auto       | Narrow to one agent platform   |
+| `--path`     |       | path                            | auto       | Custom skill directory to scan |
 | `--verbose`  | `-v`  |                                 | off        | Show detailed findings         |
 | `--no-color` |       |                                 | off        | Disable colored output         |
 | `--help`     | `-h`  |                                 |            | Show help                      |
@@ -172,13 +181,11 @@ npx agentsec report audit.json --format html --output report.html
   "format": "text",
   "output": null,
   "policy": "strict",
-  "platform": "openclaw",
-  "path": null,
   "verbose": false
 }
 ```
 
-CLI flags always override config file values.
+CLI flags always override config file values. Omit `"platform"` and `"path"` to keep the default auto-discovery behavior — agentsec will scan every known platform's default locations.
 
 ## OWASP Agentic Skills Top 10
 

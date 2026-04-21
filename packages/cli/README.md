@@ -27,7 +27,7 @@
 
 ---
 
-`agentsec` is a zero-config CLI that audits every skill your AI agent runs — against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/). It supports **Claude Code**, **OpenClaw**, **Codex**, and more.
+`agentsec` is a zero-config CLI that audits every skill your AI agent runs — against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/). It supports **Claude Code**, **OpenClaw / ClawHub**, **Codex / skills.sh**, and generic project-local skill directories.
 
 One command. Full security report. No sign-up.
 
@@ -37,18 +37,34 @@ One command. Full security report. No sign-up.
 npx agentsec
 ```
 
-Scans your current directory, finds every installed skill, and tells you what's dangerous.
+No flags needed. agentsec walks every default skills directory on your machine — grouped by platform — plus any `./skills` folder in the current project (up to two levels deep).
 
 ### Example Output
 
 ```
   ✔ Found 6 skills
+  ℹ Scanned 4 locations across Claude Code, OpenClaw, Codex / skills.sh, Other
+    Claude Code
+      ~/.claude/skills (3 skills)
+    OpenClaw
+      ~/.openclaw/workspace/skills (1 skill)
+    Codex / skills.sh
+      ~/.agents/skills (1 skill)
+    Other
+      ./skills (1 skill)
 
+  Claude Code (3 skills)
   ✔ fetch-data     v1.0.0  D (42)
   ✔ deploy-helper  v2.3.0  C (68)
   ✔ code-review    v1.1.0  A (95)
+
+  OpenClaw (1 skill)
   ✔ summarize-docs v0.9.0  A (91)
+
+  Codex / skills.sh (1 skill)
   ✔ db-migrate     v1.4.2  B (78)
+
+  Other (1 skill)
   ✔ lint-fix       v2.0.0  A (93)
 
   6 skills scanned  •  avg score 78  •  4 certified
@@ -57,6 +73,19 @@ Scans your current directory, finds every installed skill, and tells you what's 
   ⚠ WARN  3 high/critical finding(s) detected
   Run with --verbose for detailed findings and recommendations.
 ```
+
+## Auto-discovery
+
+`npx agentsec` with no arguments scans every default skills directory for every agent platform it supports:
+
+| Platform               | Paths scanned                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Claude Code**        | `~/.claude/skills`, `./.claude/skills`, `~/.claude/plugins/*/skills/*`, `~/.claude/commands`, `./.claude/commands`         |
+| **OpenClaw / ClawHub** | `~/.openclaw/workspace/skills`, `~/.openclaw/workspace-*/skills` (profiles via `OPENCLAW_PROFILE`), `~/.openclaw/skills`  |
+| **Codex / skills.sh**  | `~/.agents/skills`, `./.agents/skills`, `../.agents/skills`, `/etc/codex/skills`                                          |
+| **Other** (generic)    | Any `skills/` directory inside the current project, up to two levels deep                                                 |
+
+Pass `--path <dir>` to audit a specific directory instead, or `--platform <claude\|openclaw\|codex>` to narrow to one platform.
 
 ## Installation
 
@@ -72,7 +101,7 @@ bun install -g agentsec
 ## Commands
 
 ```bash
-# Audit current directory (auto-detects agent skills)
+# Audit every default skills directory on this machine
 agentsec
 
 # Show detailed findings, score breakdowns, and recommendations
@@ -85,7 +114,7 @@ agentsec scan --path ./my-project
 agentsec audit --policy strict
 agentsec audit --policy enterprise
 
-# Pick a platform (openclaw | claude | codex)
+# Narrow to one platform (openclaw | claude | codex)
 agentsec --platform claude
 
 # Output formats: text | json | sarif | html

@@ -52,7 +52,7 @@ describe("discoverAll", () => {
   });
 
   test("discovers skills across all three platform default roots", async () => {
-    const skills = await discoverAll({ platform: "darwin" });
+    const skills = await discoverAll({ platform: "darwin", cwd: null });
 
     const names = skills.map((s) => s.name).sort();
     expect(names).toContain("claude-demo");
@@ -60,35 +60,21 @@ describe("discoverAll", () => {
     expect(names).toContain("codex-demo");
   });
 
-  test("each skill is tagged with a sourceRoot", async () => {
-    const skills = await discoverAll({ platform: "darwin" });
+  test("tags each skill with its sourceRoot and inferred platform", async () => {
+    const skills = await discoverAll({ platform: "darwin", cwd: null });
+    const byName = new Map(skills.map((s) => [s.name, s] as const));
+
+    expect(byName.get("claude-demo")?.discoveredAs).toBe("claude");
+    expect(byName.get("openclaw-demo")?.discoveredAs).toBe("openclaw");
+    expect(byName.get("codex-demo")?.discoveredAs).toBe("codex");
 
     for (const skill of skills) {
-      const tagged = skill as typeof skill & { sourceRoot?: string };
-      expect(tagged.sourceRoot).toBeDefined();
+      expect(skill.sourceRoot).toBeDefined();
     }
-  });
-
-  test("returns different sourceRoots for different platforms", async () => {
-    const skills = await discoverAll({ platform: "darwin" });
-
-    const byName = new Map<string, string | undefined>();
-    for (const skill of skills) {
-      const tagged = skill as typeof skill & { sourceRoot?: string };
-      byName.set(skill.name, tagged.sourceRoot);
-    }
-
-    const claude = byName.get("claude-demo");
-    const openclaw = byName.get("openclaw-demo");
-    const codex = byName.get("codex-demo");
-
-    expect(claude).not.toBe(openclaw);
-    expect(openclaw).not.toBe(codex);
-    expect(claude).not.toBe(codex);
   });
 
   test("skills are deduplicated across overlapping roots", async () => {
-    const skills = await discoverAll({ platform: "darwin" });
+    const skills = await discoverAll({ platform: "darwin", cwd: null });
 
     const seen = new Set<string>();
     for (const skill of skills) {
@@ -98,7 +84,7 @@ describe("discoverAll", () => {
   });
 
   test("shallow option skips file contents", async () => {
-    const skills = await discoverAll({ platform: "darwin", shallow: true });
+    const skills = await discoverAll({ platform: "darwin", cwd: null, shallow: true });
     expect(skills.length).toBeGreaterThan(0);
     for (const skill of skills) {
       expect(skill.files).toEqual([]);
@@ -114,12 +100,54 @@ describe("discoverAll", () => {
     try {
       const skills = await discoverAll({
         platform: "darwin",
+        cwd: null,
         additionalPaths: [extraRoot],
       });
       const names = skills.map((s) => s.name);
       expect(names).toContain("extra-demo");
     } finally {
       await rm(extraRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("cwd walker discovers a generic ./skills directory", async () => {
+    const cwdFixture = await mkdtemp(join(tmpdir(), "agentsec-discoverAll-cwd-"));
+    const genericSkill = join(cwdFixture, "skills", "generic-demo");
+    await mkdir(genericSkill, { recursive: true });
+    await writeSkillMd(genericSkill, "generic-demo");
+
+    try {
+      const skills = await discoverAll({ platform: "darwin", cwd: cwdFixture });
+      const names = skills.map((s) => s.name);
+      expect(names).toContain("generic-demo");
+    } finally {
+      await rm(cwdFixture, { recursive: true, force: true });
+    }
+  });
+
+  test("cwd walker respects depth limit", async () => {
+    const cwdFixture = await mkdtemp(join(tmpdir(), "agentsec-discoverAll-depth-"));
+    // Place a skills/ dir 3 levels deep. Default depth=2 should NOT find it.
+    const deepSkill = join(cwdFixture, "a", "b", "c", "skills", "deep-demo");
+    await mkdir(deepSkill, { recursive: true });
+    await writeSkillMd(deepSkill, "deep-demo");
+
+    try {
+      const skillsShallow = await discoverAll({
+        platform: "darwin",
+        cwd: cwdFixture,
+        cwdDepth: 2,
+      });
+      expect(skillsShallow.map((s) => s.name)).not.toContain("deep-demo");
+
+      const skillsDeep = await discoverAll({
+        platform: "darwin",
+        cwd: cwdFixture,
+        cwdDepth: 4,
+      });
+      expect(skillsDeep.map((s) => s.name)).toContain("deep-demo");
+    } finally {
+      await rm(cwdFixture, { recursive: true, force: true });
     }
   });
 });

@@ -4,7 +4,8 @@
  */
 
 import { basename } from "node:path";
-import type { AgentPlatform, AgentSkill, SkillManifest } from "@agentsec/shared";
+import type { AgentSkill, SkillManifest } from "@agentsec/shared";
+import { inferPlatformFromPath } from "@agentsec/shared";
 import { findAndParseManifest, type ManifestResult } from "./manifest";
 import { walkSkillDirectory } from "./walker";
 
@@ -20,14 +21,6 @@ export interface ParseOptions {
    * `discoveredAs` platform. Only populated when called from auto-discover.
    */
   sourceRoot?: string;
-}
-
-// TODO: replace with @agentsec/shared#inferPlatformFromPath once Unit 5 lands
-function inferPlatformFromPath(p: string): AgentPlatform | undefined {
-  if (p.includes(".claude/skills")) return "claude";
-  if (p.includes(".openclaw/")) return "openclaw";
-  if (p.includes(".agents/skills")) return "codex";
-  return undefined;
 }
 
 /**
@@ -61,7 +54,7 @@ export class SkillParser {
       manifest: manifestResult.manifest,
       files,
       sourceRoot: options.sourceRoot,
-      discoveredAs: options.sourceRoot ? inferPlatformFromPath(skillDir) : undefined,
+      discoveredAs: options.sourceRoot ? (inferPlatformFromPath(skillDir) ?? undefined) : undefined,
     };
   }
 

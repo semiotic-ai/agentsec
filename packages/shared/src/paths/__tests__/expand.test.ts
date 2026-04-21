@@ -62,7 +62,9 @@ describe("expandDefaultPath -- env vars", () => {
     expect(result).toEqual([resolve(join(homedir(), "x"))]);
   });
 
+  // biome-ignore lint/suspicious/noTemplateCurlyInString: literal env-var pattern is the subject under test
   it("expands ${HOME}/x using the braced form", async () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: must pass the literal pattern, not a template literal
     const result = await expandDefaultPath("${HOME}/x");
     expect(result).toEqual([resolve(join(homedir(), "x"))]);
   });
