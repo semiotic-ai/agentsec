@@ -4,7 +4,7 @@
  */
 
 import { basename } from "node:path";
-import type { AgentSkill, SkillManifest } from "@agentsec/shared";
+import type { AgentPlatform, AgentSkill, SkillManifest } from "@agentsec/shared";
 import { findAndParseManifest, type ManifestResult } from "./manifest";
 import { walkSkillDirectory } from "./walker";
 
@@ -14,6 +14,20 @@ export interface ParseOptions {
    * Useful for quick listing without the I/O cost of reading every file.
    */
   shallow?: boolean;
+  /**
+   * The default-discovery root directory this skill was found under.
+   * When set, the returned skill records `sourceRoot` and an inferred
+   * `discoveredAs` platform. Only populated when called from auto-discover.
+   */
+  sourceRoot?: string;
+}
+
+// TODO: replace with @agentsec/shared#inferPlatformFromPath once Unit 5 lands
+function inferPlatformFromPath(p: string): AgentPlatform | undefined {
+  if (p.includes(".claude/skills")) return "claude";
+  if (p.includes(".openclaw/")) return "openclaw";
+  if (p.includes(".agents/skills")) return "codex";
+  return undefined;
 }
 
 /**
@@ -46,6 +60,8 @@ export class SkillParser {
       platform: "openclaw",
       manifest: manifestResult.manifest,
       files,
+      sourceRoot: options.sourceRoot,
+      discoveredAs: options.sourceRoot ? inferPlatformFromPath(skillDir) : undefined,
     };
   }
 

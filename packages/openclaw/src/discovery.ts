@@ -99,7 +99,7 @@ export class SkillDiscovery {
       return skills;
     }
 
-    const parseOptions: ParseOptions = { shallow: this.config.shallow };
+    const parseOptions: ParseOptions = { shallow: this.config.shallow, sourceRoot: parentDir };
     const parsePromises: Promise<void>[] = [];
 
     for (const entry of entries) {

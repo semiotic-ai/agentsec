@@ -14,6 +14,10 @@ export interface AgentSkill {
   manifest: SkillManifest;
   /** Raw source files */
   files: SkillFile[];
+  /** The default-discovery root directory this skill was found under. Optional — set only when discovered via auto-discover. */
+  sourceRoot?: string;
+  /** Platform inferred from `sourceRoot` path. Optional — set only when discovered via auto-discover. Distinct from `platform` which reflects the skill's manifest-declared platform. */
+  discoveredAs?: AgentPlatform;
 }
 
 export type AgentPlatform = "openclaw" | "claude" | "codex";

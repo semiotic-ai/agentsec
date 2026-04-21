@@ -147,6 +147,15 @@ describe("SkillDiscovery", () => {
         expect(dirName.startsWith(".")).toBe(false);
       }
     });
+
+    test("populates sourceRoot when scanDirectory is called", async () => {
+      const discovery = new SkillDiscovery();
+      const skills = await discovery.scanDirectory(FIXTURES_DIR);
+      expect(skills.length).toBeGreaterThan(0);
+      for (const skill of skills) {
+        expect(skill.sourceRoot).toBe(FIXTURES_DIR);
+      }
+    });
   });
 
   // ---------------------------------------------------------------------------
