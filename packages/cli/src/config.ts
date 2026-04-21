@@ -18,6 +18,8 @@ export interface CliFlags {
   output: string | null;
   policy: string | null;
   platform: AgentPlatform;
+  /** True when the user passed `--platform` explicitly (not just the default). */
+  platformExplicit: boolean;
   path: string | null;
   verbose: boolean;
   noColor: boolean;
@@ -36,6 +38,12 @@ export interface AuditConfig {
   policy: string | null;
   /** Agent platform to target */
   platform: AgentPlatform;
+  /**
+   * True when the user passed `--platform` explicitly. Lets zero-arg auto-
+   * discover distinguish "user asked for claude skills" from "no platform was
+   * provided, so default to scanning all known platforms".
+   */
+  platformExplicit?: boolean;
   /** Custom skill directory to scan */
   path: string | null;
   /** Enable verbose logging */
@@ -117,7 +125,10 @@ function applyValueFlag(flags: CliFlags, arg: string, nextArg: string | undefine
       flags.policy = nextArg ?? null;
       return 1;
     case "--platform":
-      if (nextArg && VALID_PLATFORMS.has(nextArg)) flags.platform = nextArg as AgentPlatform;
+      if (nextArg && VALID_PLATFORMS.has(nextArg)) {
+        flags.platform = nextArg as AgentPlatform;
+        flags.platformExplicit = true;
+      }
       return 1;
     case "--path":
       flags.path = nextArg ?? null;
@@ -160,6 +171,7 @@ export function parseFlags(argv: string[]): CliFlags {
     output: null,
     policy: null,
     platform: "openclaw",
+    platformExplicit: false,
     path: null,
     verbose: false,
     noColor: false,
@@ -209,11 +221,16 @@ export function parseFlags(argv: string[]): CliFlags {
 export async function resolveConfig(flags: CliFlags): Promise<AuditConfig> {
   const fileConfig = await loadConfigFile();
 
+  // platformExplicit reflects an explicit user choice — from the CLI flag, or
+  // from a config-file platform setting (which is also an explicit opt-in).
+  const platformFromFile = fileConfig.platform !== undefined;
+
   return {
     format: flags.format !== "text" ? flags.format : (fileConfig.format ?? "text"),
     output: flags.output ?? fileConfig.output ?? null,
     policy: flags.policy ?? fileConfig.policy ?? null,
     platform: flags.platform !== "openclaw" ? flags.platform : (fileConfig.platform ?? "openclaw"),
+    platformExplicit: flags.platformExplicit || platformFromFile,
     path: flags.path ?? fileConfig.path ?? null,
     verbose: flags.verbose || fileConfig.verbose || false,
   };

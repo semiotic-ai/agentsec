@@ -38,9 +38,26 @@ import {
 // Skill discovery
 // ---------------------------------------------------------------------------
 
+/**
+ * Zero-arg mode: no `--path` and no explicit `--platform`. In this mode the
+ * CLI scans every known default location (Claude, OpenClaw, Codex, skills.sh)
+ * rather than just one platform's defaults.
+ */
+function isAutoDiscoverMode(config: AuditConfig): boolean {
+  return !config.path && !config.platformExplicit;
+}
+
 async function discoverSkills(config: AuditConfig): Promise<AgentSkill[]> {
   try {
     const openclaw = await import("@agentsec/openclaw");
+
+    if (isAutoDiscoverMode(config)) {
+      const discoverAll = openclaw.discoverAll ?? openclaw.default?.discoverAll;
+      if (typeof discoverAll === "function") {
+        return await discoverAll();
+      }
+      // Unit 7 hasn't landed yet -- fall through to single-platform discovery.
+    }
 
     // Use SkillDiscovery class which is the actual API
     const SkillDiscovery = openclaw.SkillDiscovery ?? openclaw.default?.SkillDiscovery;
@@ -474,12 +491,88 @@ function printPassOrWarnStatus(summary: AuditSummary, verbose: boolean): void {
 
 function printNoSkillsHint(config: AuditConfig): void {
   console.log();
-  info(
-    `Looked for ${color.bold(config.platform)} skills${config.path ? ` in ${config.path}` : ""}`,
-  );
-  info("Use --platform to target a different agent platform");
-  info("Use --path to specify a custom skill directory");
+  if (isAutoDiscoverMode(config)) {
+    info("Searched default locations for Claude, OpenClaw, and Codex skills");
+    info("Pass --path <dir> to scan a custom location");
+  } else {
+    info(
+      `Looked for ${color.bold(config.platform)} skills${config.path ? ` in ${config.path}` : ""}`,
+    );
+    info("Use --platform to target a different agent platform");
+    info("Use --path to specify a custom skill directory");
+  }
   console.log();
+}
+
+/**
+ * Print a one-line summary of where skills were found, grouped by `sourceRoot`.
+ *
+ * Only shown in zero-arg auto-discover mode where multiple platforms are
+ * scanned. If no skill carries a `sourceRoot` (legacy single-platform
+ * fallback), this prints nothing — the caller shows a simpler total instead.
+ */
+function printDiscoveryRoots(skills: AgentSkill[]): void {
+  const groups = new Map<string, { platform?: string; count: number }>();
+  for (const skill of skills) {
+    if (!skill.sourceRoot) continue;
+    const existing = groups.get(skill.sourceRoot);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      groups.set(skill.sourceRoot, { platform: skill.discoveredAs, count: 1 });
+    }
+  }
+  if (groups.size === 0) return;
+
+  const platforms = [...new Set([...groups.values()].map((g) => g.platform).filter(Boolean))];
+  const platformLabel =
+    platforms.length > 0
+      ? ` across ${platforms.map((p) => titleCase(p as string)).join(", ")}`
+      : "";
+  info(
+    `Scanned ${color.bold(String(groups.size))} default location${groups.size === 1 ? "" : "s"}${platformLabel}`,
+  );
+  for (const [root, { count }] of groups) {
+    console.log(`    ${color.dim(root)} ${color.dim(`(${count} skill${count === 1 ? "" : "s"})`)}`);
+  }
+}
+
+function titleCase(s: string): string {
+  return s.length === 0 ? s : s[0].toUpperCase() + s.slice(1);
+}
+
+/**
+ * Run step 1 of the audit: discover skills and print the "found N skills"
+ * preamble. Returns `null` when zero skills were found (caller should exit
+ * with the appropriate empty-report behavior).
+ */
+async function runDiscoveryStep(
+  config: AuditConfig,
+  isQuiet: boolean,
+): Promise<AgentSkill[] | null> {
+  const autoDiscover = isAutoDiscoverMode(config);
+  const label = autoDiscover
+    ? "Auto-discovering skills across all agent platforms..."
+    : `Discovering ${config.platform} skills...`;
+  const spinner = isQuiet ? noopSpinner : createSpinner(label);
+  spinner.start();
+
+  const skills = await discoverSkills(config);
+
+  if (skills.length === 0) {
+    spinner.fail("No agent skills found");
+    return null;
+  }
+
+  spinner.succeed(
+    `Found ${color.bold(String(skills.length))} skill${skills.length === 1 ? "" : "s"}`,
+  );
+
+  if (autoDiscover && !isQuiet) {
+    printDiscoveryRoots(skills);
+  }
+
+  return skills;
 }
 
 function buildEmptyReport(platform: AuditConfig["platform"]): AuditReport {
@@ -513,15 +606,8 @@ export async function runAudit(config: AuditConfig): Promise<number> {
   const isQuiet = config.format === "json" || config.format === "sarif";
 
   // 1. Discover skills
-  const discoverSpinner = isQuiet
-    ? noopSpinner
-    : createSpinner(`Discovering ${config.platform} skills...`);
-  discoverSpinner.start();
-
-  const skills = await discoverSkills(config);
-
-  if (skills.length === 0) {
-    discoverSpinner.fail("No agent skills found");
+  const skills = await runDiscoveryStep(config, isQuiet);
+  if (skills === null) {
     if (!isQuiet) {
       printNoSkillsHint(config);
       return 0;
@@ -530,10 +616,6 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     if (!config.output) console.log(JSON.stringify(buildEmptyReport(config.platform), null, 2));
     return 0;
   }
-
-  discoverSpinner.succeed(
-    `Found ${color.bold(String(skills.length))} skill${skills.length === 1 ? "" : "s"}`,
-  );
 
   // 2. Load policy if specified
   const policyConfig = await loadPolicy(config.policy);

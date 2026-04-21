@@ -62,8 +62,14 @@ function printHelp(): void {
   console.log();
 
   console.log(color.bold("EXAMPLES"));
-  console.log(`  ${color.dim("# Audit all installed OpenClaw skills")}`);
+  console.log(`  ${color.dim("# Audit every default skill location on this machine")}`);
   console.log(`  agentsec`);
+  console.log();
+  console.log(`  ${color.dim("# Audit a specific skill directory")}`);
+  console.log(`  agentsec audit --path ./my-skills`);
+  console.log();
+  console.log(`  ${color.dim("# Audit only Claude skills")}`);
+  console.log(`  agentsec audit --platform claude`);
   console.log();
   console.log(`  ${color.dim("# Audit with strict policy, output JSON")}`);
   console.log(`  agentsec --policy strict --format json --output audit.json`);
