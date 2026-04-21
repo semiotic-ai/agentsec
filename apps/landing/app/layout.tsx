@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata, Viewport } from "next";
+import { Geist, JetBrains_Mono } from "next/font/google";
 import { DEPLOYMENT_URL } from "vercel-url";
 import {
   BRAND_COLORS,
@@ -10,6 +11,18 @@ import {
   SITE_TWITTER,
 } from "./_brand/constants";
 import "./globals.css";
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -79,8 +92,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactNode {
   return (
-    <html lang="en">
-      <body className="bg-brand-dark text-brand-text">
+    <html lang="en" className={`${geist.variable} ${jetbrainsMono.variable}`}>
+      <body className="bg-brand-dark text-brand-text font-sans">
         {children}
         <Analytics />
       </body>
