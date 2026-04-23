@@ -32,7 +32,6 @@ import {
   platformColor,
   platformLabel,
   prettyPath,
-  progressBar,
   severityBadge,
   success,
   warn,
@@ -687,15 +686,9 @@ async function runScanStep(
       }
 
       results.push(result);
-
-      if (skills.length > 1 && !isQuiet) {
-        process.stdout.write(`\r${progressBar(scanned, skills.length)}`);
-        if (scanned < skills.length) process.stdout.write("\n");
-      }
     }
   }
 
-  if (skills.length > 1 && !isQuiet) console.log();
   return { results, blockedCount };
 }
 
