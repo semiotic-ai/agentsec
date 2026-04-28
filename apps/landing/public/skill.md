@@ -1,11 +1,27 @@
 ---
 name: agentsec
 description: >
-  Audit AI agent skills against the OWASP Agentic Skills Top 10. Scans every
-  installed skill in a project, scores it, and reports findings with severity
-  ratings and remediation guidance.
-version: 0.1.3
+  Audit AI agent skills for security vulnerabilities. Use when scanning
+  installed skills against the OWASP Agentic Skills Top 10, checking skills
+  before running them, gating CI/CD on skill safety, or generating audit
+  reports (text, JSON, SARIF, HTML) for stakeholders.
+version: 0.1.5
 homepage: https://agentsec.sh
+metadata:
+  clawdbot:
+    emoji: "🛡️"
+    homepage: https://agentsec.sh
+    requires:
+      anyBins:
+        - agentsec
+        - npx
+        - bunx
+    install:
+      - kind: node
+        package: agentsec
+        bins:
+          - agentsec
+        label: Install agentsec (npm)
 ---
 
 # agentsec

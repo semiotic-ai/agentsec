@@ -43,7 +43,7 @@ export function Hero(): React.ReactNode {
                 />
                 OWASP AST-10 aligned
               </span>
-              <span className="text-[13px] text-brand-dim">v0.1.3 · MIT</span>
+              <span className="text-[13px] text-brand-dim">v0.1.5 · MIT</span>
             </div>
 
             <h1 className="font-display mb-6 text-brand-text">

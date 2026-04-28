@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type PkgManager = "npx" | "bun" | "npm" | "pnpm" | "yarn";
+type PkgManager = "npx" | "bun" | "npm" | "pnpm" | "yarn" | "clawhub";
 
 const CMDS: Record<PkgManager, string> = {
   npx: "npx agentsec",
@@ -10,6 +10,7 @@ const CMDS: Record<PkgManager, string> = {
   npm: "npm install -g agentsec",
   pnpm: "pnpm add -g agentsec",
   yarn: "yarn global add agentsec",
+  clawhub: "npx clawhub install agentsec",
 };
 
 const KEYS = Object.keys(CMDS) as PkgManager[];

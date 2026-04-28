@@ -1,6 +1,6 @@
 {
   "name": "agentsec",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Security auditing CLI for AI agent skills — OWASP Agentic Skills Top 10 (AST10)",
   "type": "module",
   "license": "MIT",

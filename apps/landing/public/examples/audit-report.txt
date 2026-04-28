@@ -27,10 +27,10 @@
   ├━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┼━━━━━━━━━┼━━━━━━━━━━┼━━━━━━━━━┼━━━━━━━━━┼━━━━━━━┼━━━━━━━━━━┤
   │ helpful-summarizer           │   30    │    0     │   65    │   50    │   F   │    13    │
   │ note-taker                   │   30    │    0     │   65    │   50    │   F   │    17    │
-  │ markdown-previewer           │   30    │    0     │   65    │   50    │   F   │    33    │
-  │ git-changelog                │   30    │    0     │   65    │   50    │   F   │    24    │
   │ i18n-translator              │   30    │    0     │   65    │   50    │   F   │    15    │
+  │ git-changelog                │   30    │    0     │   65    │   50    │   F   │    24    │
   │ csv-analyzer                 │   62    │    64    │   65    │   50    │   C   │    3     │
+  │ markdown-previewer           │   30    │    0     │   65    │   50    │   F   │    33    │
   │ template-renderer            │   30    │    0     │   65    │   50    │   F   │    10    │
   │ code-formatter               │   56    │    52    │   65    │   50    │   D   │    4     │
   ╰──────────────────────────────┴─────────┴──────────┴─────────┴─────────┴───────┴──────────╯
@@ -74,34 +74,6 @@
     Evidence: permissions: ["system:admin"]
     Fix: Justify why 'system:admin' is necessary. Consider requesting a more specific permission scope instead.
 
-  ✗  CRITICAL  Dangerous permission requested: shell:execute [permissions]
-    Skill: markdown-previewer
-    Location: skill.json
-    The skill manifest requests the 'shell:execute' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
-    Evidence: permissions: ["shell:execute"]
-    Fix: Justify why 'shell:execute' is necessary. Consider requesting a more specific permission scope instead.
-
-  ✗  CRITICAL  Dangerous permission requested: credentials:access [permissions]
-    Skill: markdown-previewer
-    Location: skill.json
-    The skill manifest requests the 'credentials:access' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
-    Evidence: permissions: ["credentials:access"]
-    Fix: Justify why 'credentials:access' is necessary. Consider requesting a more specific permission scope instead.
-
-  ✗  CRITICAL  Hardcoded token detected [storage]
-    Skill: git-changelog
-    Location: src/config.ts:18
-    An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.
-    Evidence: const FALLBACK_GITHUB_TOKEN = "[REDACTED]";
-    Fix: Use a token management system. Fetch tokens at runtime from a secure credentials provider.
-
-  ✗  CRITICAL  Hardcoded token detected [storage]
-    Skill: git-changelog
-    Location: src/config.ts:19
-    An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.
-    Evidence: const INTERNAL_SERVICE_TOKEN = "[REDACTED]";
-    Fix: Use a token management system. Fetch tokens at runtime from a secure credentials provider.
-
   ✗  CRITICAL  Network request with user-controlled URL [permissions]
     Skill: i18n-translator
     Location: src/index.ts:84
@@ -122,6 +94,34 @@
     The Node.js vm module is used to execute serialized code. The vm module is not a security boundary and can be escaped.
     Evidence: const wrappedFn = vm.runInThisContext(moduleWrapper, {
     Fix: Use a safe parser (JSON.parse, a schema-validated YAML parser). If code evaluation is necessary, use isolated-vm or a separate process.
+
+  ✗  CRITICAL  Hardcoded token detected [storage]
+    Skill: git-changelog
+    Location: src/config.ts:18
+    An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.
+    Evidence: const FALLBACK_GITHUB_TOKEN = "[REDACTED]";
+    Fix: Use a token management system. Fetch tokens at runtime from a secure credentials provider.
+
+  ✗  CRITICAL  Hardcoded token detected [storage]
+    Skill: git-changelog
+    Location: src/config.ts:19
+    An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.
+    Evidence: const INTERNAL_SERVICE_TOKEN = "[REDACTED]";
+    Fix: Use a token management system. Fetch tokens at runtime from a secure credentials provider.
+
+  ✗  CRITICAL  Dangerous permission requested: shell:execute [permissions]
+    Skill: markdown-previewer
+    Location: skill.json
+    The skill manifest requests the 'shell:execute' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
+    Evidence: permissions: ["shell:execute"]
+    Fix: Justify why 'shell:execute' is necessary. Consider requesting a more specific permission scope instead.
+
+  ✗  CRITICAL  Dangerous permission requested: credentials:access [permissions]
+    Skill: markdown-previewer
+    Location: skill.json
+    The skill manifest requests the 'credentials:access' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
+    Evidence: permissions: ["credentials:access"]
+    Fix: Justify why 'credentials:access' is necessary. Consider requesting a more specific permission scope instead.
 
   ✗  CRITICAL  Shell command execution detected [injection]
     Skill: template-renderer
@@ -200,33 +200,33 @@
     Evidence: permissions: ["filesystem:write"]
     Fix: Justify why 'filesystem:write' is necessary. Consider requesting a more specific permission scope instead.
 
-  ⚠  HIGH  Dangerous permission requested: filesystem:write [permissions]
-    Skill: markdown-previewer
-    Location: skill.json
-    The skill manifest requests the 'filesystem:write' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
-    Evidence: permissions: ["filesystem:write"]
-    Fix: Justify why 'filesystem:write' is necessary. Consider requesting a more specific permission scope instead.
-
-  ⚠  HIGH  Dangerous permission requested: network:unrestricted [permissions]
-    Skill: markdown-previewer
-    Location: skill.json
-    The skill manifest requests the 'network:unrestricted' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
-    Evidence: permissions: ["network:unrestricted"]
-    Fix: Justify why 'network:unrestricted' is necessary. Consider requesting a more specific permission scope instead.
+  ⚠  HIGH  Node.js VM module usage detected [injection]
+    Skill: i18n-translator
+    Location: src/index.ts:119
+    The vm module does not provide a true security sandbox. Code running in a vm context can escape and access the host process.
+    Evidence: const wrappedFn = vm.runInThisContext(moduleWrapper, {
+    Fix: Use a hardened sandbox like isolated-vm or vm2 (with awareness of its CVEs). For untrusted code, run in a separate process with minimal privileges or use a WASM sandbox.
 
   ⚠  HIGH  Filesystem write operation detected [permissions]
-    Skill: markdown-previewer
-    Location: src/telemetry.ts:104
+    Skill: i18n-translator
+    Location: src/index.ts:152
     The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.
-    Evidence: fs.mkdirSync(cacheDir, { recursive: true });
+    Evidence: fs.mkdirSync(pluginDir, { recursive: true });
     Fix: Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.
 
   ⚠  HIGH  Filesystem write operation detected [permissions]
-    Skill: markdown-previewer
-    Location: src/telemetry.ts:106
+    Skill: i18n-translator
+    Location: src/index.ts:153
     The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.
-    Evidence: fs.writeFileSync(cacheFile, body, "utf-8");
+    Evidence: fs.writeFileSync(localPath + ".js", pluginSource, "utf-8");
     Fix: Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.
+
+  ⚠  HIGH  Dynamic file path in write operation [output-handling]
+    Skill: i18n-translator
+    Location: src/index.ts:153
+    File write operations with dynamically constructed paths are vulnerable to path traversal. An attacker could write to arbitrary locations using '../' sequences.
+    Evidence: fs.writeFileSync(localPath + ".js", pluginSource, "utf-8");
+    Fix: Use path.resolve() and verify the resolved path is within the intended directory. Reject paths containing '..' components.
 
   ⚠  HIGH  Untrusted variable interpolation in template [injection]
     Skill: git-changelog
@@ -319,33 +319,33 @@
     Evidence: console.log(
     Fix: Never log authentication tokens. If correlation is needed, log a hash or truncated version.
 
-  ⚠  HIGH  Node.js VM module usage detected [injection]
-    Skill: i18n-translator
-    Location: src/index.ts:119
-    The vm module does not provide a true security sandbox. Code running in a vm context can escape and access the host process.
-    Evidence: const wrappedFn = vm.runInThisContext(moduleWrapper, {
-    Fix: Use a hardened sandbox like isolated-vm or vm2 (with awareness of its CVEs). For untrusted code, run in a separate process with minimal privileges or use a WASM sandbox.
+  ⚠  HIGH  Dangerous permission requested: filesystem:write [permissions]
+    Skill: markdown-previewer
+    Location: skill.json
+    The skill manifest requests the 'filesystem:write' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
+    Evidence: permissions: ["filesystem:write"]
+    Fix: Justify why 'filesystem:write' is necessary. Consider requesting a more specific permission scope instead.
+
+  ⚠  HIGH  Dangerous permission requested: network:unrestricted [permissions]
+    Skill: markdown-previewer
+    Location: skill.json
+    The skill manifest requests the 'network:unrestricted' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
+    Evidence: permissions: ["network:unrestricted"]
+    Fix: Justify why 'network:unrestricted' is necessary. Consider requesting a more specific permission scope instead.
 
   ⚠  HIGH  Filesystem write operation detected [permissions]
-    Skill: i18n-translator
-    Location: src/index.ts:152
+    Skill: markdown-previewer
+    Location: src/telemetry.ts:104
     The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.
-    Evidence: fs.mkdirSync(pluginDir, { recursive: true });
+    Evidence: fs.mkdirSync(cacheDir, { recursive: true });
     Fix: Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.
 
   ⚠  HIGH  Filesystem write operation detected [permissions]
-    Skill: i18n-translator
-    Location: src/index.ts:153
+    Skill: markdown-previewer
+    Location: src/telemetry.ts:106
     The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.
-    Evidence: fs.writeFileSync(localPath + ".js", pluginSource, "utf-8");
+    Evidence: fs.writeFileSync(cacheFile, body, "utf-8");
     Fix: Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.
-
-  ⚠  HIGH  Dynamic file path in write operation [output-handling]
-    Skill: i18n-translator
-    Location: src/index.ts:153
-    File write operations with dynamically constructed paths are vulnerable to path traversal. An attacker could write to arbitrary locations using '../' sequences.
-    Evidence: fs.writeFileSync(localPath + ".js", pluginSource, "utf-8");
-    Fix: Use path.resolve() and verify the resolved path is within the intended directory. Reject paths containing '..' components.
 
   ⚠  HIGH  Untrusted variable interpolation in template [injection]
     Skill: template-renderer
@@ -431,6 +431,100 @@
     Fix: Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.
 
   ⚠  MEDIUM  Dangerous permission requested: clipboard:read [permissions]
+    Skill: i18n-translator
+    Location: skill.json
+    The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
+    Evidence: permissions: ["clipboard:read"]
+    Fix: Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead.
+
+  ⚠  MEDIUM  Network request detected [permissions]
+    Skill: i18n-translator
+    Location: src/index.ts:84
+    The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.
+    Evidence: https.get(url, (res) => {
+    Fix: Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).
+
+  ⚠  MEDIUM  User input in Content-Disposition filename [output-handling]
+    Skill: i18n-translator
+    Location: src/index.ts:120
+    User-controlled data in Content-Disposition headers can cause file writes to unexpected locations or overwrite important files on the client side.
+    Evidence: filename: `${name}.js`,
+    Fix: Sanitize filenames by removing path separators and special characters. Use a library like sanitize-filename.
+
+  ⚠  MEDIUM  No .gitignore file found [storage]
+    Skill: i18n-translator
+    The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.
+    Fix: Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.
+
+  ⚠  MEDIUM  No logging found in skill [logging]
+    Skill: i18n-translator
+    The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.
+    Fix: Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.
+
+  ⚠  MEDIUM  postinstall script detected [supply-chain]
+    Skill: i18n-translator
+    Location: package.json
+    The package defines a 'postinstall' lifecycle script. While sometimes necessary, install scripts run with full user privileges and are a common attack vector.
+    Evidence: "postinstall": "node scripts/setup-models.js"
+    Fix: Review the install script to ensure it performs only necessary build operations. Consider using --ignore-scripts for untrusted packages.
+
+  ⚠  MEDIUM  prepare script detected [supply-chain]
+    Skill: i18n-translator
+    Location: package.json
+    The package defines a 'prepare' lifecycle script. While sometimes necessary, install scripts run with full user privileges and are a common attack vector.
+    Evidence: "prepare": "node scripts/download-dictionaries.js"
+    Fix: Review the install script to ensure it performs only necessary build operations. Consider using --ignore-scripts for untrusted packages.
+
+  ⚠  MEDIUM  Dangerous permission requested: clipboard:read [permissions]
+    Skill: git-changelog
+    Location: skill.json
+    The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
+    Evidence: permissions: ["clipboard:read"]
+    Fix: Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead.
+
+  ⚠  MEDIUM  Dangerous permission requested: clipboard:write [permissions]
+    Skill: git-changelog
+    Location: skill.json
+    The skill manifest requests the 'clipboard:write' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
+    Evidence: permissions: ["clipboard:write"]
+    Fix: Justify why 'clipboard:write' is necessary. Consider requesting a more specific permission scope instead.
+
+  ⚠  MEDIUM  Network request detected [permissions]
+    Skill: git-changelog
+    Location: src/index.ts:86
+    The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.
+    Evidence: const response = await fetch(`${url}?access_token=${token}`, {
+    Fix: Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).
+
+  ⚠  MEDIUM  No .gitignore file found [storage]
+    Skill: git-changelog
+    The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.
+    Fix: Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.
+
+  ⚠  MEDIUM  Authentication without logging [logging]
+    Skill: git-changelog
+    Location: src/config.ts
+    The file contains authentication logic but no logging of authentication events. Failed and successful logins should always be logged for security monitoring.
+    Fix: Log all authentication events: successful logins, failed attempts (with username but without password), and session creation/destruction.
+
+  ⚠  MEDIUM  Dangerous permission requested: clipboard:read [permissions]
+    Skill: csv-analyzer
+    Location: skill.json
+    The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
+    Evidence: permissions: ["clipboard:read"]
+    Fix: Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead.
+
+  ⚠  MEDIUM  No .gitignore file found [storage]
+    Skill: csv-analyzer
+    The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.
+    Fix: Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.
+
+  ⚠  MEDIUM  No logging found in skill [logging]
+    Skill: csv-analyzer
+    The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.
+    Fix: Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.
+
+  ⚠  MEDIUM  Dangerous permission requested: clipboard:read [permissions]
     Skill: markdown-previewer
     Location: skill.json
     The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
@@ -479,100 +573,6 @@
 
   ⚠  MEDIUM  No logging found in skill [logging]
     Skill: markdown-previewer
-    The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.
-    Fix: Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.
-
-  ⚠  MEDIUM  Dangerous permission requested: clipboard:read [permissions]
-    Skill: git-changelog
-    Location: skill.json
-    The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
-    Evidence: permissions: ["clipboard:read"]
-    Fix: Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead.
-
-  ⚠  MEDIUM  Dangerous permission requested: clipboard:write [permissions]
-    Skill: git-changelog
-    Location: skill.json
-    The skill manifest requests the 'clipboard:write' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
-    Evidence: permissions: ["clipboard:write"]
-    Fix: Justify why 'clipboard:write' is necessary. Consider requesting a more specific permission scope instead.
-
-  ⚠  MEDIUM  Network request detected [permissions]
-    Skill: git-changelog
-    Location: src/index.ts:86
-    The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.
-    Evidence: const response = await fetch(`${url}?access_token=${token}`, {
-    Fix: Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).
-
-  ⚠  MEDIUM  No .gitignore file found [storage]
-    Skill: git-changelog
-    The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.
-    Fix: Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.
-
-  ⚠  MEDIUM  Authentication without logging [logging]
-    Skill: git-changelog
-    Location: src/config.ts
-    The file contains authentication logic but no logging of authentication events. Failed and successful logins should always be logged for security monitoring.
-    Fix: Log all authentication events: successful logins, failed attempts (with username but without password), and session creation/destruction.
-
-  ⚠  MEDIUM  Dangerous permission requested: clipboard:read [permissions]
-    Skill: i18n-translator
-    Location: skill.json
-    The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
-    Evidence: permissions: ["clipboard:read"]
-    Fix: Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead.
-
-  ⚠  MEDIUM  Network request detected [permissions]
-    Skill: i18n-translator
-    Location: src/index.ts:84
-    The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.
-    Evidence: https.get(url, (res) => {
-    Fix: Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).
-
-  ⚠  MEDIUM  User input in Content-Disposition filename [output-handling]
-    Skill: i18n-translator
-    Location: src/index.ts:120
-    User-controlled data in Content-Disposition headers can cause file writes to unexpected locations or overwrite important files on the client side.
-    Evidence: filename: `${name}.js`,
-    Fix: Sanitize filenames by removing path separators and special characters. Use a library like sanitize-filename.
-
-  ⚠  MEDIUM  No .gitignore file found [storage]
-    Skill: i18n-translator
-    The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.
-    Fix: Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.
-
-  ⚠  MEDIUM  No logging found in skill [logging]
-    Skill: i18n-translator
-    The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.
-    Fix: Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.
-
-  ⚠  MEDIUM  postinstall script detected [supply-chain]
-    Skill: i18n-translator
-    Location: package.json
-    The package defines a 'postinstall' lifecycle script. While sometimes necessary, install scripts run with full user privileges and are a common attack vector.
-    Evidence: "postinstall": "node scripts/setup-models.js"
-    Fix: Review the install script to ensure it performs only necessary build operations. Consider using --ignore-scripts for untrusted packages.
-
-  ⚠  MEDIUM  prepare script detected [supply-chain]
-    Skill: i18n-translator
-    Location: package.json
-    The package defines a 'prepare' lifecycle script. While sometimes necessary, install scripts run with full user privileges and are a common attack vector.
-    Evidence: "prepare": "node scripts/download-dictionaries.js"
-    Fix: Review the install script to ensure it performs only necessary build operations. Consider using --ignore-scripts for untrusted packages.
-
-  ⚠  MEDIUM  Dangerous permission requested: clipboard:read [permissions]
-    Skill: csv-analyzer
-    Location: skill.json
-    The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.
-    Evidence: permissions: ["clipboard:read"]
-    Fix: Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead.
-
-  ⚠  MEDIUM  No .gitignore file found [storage]
-    Skill: csv-analyzer
-    The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.
-    Fix: Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.
-
-  ⚠  MEDIUM  No logging found in skill [logging]
-    Skill: csv-analyzer
     The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.
     Fix: Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.
 
@@ -669,6 +669,40 @@
 
   ℹ  LOW  fetch() calls without timeout configuration [dos]
     Skill: note-taker
+    Location: src/index.ts
+    The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.
+    Fix: Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) }).
+
+  ℹ  LOW  Network request detected (check for timeout) [dos]
+    Skill: i18n-translator
+    Location: src/index.ts:84
+    Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.
+    Evidence: https.get(url, (res) => {
+    Fix: Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch().
+
+  ℹ  LOW  Environment variable access [permissions]
+    Skill: git-changelog
+    Location: src/config.ts:43
+    The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.
+    Evidence: const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+    Fix: Only access specifically needed environment variables. Document which env vars are required and why.
+
+  ℹ  LOW  Environment variable access [permissions]
+    Skill: git-changelog
+    Location: src/config.ts:43
+    The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.
+    Evidence: const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+    Fix: Only access specifically needed environment variables. Document which env vars are required and why.
+
+  ℹ  LOW  Network request detected (check for timeout) [dos]
+    Skill: git-changelog
+    Location: src/index.ts:86
+    Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.
+    Evidence: const response = await fetch(`${url}?access_token=${token}`, {
+    Fix: Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch().
+
+  ℹ  LOW  fetch() calls without timeout configuration [dos]
+    Skill: git-changelog
     Location: src/index.ts
     The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.
     Fix: Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) }).
@@ -805,40 +839,6 @@
     The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.
     Fix: Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) }).
 
-  ℹ  LOW  Environment variable access [permissions]
-    Skill: git-changelog
-    Location: src/config.ts:43
-    The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.
-    Evidence: const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-    Fix: Only access specifically needed environment variables. Document which env vars are required and why.
-
-  ℹ  LOW  Environment variable access [permissions]
-    Skill: git-changelog
-    Location: src/config.ts:43
-    The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.
-    Evidence: const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-    Fix: Only access specifically needed environment variables. Document which env vars are required and why.
-
-  ℹ  LOW  Network request detected (check for timeout) [dos]
-    Skill: git-changelog
-    Location: src/index.ts:86
-    Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.
-    Evidence: const response = await fetch(`${url}?access_token=${token}`, {
-    Fix: Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch().
-
-  ℹ  LOW  fetch() calls without timeout configuration [dos]
-    Skill: git-changelog
-    Location: src/index.ts
-    The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.
-    Fix: Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) }).
-
-  ℹ  LOW  Network request detected (check for timeout) [dos]
-    Skill: i18n-translator
-    Location: src/index.ts:84
-    Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.
-    Evidence: https.get(url, (res) => {
-    Fix: Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch().
-
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Quality Metrics
@@ -869,15 +869,15 @@
     Badges: README | LICENSE | TESTS | TYPES
 
 
-  markdown-previewer
-  ──────────────────────
+  i18n-translator
+  ───────────────────
 
     ✓ Code complexity           0
     ⚠ Test coverage             n/a
     ⚠ Documentation             0%
     ⚠ Maintenance health        50%
     ✓ Dependencies              0 (0 outdated)
-    ✓ Lines of code             302
+    ✓ Lines of code             235
     Badges: README | LICENSE | TESTS | TYPES
 
 
@@ -893,18 +893,6 @@
     Badges: README | LICENSE | TESTS | TYPES
 
 
-  i18n-translator
-  ───────────────────
-
-    ✓ Code complexity           0
-    ⚠ Test coverage             n/a
-    ⚠ Documentation             0%
-    ⚠ Maintenance health        50%
-    ✓ Dependencies              0 (0 outdated)
-    ✓ Lines of code             235
-    Badges: README | LICENSE | TESTS | TYPES
-
-
   csv-analyzer
   ────────────────
 
@@ -914,6 +902,18 @@
     ⚠ Maintenance health        50%
     ✓ Dependencies              0 (0 outdated)
     ✓ Lines of code             251
+    Badges: README | LICENSE | TESTS | TYPES
+
+
+  markdown-previewer
+  ──────────────────────
+
+    ✓ Code complexity           0
+    ⚠ Test coverage             n/a
+    ⚠ Documentation             0%
+    ⚠ Maintenance health        50%
+    ✓ Dependencies              0 (0 outdated)
+    ✓ Lines of code             302
     Badges: README | LICENSE | TESTS | TYPES
 
 
@@ -954,16 +954,16 @@
     Skill: note-taker
 
   ✗ Address critical security findings immediately (security) [significant]
-    2 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.
-    Skill: markdown-previewer
+    3 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.
+    Skill: i18n-translator
 
   ✗ Address critical security findings immediately (security) [significant]
     2 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.
     Skill: git-changelog
 
   ✗ Address critical security findings immediately (security) [significant]
-    3 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.
-    Skill: i18n-translator
+    2 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.
+    Skill: markdown-previewer
 
   ✗ Address critical security findings immediately (security) [significant]
     5 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.
@@ -979,7 +979,7 @@
 
   ⚠ Resolve high-severity security findings (security) [moderate]
     4 high-severity finding(s) require attention. These could lead to significant security breaches.
-    Skill: markdown-previewer
+    Skill: i18n-translator
 
   ⚠ Resolve high-severity security findings (security) [moderate]
     13 high-severity finding(s) require attention. These could lead to significant security breaches.
@@ -987,7 +987,7 @@
 
   ⚠ Resolve high-severity security findings (security) [moderate]
     4 high-severity finding(s) require attention. These could lead to significant security breaches.
-    Skill: i18n-translator
+    Skill: markdown-previewer
 
   ⚠ Resolve high-severity security findings (security) [moderate]
     3 high-severity finding(s) require attention. These could lead to significant security breaches.
@@ -1003,7 +1003,7 @@
 
   ⚠ Add automated tests (quality) [moderate]
     No test files were detected. Adding tests improves reliability and prevents regressions.
-    Skill: markdown-previewer
+    Skill: i18n-translator
 
   ⚠ Add automated tests (quality) [moderate]
     No test files were detected. Adding tests improves reliability and prevents regressions.
@@ -1011,11 +1011,11 @@
 
   ⚠ Add automated tests (quality) [moderate]
     No test files were detected. Adding tests improves reliability and prevents regressions.
-    Skill: i18n-translator
+    Skill: csv-analyzer
 
   ⚠ Add automated tests (quality) [moderate]
     No test files were detected. Adding tests improves reliability and prevents regressions.
-    Skill: csv-analyzer
+    Skill: markdown-previewer
 
   ⚠ Add automated tests (quality) [moderate]
     No test files were detected. Adding tests improves reliability and prevents regressions.
@@ -1043,11 +1043,11 @@
 
   ℹ Add type definitions (quality) [quick fix]
     No type definitions found. Type checking catches bugs early and improves developer experience.
-    Skill: markdown-previewer
+    Skill: i18n-translator
 
   ℹ Add a README file (maintenance) [quick fix]
     Documentation helps other developers understand the skill's purpose and usage.
-    Skill: markdown-previewer
+    Skill: i18n-translator
 
   ℹ Add type definitions (quality) [quick fix]
     No type definitions found. Type checking catches bugs early and improves developer experience.
@@ -1059,19 +1059,19 @@
 
   ℹ Add type definitions (quality) [quick fix]
     No type definitions found. Type checking catches bugs early and improves developer experience.
-    Skill: i18n-translator
+    Skill: csv-analyzer
 
   ℹ Add a README file (maintenance) [quick fix]
     Documentation helps other developers understand the skill's purpose and usage.
-    Skill: i18n-translator
+    Skill: csv-analyzer
 
   ℹ Add type definitions (quality) [quick fix]
     No type definitions found. Type checking catches bugs early and improves developer experience.
-    Skill: csv-analyzer
+    Skill: markdown-previewer
 
   ℹ Add a README file (maintenance) [quick fix]
     Documentation helps other developers understand the skill's purpose and usage.
-    Skill: csv-analyzer
+    Skill: markdown-previewer
 
   ℹ Add type definitions (quality) [quick fix]
     No type definitions found. Type checking catches bugs early and improves developer experience.
@@ -1091,8 +1091,8 @@
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-  Report ID:   12a94af2-5daf-4630-ae4b-116577944a44
-  Generated:   4/21/2026, 8:38:34 PM
+  Report ID:   3013055f-5d01-46a7-a64d-894290f2afff
+  Generated:   4/28/2026, 11:15:35 AM
   Platform:    openclaw
 
                                        Generated by AgentSec                                        

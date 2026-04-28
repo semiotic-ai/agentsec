@@ -48,6 +48,11 @@ const COLS: readonly FooterCol[] = [
         external: true,
       },
       {
+        label: "ClawHub",
+        href: "https://clawhub.ai/markeljan/agentsec",
+        external: true,
+      },
+      {
         label: "Contact",
         href: "https://github.com/semiotic-agentium",
         external: true,
@@ -109,7 +114,7 @@ export function Footer(): React.ReactNode {
             © 2026 AgentSec · Built by Semiotic Labs · MIT licensed
           </span>
           <span className="text-[13px] font-mono text-brand-dim">
-            v0.1.3 · <span className="text-brand-green">● operational</span>
+            v0.1.5 · <span className="text-brand-green">● operational</span>
           </span>
         </div>
       </div>

@@ -26,6 +26,9 @@
   <a href="https://skills.sh">
     <img src="https://img.shields.io/badge/skills.sh-ecosystem-purple.svg" alt="skills.sh">
   </a>
+  <a href="https://clawhub.ai/markeljan/agentsec">
+    <img src="https://img.shields.io/badge/clawhub-agentsec-FF6B35.svg" alt="ClawHub">
+  </a>
 </p>
 
 ---
@@ -39,6 +42,16 @@ npx agentsec
 ```
 
 No flags needed. agentsec walks every default skills directory on your machine — grouped by platform — plus any `./skills` folder in the current project (up to two levels deep).
+
+### Use as an Agent Skill
+
+`agentsec` is published as an OpenClaw skill on [ClawHub](https://clawhub.ai/markeljan/agentsec). Agents that support ClawHub can install it directly:
+
+```bash
+npx clawhub install agentsec
+```
+
+Then ask the agent to audit your skills — it'll invoke `npx agentsec` and surface the findings.
 
 ### Example Output
 
@@ -142,7 +155,7 @@ Every scan checks for all 10 risk categories:
 - **Codex** — skill and plugin scanning
 - More platforms coming soon
 
-Browse the skills ecosystem at [skills.sh](https://skills.sh).
+Browse the skills ecosystem at [skills.sh](https://skills.sh) and [clawhub.ai](https://clawhub.ai). The `agentsec` skill itself is published at [clawhub.ai/markeljan/agentsec](https://clawhub.ai/markeljan/agentsec).
 
 ## Configuration
 
