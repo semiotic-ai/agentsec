@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Verify version stamps are in sync
+        run: bun run check:versions
+
       - name: Build
         run: bun run build
 

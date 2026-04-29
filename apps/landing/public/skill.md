@@ -8,7 +8,7 @@ description: >
 version: 0.1.5
 homepage: https://agentsec.sh
 metadata:
-  clawdbot:
+  openclaw:
     emoji: "🛡️"
     homepage: https://agentsec.sh
     requires:

@@ -46,6 +46,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Verify version stamps are in sync
+        run: bun run check:versions
+
       - name: Build all packages
         run: bun run build
 
@@ -65,3 +68,15 @@ jobs:
         run: |
           cd packages/cli
           npm publish --dry-run
+
+  clawhub:
+    name: Publish skill to ClawHub
+    needs: release
+    permissions:
+      contents: read
+      id-token: write
+    uses: openclaw/clawhub/.github/workflows/package-publish.yml@main
+    with:
+      dry_run: ${{ inputs.dry-run || false }}
+    secrets:
+      clawhub_token: ${{ secrets.CLAWHUB_API_TOKEN }}

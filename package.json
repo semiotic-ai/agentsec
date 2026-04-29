@@ -14,7 +14,9 @@
     "check": "tsc --project tsconfig.check.json",
     "audit": "bun packages/cli/src/cli.ts audit",
     "demo": "bun packages/cli/src/cli.ts audit --path ./e2e/fixtures",
-    "clean": "turbo clean"
+    "clean": "turbo clean",
+    "bump": "bun run scripts/bump-version.ts",
+    "check:versions": "bun run scripts/check-versions.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
