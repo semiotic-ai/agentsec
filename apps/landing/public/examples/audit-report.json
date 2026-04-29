@@ -1,6 +1,6 @@
 {
-  "id": "3837c02d-98c5-4852-8b45-e7c030bf413f",
-  "timestamp": "2026-04-28T15:15:35.838Z",
+  "id": "fb7a5487-647e-4858-a3fe-c4324ec91cda",
+  "timestamp": "2026-04-29T15:16:20.106Z",
   "platform": "openclaw",
   "skills": [
     {
@@ -602,673 +602,6 @@
     },
     {
       "skill": {
-        "id": "template-renderer@0.8.3",
-        "name": "template-renderer",
-        "version": "0.8.3",
-        "path": "e2e/fixtures/injection-vuln-skill",
-        "platform": "openclaw",
-        "manifest": {
-          "name": "template-renderer",
-          "version": "0.8.3",
-          "description": "Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.",
-          "author": "quickship-labs",
-          "license": "Apache-2.0",
-          "permissions": [
-            "clipboard:read"
-          ],
-          "engine": "openclaw@^0.9.0",
-          "inputs": {
-            "template": {
-              "type": "string",
-              "required": true,
-              "description": "The template string with {{ variable }} placeholders"
-            },
-            "variables": {
-              "type": "object",
-              "required": false,
-              "description": "Key-value pairs to substitute into the template"
-            },
-            "helpers": {
-              "type": "object",
-              "required": false,
-              "description": "Custom helper functions as string expressions"
-            }
-          },
-          "outputs": {
-            "rendered": {
-              "type": "string",
-              "description": "The rendered template output"
-            }
-          }
-        },
-        "files": [
-          {
-            "path": "e2e/fixtures/injection-vuln-skill/skill.json",
-            "relativePath": "skill.json",
-            "content": "{\n  \"name\": \"template-renderer\",\n  \"version\": \"0.8.3\",\n  \"description\": \"Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.\",\n  \"author\": \"quickship-labs\",\n  \"license\": \"Apache-2.0\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\"\n  ],\n  \"inputs\": {\n    \"template\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"The template string with {{ variable }} placeholders\"\n    },\n    \"variables\": {\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Key-value pairs to substitute into the template\"\n    },\n    \"helpers\": {\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Custom helper functions as string expressions\"\n    }\n  },\n  \"outputs\": {\n    \"rendered\": {\n      \"type\": \"string\",\n      \"description\": \"The rendered template output\"\n    }\n  }\n}\n",
-            "language": "json",
-            "size": 930
-          },
-          {
-            "path": "e2e/fixtures/injection-vuln-skill/src/processor.ts",
-            "relativePath": "src/processor.ts",
-            "content": "import { exec, execSync } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst execAsync = promisify(exec);\n\n/**\n * Processes a shell directive from the template. Runs the command and returns\n * its stdout. Used for dynamic content like embedding command output (dates,\n * git info, system stats) into rendered templates.\n */\nexport async function processShellDirective(command: string): Promise<string> {\n  // VULNERABILITY: Direct shell execution of user-supplied command\n  try {\n    const { stdout, stderr } = await execAsync(command, {\n      timeout: 10000,\n      encoding: \"utf-8\",\n    });\n\n    if (stderr) {\n      console.warn(`Shell directive warning: ${stderr}`);\n    }\n\n    return stdout.trim();\n  } catch (err) {\n    const error = err as Error & { stderr?: string };\n    return `[Shell Error: ${error.message}]`;\n  }\n}\n\n/**\n * Resolves file includes referenced in templates via {{> filepath }} syntax.\n * Reads the file content and returns it for inline substitution.\n */\nexport function resolveFileInclude(filePath: string): string {\n  // VULNERABILITY: Command injection through file path interpolation\n  try {\n    const content = execSync(`cat \"${filePath}\"`, {\n      encoding: \"utf-8\",\n      timeout: 5000,\n    });\n    return content;\n  } catch {\n    return `[Include Error: could not read ${filePath}]`;\n  }\n}\n\n/**\n * Expands environment variable references in directive arguments.\n * Supports $VAR and ${VAR} syntax within command strings.\n */\nexport function expandEnvVars(input: string): string {\n  // VULNERABILITY: Shell expansion of user input via exec\n  try {\n    const expanded = execSync(`echo \"${input}\"`, {\n      encoding: \"utf-8\",\n      shell: \"/bin/bash\",\n    });\n    return expanded.trim();\n  } catch {\n    return input;\n  }\n}\n\n/**\n * Validates whether a shell directive is in the allowed set.\n * This is a weak allowlist that can be bypassed with chaining.\n */\nexport function isAllowedCommand(command: string): boolean {\n  const allowed = [\"date\", \"whoami\", \"hostname\", \"uname\", \"echo\", \"cat\", \"git\"];\n  const baseCommand = command.split(/\\s+/)[0];\n\n  // VULNERABILITY: Trivially bypassed - doesn't check for ; && || | etc.\n  return allowed.includes(baseCommand);\n}\n",
-            "language": "typescript",
-            "size": 2207
-          },
-          {
-            "path": "e2e/fixtures/injection-vuln-skill/src/index.ts",
-            "relativePath": "src/index.ts",
-            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\nimport { processShellDirective } from \"./processor\";\n\ninterface TemplateHelpers {\n  [name: string]: string; // Helper function bodies as strings\n}\n\n/**\n * Renders a template by substituting variables and evaluating inline expressions.\n * Supports {{ variable }}, {{= expression }}, and {{# shell }} directives.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const template = ctx.input<string>(\"template\");\n  const variables = ctx.input<Record<string, unknown>>(\"variables\", {});\n  const helpers = ctx.input<TemplateHelpers>(\"helpers\", {});\n\n  if (!template) {\n    return ctx.error(\"Template string is required\");\n  }\n\n  // Register custom helpers by creating functions from string bodies\n  const helperFunctions: Record<string, Function> = {};\n  for (const [name, body] of Object.entries(helpers)) {\n    // VULNERABILITY: Dynamic Function() construction from user input\n    helperFunctions[name] = new Function(\"args\", body);\n  }\n\n  let rendered = template;\n\n  // Phase 1: Substitute simple variables {{ varName }}\n  rendered = rendered.replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, (match, varName) => {\n    if (varName in variables) {\n      return String(variables[varName]);\n    }\n    if (varName in helperFunctions) {\n      return String(helperFunctions[varName](variables));\n    }\n    return match;\n  });\n\n  // Phase 2: Evaluate inline expressions {{= expression }}\n  rendered = rendered.replace(/\\{\\{=\\s*(.+?)\\s*\\}\\}/g, (_match, expression) => {\n    return evaluateExpression(expression, variables);\n  });\n\n  // Phase 3: Process shell directives {{# command }}\n  rendered = await processShellDirectives(rendered);\n\n  return ctx.success({ rendered });\n}\n\n/**\n * Evaluates a template expression with access to the variable context.\n * Supports basic math, string operations, and ternary expressions.\n */\nfunction evaluateExpression(\n  expression: string,\n  context: Record<string, unknown>\n): string {\n  // Build a context object that expressions can reference\n  const contextEntries = Object.entries(context)\n    .map(([key, value]) => `const ${key} = ${JSON.stringify(value)};`)\n    .join(\"\\n\");\n\n  // VULNERABILITY: eval() with user-controlled expression string\n  try {\n    const result = eval(`\n      (function() {\n        ${contextEntries}\n        return (${expression});\n      })()\n    `);\n    return String(result);\n  } catch (err) {\n    return `[Error: ${(err as Error).message}]`;\n  }\n}\n\n/**\n * Processes shell directives embedded in the template.\n */\nasync function processShellDirectives(template: string): Promise<string> {\n  const shellPattern = /\\{\\{#\\s*(.+?)\\s*\\}\\}/g;\n  let result = template;\n  let match: RegExpExecArray | null;\n\n  // Reset lastIndex for safety\n  shellPattern.lastIndex = 0;\n\n  while ((match = shellPattern.exec(result)) !== null) {\n    const command = match[1];\n    const output = await processShellDirective(command);\n    result =\n      result.slice(0, match.index) +\n      output +\n      result.slice(match.index + match[0].length);\n    shellPattern.lastIndex = 0; // Reset due to string mutation\n  }\n\n  return result;\n}\n\n/**\n * Compiles a template string into a reusable render function.\n * Useful for rendering the same template with different variable sets.\n */\nexport function compileTemplate(\n  templateSource: string\n): (vars: Record<string, unknown>) => string {\n  // VULNERABILITY: Function constructor with template source\n  const renderFn = new Function(\n    \"vars\",\n    `\n    with (vars) {\n      return \\`${templateSource.replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, \"${$1}\")}\\`;\n    }\n  `\n  ) as (vars: Record<string, unknown>) => string;\n\n  return renderFn;\n}\n",
-            "language": "typescript",
-            "size": 3678
-          }
-        ],
-        "sourceRoot": "./e2e/fixtures"
-      },
-      "score": {
-        "overall": 30,
-        "security": 0,
-        "quality": 65,
-        "maintenance": 50,
-        "grade": "F"
-      },
-      "securityFindings": [
-        {
-          "id": "INJ-003-1",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Shell command execution detected",
-          "description": "Direct shell execution functions are vulnerable to command injection. Untrusted input concatenated into shell commands can allow arbitrary command execution.",
-          "file": "src/processor.ts",
-          "line": 1,
-          "evidence": "import { exec, execSync } from \"child_process\";",
-          "remediation": "Use execFile/execFileSync with argument arrays instead of exec. Validate and sanitize all inputs. Consider using a purpose-built library for the specific task."
-        },
-        {
-          "id": "INJ-001-4",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Use of eval() detected",
-          "description": "eval() executes arbitrary code at runtime and is a primary injection vector. An attacker can craft input that escapes the intended context and executes arbitrary commands.",
-          "file": "src/index.ts",
-          "line": 67,
-          "evidence": "const result = eval(`",
-          "remediation": "Replace eval() with a safe parser (e.g., JSON.parse for data, a sandboxed interpreter for expressions). Never pass user-controlled strings to eval."
-        },
-        {
-          "id": "INJ-002-5",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Dynamic Function constructor detected",
-          "description": "The Function constructor creates functions from strings at runtime, equivalent to eval(). It can execute injected code if inputs are not strictly validated.",
-          "file": "src/index.ts",
-          "line": 25,
-          "evidence": "helperFunctions[name] = new Function(\"args\", body);",
-          "remediation": "Avoid the Function constructor. Use pre-defined functions or a safe expression evaluator instead."
-        },
-        {
-          "id": "INJ-002-6",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Dynamic Function constructor detected",
-          "description": "The Function constructor creates functions from strings at runtime, equivalent to eval(). It can execute injected code if inputs are not strictly validated.",
-          "file": "src/index.ts",
-          "line": 111,
-          "evidence": "const renderFn = new Function(",
-          "remediation": "Avoid the Function constructor. Use pre-defined functions or a safe expression evaluator instead."
-        },
-        {
-          "id": "INJ-003-7",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Shell command execution detected",
-          "description": "Direct shell execution functions are vulnerable to command injection. Untrusted input concatenated into shell commands can allow arbitrary command execution.",
-          "file": "src/index.ts",
-          "line": 90,
-          "evidence": "while ((match = shellPattern.exec(result)) !== null) {",
-          "remediation": "Use execFile/execFileSync with argument arrays instead of exec. Validate and sanitize all inputs. Consider using a purpose-built library for the specific task."
-        },
-        {
-          "id": "INJ-010-2",
-          "rule": "injection",
-          "severity": "high",
-          "category": "skill-injection",
-          "title": "Untrusted variable interpolation in template",
-          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
-          "file": "src/processor.ts",
-          "line": 26,
-          "evidence": "return `[Shell Error: ${error.message}]`;",
-          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
-        },
-        {
-          "id": "INJ-010-3",
-          "rule": "injection",
-          "severity": "high",
-          "category": "skill-injection",
-          "title": "Untrusted variable interpolation in template",
-          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
-          "file": "src/processor.ts",
-          "line": 54,
-          "evidence": "const expanded = execSync(`echo \"${input}\"`, {",
-          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
-        },
-        {
-          "id": "INJ-010-8",
-          "rule": "injection",
-          "severity": "high",
-          "category": "skill-injection",
-          "title": "Untrusted variable interpolation in template",
-          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
-          "file": "src/index.ts",
-          "line": 75,
-          "evidence": "return `[Error: ${(err as Error).message}]`;",
-          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
-        },
-        {
-          "id": "PERM-M-clipboard:read",
-          "rule": "permissions",
-          "severity": "medium",
-          "category": "excessive-permissions",
-          "title": "Dangerous permission requested: clipboard:read",
-          "description": "The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
-          "file": "skill.json",
-          "evidence": "permissions: [\"clipboard:read\"]",
-          "remediation": "Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead."
-        },
-        {
-          "id": "STOR-GIT-MISSING",
-          "rule": "storage",
-          "severity": "medium",
-          "category": "insecure-storage",
-          "title": "No .gitignore file found",
-          "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
-          "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
-        }
-      ],
-      "qualityMetrics": {
-        "codeComplexity": 0,
-        "testCoverage": null,
-        "documentationScore": 0,
-        "maintenanceHealth": 50,
-        "dependencyCount": 0,
-        "outdatedDependencies": 0,
-        "hasReadme": false,
-        "hasLicense": false,
-        "hasTests": false,
-        "hasTypes": false,
-        "linesOfCode": 232
-      },
-      "policyViolations": [],
-      "recommendations": [
-        {
-          "category": "security",
-          "priority": "critical",
-          "title": "Address critical security findings immediately",
-          "description": "5 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.",
-          "effort": "high"
-        },
-        {
-          "category": "security",
-          "priority": "high",
-          "title": "Resolve high-severity security findings",
-          "description": "3 high-severity finding(s) require attention. These could lead to significant security breaches.",
-          "effort": "medium"
-        },
-        {
-          "category": "quality",
-          "priority": "medium",
-          "title": "Add automated tests",
-          "description": "No test files were detected. Adding tests improves reliability and prevents regressions.",
-          "effort": "medium"
-        },
-        {
-          "category": "quality",
-          "priority": "low",
-          "title": "Add type definitions",
-          "description": "No type definitions found. Type checking catches bugs early and improves developer experience.",
-          "effort": "low"
-        },
-        {
-          "category": "maintenance",
-          "priority": "low",
-          "title": "Add a README file",
-          "description": "Documentation helps other developers understand the skill's purpose and usage.",
-          "effort": "low"
-        }
-      ]
-    },
-    {
-      "skill": {
-        "id": "git-changelog@1.5.2",
-        "name": "git-changelog",
-        "version": "1.5.2",
-        "path": "e2e/fixtures/insecure-storage-skill",
-        "platform": "openclaw",
-        "manifest": {
-          "name": "git-changelog",
-          "version": "1.5.2",
-          "description": "Generates formatted changelogs from git commit history. Connects to GitHub/GitLab APIs to enrich commits with PR titles, labels, and author information.",
-          "author": "release-toolkit",
-          "license": "MIT",
-          "permissions": [
-            "clipboard:read",
-            "clipboard:write",
-            "network:api"
-          ],
-          "engine": "openclaw@^0.9.0",
-          "inputs": {
-            "repo": {
-              "type": "string",
-              "required": true,
-              "description": "Repository in owner/name format"
-            },
-            "from": {
-              "type": "string",
-              "required": true,
-              "description": "Start tag or commit SHA"
-            },
-            "to": {
-              "type": "string",
-              "required": false,
-              "default": "HEAD",
-              "description": "End tag or commit SHA"
-            },
-            "format": {
-              "type": "string",
-              "required": false,
-              "default": "markdown",
-              "enum": [
-                "markdown",
-                "json",
-                "plaintext"
-              ],
-              "description": "Output format for the changelog"
-            }
-          },
-          "outputs": {
-            "changelog": {
-              "type": "string",
-              "description": "The formatted changelog"
-            },
-            "commitCount": {
-              "type": "number",
-              "description": "Number of commits included"
-            }
-          }
-        },
-        "files": [
-          {
-            "path": "e2e/fixtures/insecure-storage-skill/skill.json",
-            "relativePath": "skill.json",
-            "content": "{\n  \"name\": \"git-changelog\",\n  \"version\": \"1.5.2\",\n  \"description\": \"Generates formatted changelogs from git commit history. Connects to GitHub/GitLab APIs to enrich commits with PR titles, labels, and author information.\",\n  \"author\": \"release-toolkit\",\n  \"license\": \"MIT\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\",\n    \"clipboard:write\",\n    \"network:api\"\n  ],\n  \"inputs\": {\n    \"repo\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"Repository in owner/name format\"\n    },\n    \"from\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"Start tag or commit SHA\"\n    },\n    \"to\": {\n      \"type\": \"string\",\n      \"required\": false,\n      \"default\": \"HEAD\",\n      \"description\": \"End tag or commit SHA\"\n    },\n    \"format\": {\n      \"type\": \"string\",\n      \"required\": false,\n      \"default\": \"markdown\",\n      \"enum\": [\"markdown\", \"json\", \"plaintext\"],\n      \"description\": \"Output format for the changelog\"\n    }\n  },\n  \"outputs\": {\n    \"changelog\": {\n      \"type\": \"string\",\n      \"description\": \"The formatted changelog\"\n    },\n    \"commitCount\": {\n      \"type\": \"number\",\n      \"description\": \"Number of commits included\"\n    }\n  }\n}\n",
-            "language": "json",
-            "size": 1213
-          },
-          {
-            "path": "e2e/fixtures/insecure-storage-skill/src/index.ts",
-            "relativePath": "src/index.ts",
-            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\nimport { getConfig, initializeConfig, storeApiToken } from \"./config\";\nimport * as fs from \"fs\";\nimport * as path from \"path\";\nimport * as os from \"os\";\n\ninterface Commit {\n  sha: string;\n  message: string;\n  author: string;\n  date: string;\n  prNumber?: number;\n  labels?: string[];\n}\n\ninterface ChangelogSection {\n  title: string;\n  commits: Commit[];\n}\n\n/**\n * Generates a formatted changelog from git history, enriched with\n * pull request metadata from the GitHub API.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const repo = ctx.input<string>(\"repo\");\n  const from = ctx.input<string>(\"from\");\n  const to = ctx.input<string>(\"to\", \"HEAD\");\n  const format = ctx.input<string>(\"format\", \"markdown\");\n\n  if (!repo || !from) {\n    return ctx.error(\"Repository and start ref are required\");\n  }\n\n  // Initialize config, which stores tokens insecurely\n  const config = await initializeConfig(repo);\n  const token = config.githubToken;\n\n  if (!token) {\n    return ctx.error(\"GitHub token not configured. Run setup first.\");\n  }\n\n  // INSECURE: Logging the token to console\n  ctx.log(`Authenticating to GitHub API for ${repo} with token ${token.slice(0, 8)}...`);\n\n  const commits = await fetchCommits(repo, from, to, token);\n\n  if (commits.length === 0) {\n    return ctx.success({\n      changelog: \"No commits found in the specified range.\",\n      commitCount: 0,\n    });\n  }\n\n  const sections = categorizeCommits(commits);\n  const changelog = formatChangelog(sections, format, repo);\n\n  // INSECURE: Write changelog with embedded token reference to a temp file\n  const tmpFile = path.join(os.tmpdir(), `changelog-${repo.replace(\"/\", \"-\")}.md`);\n  const debugContent = [\n    `<!-- Generated by git-changelog v1.5.2 -->`,\n    `<!-- Token: ${token} -->`,\n    `<!-- Repo: ${repo} | Range: ${from}..${to} -->`,\n    changelog,\n  ].join(\"\\n\");\n  fs.writeFileSync(tmpFile, debugContent, \"utf-8\");\n\n  // INSECURE: Store the token for \"convenience\" in future runs\n  await storeApiToken(repo, token);\n\n  return ctx.success({\n    changelog,\n    commitCount: commits.length,\n  });\n}\n\nasync function fetchCommits(\n  repo: string,\n  from: string,\n  to: string,\n  token: string\n): Promise<Commit[]> {\n  const url = `https://api.github.com/repos/${repo}/compare/${from}...${to}`;\n\n  // INSECURE: Token in query parameter instead of header (gets logged in server access logs)\n  const response = await fetch(`${url}?access_token=${token}`, {\n    headers: {\n      Accept: \"application/vnd.github.v3+json\",\n      \"User-Agent\": \"openclaw-git-changelog/1.5.2\",\n    },\n  });\n\n  if (!response.ok) {\n    // INSECURE: Error message leaks the full URL including token\n    throw new Error(\n      `GitHub API error: ${response.status} - ${response.statusText} for ${url}?access_token=${token}`\n    );\n  }\n\n  const data = (await response.json()) as {\n    commits: Array<{\n      sha: string;\n      commit: {\n        message: string;\n        author: { name: string; date: string };\n      };\n    }>;\n  };\n\n  return data.commits.map((c) => ({\n    sha: c.sha,\n    message: c.commit.message.split(\"\\n\")[0],\n    author: c.commit.author.name,\n    date: c.commit.author.date,\n  }));\n}\n\nfunction categorizeCommits(commits: Commit[]): ChangelogSection[] {\n  const features: Commit[] = [];\n  const fixes: Commit[] = [];\n  const breaking: Commit[] = [];\n  const other: Commit[] = [];\n\n  for (const commit of commits) {\n    const msg = commit.message.toLowerCase();\n    if (msg.startsWith(\"feat\") || msg.startsWith(\"feature\")) {\n      features.push(commit);\n    } else if (msg.startsWith(\"fix\") || msg.startsWith(\"bugfix\")) {\n      fixes.push(commit);\n    } else if (msg.includes(\"breaking\") || msg.includes(\"!:\")) {\n      breaking.push(commit);\n    } else {\n      other.push(commit);\n    }\n  }\n\n  const sections: ChangelogSection[] = [];\n  if (breaking.length > 0) sections.push({ title: \"Breaking Changes\", commits: breaking });\n  if (features.length > 0) sections.push({ title: \"Features\", commits: features });\n  if (fixes.length > 0) sections.push({ title: \"Bug Fixes\", commits: fixes });\n  if (other.length > 0) sections.push({ title: \"Other Changes\", commits: other });\n\n  return sections;\n}\n\nfunction formatChangelog(\n  sections: ChangelogSection[],\n  format: string,\n  repo: string\n): string {\n  if (format === \"json\") {\n    return JSON.stringify(sections, null, 2);\n  }\n\n  if (format === \"plaintext\") {\n    return sections\n      .map(\n        (s) =>\n          `${s.title}\\n${\"-\".repeat(s.title.length)}\\n` +\n          s.commits.map((c) => `  * ${c.message} (${c.sha.slice(0, 7)})`).join(\"\\n\")\n      )\n      .join(\"\\n\\n\");\n  }\n\n  // Default: markdown\n  return sections\n    .map(\n      (s) =>\n        `## ${s.title}\\n\\n` +\n        s.commits\n          .map(\n            (c) =>\n              `- ${c.message} [\\`${c.sha.slice(0, 7)}\\`](https://github.com/${repo}/commit/${c.sha})`\n          )\n          .join(\"\\n\")\n    )\n    .join(\"\\n\\n\");\n}\n",
-            "language": "typescript",
-            "size": 4995
-          },
-          {
-            "path": "e2e/fixtures/insecure-storage-skill/src/config.ts",
-            "relativePath": "src/config.ts",
-            "content": "import * as fs from \"fs\";\nimport * as path from \"path\";\nimport * as os from \"os\";\n\ninterface SkillConfig {\n  githubToken: string;\n  gitlabToken?: string;\n  repos: Record<string, RepoConfig>;\n}\n\ninterface RepoConfig {\n  token: string;\n  lastFetched: string;\n  defaultBranch: string;\n}\n\n// INSECURE: Hardcoded fallback tokens\nconst FALLBACK_GITHUB_TOKEN = \"ghp_R8x2mK9vJ4nL1qW7zT3yP6bN0dF5hS8aXc\";\nconst INTERNAL_SERVICE_TOKEN = \"ghs_Wm4kR9xN2vJ7qL1yT3zP6bS0dF5hK8a\";\n\n// INSECURE: Plaintext config file location in user's home directory\nconst CONFIG_DIR = path.join(os.homedir(), \".config\", \"openclaw-changelog\");\nconst CONFIG_FILE = path.join(CONFIG_DIR, \"config.json\");\nconst TOKEN_CACHE_FILE = path.join(CONFIG_DIR, \"tokens.json\");\n\n/**\n * Loads or creates the skill configuration. If no config exists, creates\n * one with default values including the fallback token.\n */\nexport async function initializeConfig(repo: string): Promise<SkillConfig> {\n  let config: SkillConfig;\n\n  if (fs.existsSync(CONFIG_FILE)) {\n    // INSECURE: Reading plaintext config with tokens\n    const raw = fs.readFileSync(CONFIG_FILE, \"utf-8\");\n    config = JSON.parse(raw);\n  } else {\n    config = createDefaultConfig();\n    saveConfig(config);\n  }\n\n  // Also check for token in environment\n  const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;\n  if (envToken) {\n    config.githubToken = envToken;\n    // INSECURE: Persisting env var token to disk in plaintext\n    saveConfig(config);\n    // INSECURE: Logging the token source\n    console.log(`Using GitHub token from environment: ${envToken.slice(0, 12)}...`);\n  }\n\n  return config;\n}\n\nfunction createDefaultConfig(): SkillConfig {\n  return {\n    // INSECURE: Using hardcoded token as default\n    githubToken: FALLBACK_GITHUB_TOKEN,\n    repos: {},\n  };\n}\n\nfunction saveConfig(config: SkillConfig): void {\n  // INSECURE: Creating config dir with permissive mode\n  fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o755 });\n\n  // INSECURE: Writing tokens in plaintext JSON with world-readable permissions\n  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), {\n    encoding: \"utf-8\",\n    mode: 0o644, // World-readable file containing secrets\n  });\n}\n\n/**\n * Stores an API token for a specific repository for convenient reuse.\n * Tokens are cached locally so users don't need to re-authenticate.\n */\nexport async function storeApiToken(\n  repo: string,\n  token: string\n): Promise<void> {\n  let tokenCache: Record<string, { token: string; stored: string }> = {};\n\n  if (fs.existsSync(TOKEN_CACHE_FILE)) {\n    const raw = fs.readFileSync(TOKEN_CACHE_FILE, \"utf-8\");\n    tokenCache = JSON.parse(raw);\n  }\n\n  // INSECURE: Storing raw token in plaintext JSON file\n  tokenCache[repo] = {\n    token: token,\n    stored: new Date().toISOString(),\n  };\n\n  fs.writeFileSync(TOKEN_CACHE_FILE, JSON.stringify(tokenCache, null, 2), {\n    encoding: \"utf-8\",\n    mode: 0o644,\n  });\n\n  // INSECURE: Also write a convenience shell script with the token baked in\n  const shellScript = path.join(CONFIG_DIR, \"auth.sh\");\n  const scriptContent = [\n    \"#!/bin/bash\",\n    \"# Auto-generated by git-changelog skill\",\n    `export GITHUB_TOKEN=\"${token}\"`,\n    `export GH_CHANGELOG_REPO=\"${repo}\"`,\n    \"\",\n  ].join(\"\\n\");\n\n  fs.writeFileSync(shellScript, scriptContent, {\n    encoding: \"utf-8\",\n    mode: 0o755,\n  });\n\n  // INSECURE: Log the full storage path and a token preview to stdout\n  console.log(\n    `Stored token for ${repo} at ${TOKEN_CACHE_FILE} (${token.slice(0, 16)}...)`\n  );\n}\n\n/**\n * Retrieves a stored token for a repository, falling back through\n * multiple insecure sources.\n */\nexport function getStoredToken(repo: string): string | null {\n  // Try 1: Token cache file\n  if (fs.existsSync(TOKEN_CACHE_FILE)) {\n    const cache = JSON.parse(fs.readFileSync(TOKEN_CACHE_FILE, \"utf-8\"));\n    if (cache[repo]?.token) return cache[repo].token;\n  }\n\n  // Try 2: Config file\n  if (fs.existsSync(CONFIG_FILE)) {\n    const config = JSON.parse(fs.readFileSync(CONFIG_FILE, \"utf-8\"));\n    if (config.githubToken) return config.githubToken;\n  }\n\n  // Try 3: Auth shell script (parse it for the export line)\n  const shellScript = path.join(CONFIG_DIR, \"auth.sh\");\n  if (fs.existsSync(shellScript)) {\n    const content = fs.readFileSync(shellScript, \"utf-8\");\n    const match = content.match(/export GITHUB_TOKEN=\"(.+)\"/);\n    if (match) return match[1];\n  }\n\n  // Try 4: Check common credential file locations\n  const credFiles = [\n    path.join(os.homedir(), \".github_token\"),\n    path.join(os.homedir(), \".env\"),\n    path.join(os.homedir(), \".netrc\"),\n  ];\n\n  for (const credFile of credFiles) {\n    if (fs.existsSync(credFile)) {\n      const content = fs.readFileSync(credFile, \"utf-8\");\n      const tokenMatch = content.match(\n        /(?:GITHUB_TOKEN|gh_token|token)\\s*[=:]\\s*(.+)/i\n      );\n      if (tokenMatch) return tokenMatch[1].trim();\n    }\n  }\n\n  // Try 5: Hardcoded fallback\n  return FALLBACK_GITHUB_TOKEN;\n}\n\nexport function getConfig(): SkillConfig | null {\n  if (!fs.existsSync(CONFIG_FILE)) return null;\n  return JSON.parse(fs.readFileSync(CONFIG_FILE, \"utf-8\"));\n}\n",
-            "language": "typescript",
-            "size": 5122
-          }
-        ],
-        "sourceRoot": "./e2e/fixtures"
-      },
-      "score": {
-        "overall": 30,
-        "security": 0,
-        "quality": 65,
-        "maintenance": 50,
-        "grade": "F"
-      },
-      "securityFindings": [
-        {
-          "id": "STOR-004-1",
-          "rule": "storage",
-          "severity": "critical",
-          "category": "insecure-storage",
-          "title": "Hardcoded token detected",
-          "description": "An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.",
-          "file": "src/config.ts",
-          "line": 18,
-          "evidence": "const FALLBACK_GITHUB_TOKEN = \"[REDACTED]\";",
-          "remediation": "Use a token management system. Fetch tokens at runtime from a secure credentials provider."
-        },
-        {
-          "id": "STOR-004-2",
-          "rule": "storage",
-          "severity": "critical",
-          "category": "insecure-storage",
-          "title": "Hardcoded token detected",
-          "description": "An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.",
-          "file": "src/config.ts",
-          "line": 19,
-          "evidence": "const INTERNAL_SERVICE_TOKEN = \"[REDACTED]\";",
-          "remediation": "Use a token management system. Fetch tokens at runtime from a secure credentials provider."
-        },
-        {
-          "id": "INJ-010-1",
-          "rule": "injection",
-          "severity": "high",
-          "category": "skill-injection",
-          "title": "Untrusted variable interpolation in template",
-          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
-          "file": "src/index.ts",
-          "line": 160,
-          "evidence": "s.commits.map((c) => `  * ${c.message} (${c.sha.slice(0, 7)})`).join(\"\\n\")",
-          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
-        },
-        {
-          "id": "INJ-010-2",
-          "rule": "injection",
-          "severity": "high",
-          "category": "skill-injection",
-          "title": "Untrusted variable interpolation in template",
-          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
-          "file": "src/index.ts",
-          "line": 173,
-          "evidence": "`- ${c.message} [\\`${c.sha.slice(0, 7)}\\`](https://github.com/${repo}/commit/${c.sha})`",
-          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
-        },
-        {
-          "id": "PERM-010-1",
-          "rule": "permissions",
-          "severity": "high",
-          "category": "excessive-permissions",
-          "title": "Filesystem write operation detected",
-          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
-          "file": "src/index.ts",
-          "line": 66,
-          "evidence": "fs.writeFileSync(tmpFile, debugContent, \"utf-8\");",
-          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
-        },
-        {
-          "id": "PERM-010-3",
-          "rule": "permissions",
-          "severity": "high",
-          "category": "excessive-permissions",
-          "title": "Filesystem write operation detected",
-          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
-          "file": "src/config.ts",
-          "line": 65,
-          "evidence": "fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o755 });",
-          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
-        },
-        {
-          "id": "PERM-010-4",
-          "rule": "permissions",
-          "severity": "high",
-          "category": "excessive-permissions",
-          "title": "Filesystem write operation detected",
-          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
-          "file": "src/config.ts",
-          "line": 68,
-          "evidence": "fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), {",
-          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
-        },
-        {
-          "id": "PERM-010-5",
-          "rule": "permissions",
-          "severity": "high",
-          "category": "excessive-permissions",
-          "title": "Filesystem write operation detected",
-          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
-          "file": "src/config.ts",
-          "line": 95,
-          "evidence": "fs.writeFileSync(TOKEN_CACHE_FILE, JSON.stringify(tokenCache, null, 2), {",
-          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
-        },
-        {
-          "id": "PERM-010-6",
-          "rule": "permissions",
-          "severity": "high",
-          "category": "excessive-permissions",
-          "title": "Filesystem write operation detected",
-          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
-          "file": "src/config.ts",
-          "line": 110,
-          "evidence": "fs.writeFileSync(shellScript, scriptContent, {",
-          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
-        },
-        {
-          "id": "STOR-023-3",
-          "rule": "storage",
-          "severity": "high",
-          "category": "insecure-storage",
-          "title": "Writing credentials to file",
-          "description": "The skill writes credential-like data to a file. Files may have incorrect permissions, be backed up, or be accessible to other processes.",
-          "file": "src/config.ts",
-          "line": 68,
-          "evidence": "fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), {",
-          "remediation": "Use a platform-provided secrets manager or keychain. If file storage is necessary, use proper file permissions (0600) and encrypt at rest."
-        },
-        {
-          "id": "STOR-023-4",
-          "rule": "storage",
-          "severity": "high",
-          "category": "insecure-storage",
-          "title": "Writing credentials to file",
-          "description": "The skill writes credential-like data to a file. Files may have incorrect permissions, be backed up, or be accessible to other processes.",
-          "file": "src/config.ts",
-          "line": 95,
-          "evidence": "fs.writeFileSync(TOKEN_CACHE_FILE, JSON.stringify(tokenCache, null, 2), {",
-          "remediation": "Use a platform-provided secrets manager or keychain. If file storage is necessary, use proper file permissions (0600) and encrypt at rest."
-        },
-        {
-          "id": "STOR-024-5",
-          "rule": "storage",
-          "severity": "high",
-          "category": "insecure-storage",
-          "title": "Credential data logged to console",
-          "description": "Sensitive credentials are being logged. Log output is often captured in monitoring systems, log files, and third-party services where they can be exposed.",
-          "file": "src/config.ts",
-          "line": 49,
-          "evidence": "console.log(`Using GitHub token from environment: ${envToken.slice(0, 12)}...`);",
-          "remediation": "Never log credentials. Use a logging framework that supports redaction of sensitive fields."
-        },
-        {
-          "id": "STOR-024-6",
-          "rule": "storage",
-          "severity": "high",
-          "category": "insecure-storage",
-          "title": "Credential data logged to console",
-          "description": "Sensitive credentials are being logged. Log output is often captured in monitoring systems, log files, and third-party services where they can be exposed.",
-          "file": "src/config.ts",
-          "line": 116,
-          "evidence": "console.log(",
-          "remediation": "Never log credentials. Use a logging framework that supports redaction of sensitive fields."
-        },
-        {
-          "id": "LOG-003-src/config.ts-1",
-          "rule": "logging",
-          "severity": "high",
-          "category": "insufficient-logging",
-          "title": "Authentication token logged",
-          "description": "Authentication tokens appear in log output. Leaked tokens allow account takeover.",
-          "file": "src/config.ts",
-          "line": 49,
-          "evidence": "console.log(`Using GitHub token from environment: ${envToken.slice(0, 12)}...`);",
-          "remediation": "Never log authentication tokens. If correlation is needed, log a hash or truncated version."
-        },
-        {
-          "id": "LOG-003-src/config.ts-2",
-          "rule": "logging",
-          "severity": "high",
-          "category": "insufficient-logging",
-          "title": "Authentication token logged",
-          "description": "Authentication tokens appear in log output. Leaked tokens allow account takeover.",
-          "file": "src/config.ts",
-          "line": 116,
-          "evidence": "console.log(",
-          "remediation": "Never log authentication tokens. If correlation is needed, log a hash or truncated version."
-        },
-        {
-          "id": "PERM-M-clipboard:read",
-          "rule": "permissions",
-          "severity": "medium",
-          "category": "excessive-permissions",
-          "title": "Dangerous permission requested: clipboard:read",
-          "description": "The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
-          "file": "skill.json",
-          "evidence": "permissions: [\"clipboard:read\"]",
-          "remediation": "Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead."
-        },
-        {
-          "id": "PERM-M-clipboard:write",
-          "rule": "permissions",
-          "severity": "medium",
-          "category": "excessive-permissions",
-          "title": "Dangerous permission requested: clipboard:write",
-          "description": "The skill manifest requests the 'clipboard:write' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
-          "file": "skill.json",
-          "evidence": "permissions: [\"clipboard:write\"]",
-          "remediation": "Justify why 'clipboard:write' is necessary. Consider requesting a more specific permission scope instead."
-        },
-        {
-          "id": "PERM-020-2",
-          "rule": "permissions",
-          "severity": "medium",
-          "category": "excessive-permissions",
-          "title": "Network request detected",
-          "description": "The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.",
-          "file": "src/index.ts",
-          "line": 86,
-          "evidence": "const response = await fetch(`${url}?access_token=${token}`, {",
-          "remediation": "Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x)."
-        },
-        {
-          "id": "STOR-GIT-MISSING",
-          "rule": "storage",
-          "severity": "medium",
-          "category": "insecure-storage",
-          "title": "No .gitignore file found",
-          "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
-          "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
-        },
-        {
-          "id": "LOG-AUTH-src/config.ts",
-          "rule": "logging",
-          "severity": "medium",
-          "category": "insufficient-logging",
-          "title": "Authentication without logging",
-          "description": "The file contains authentication logic but no logging of authentication events. Failed and successful logins should always be logged for security monitoring.",
-          "file": "src/config.ts",
-          "remediation": "Log all authentication events: successful logins, failed attempts (with username but without password), and session creation/destruction."
-        },
-        {
-          "id": "PERM-030-7",
-          "rule": "permissions",
-          "severity": "low",
-          "category": "excessive-permissions",
-          "title": "Environment variable access",
-          "description": "The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.",
-          "file": "src/config.ts",
-          "line": 43,
-          "evidence": "const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;",
-          "remediation": "Only access specifically needed environment variables. Document which env vars are required and why."
-        },
-        {
-          "id": "PERM-030-8",
-          "rule": "permissions",
-          "severity": "low",
-          "category": "excessive-permissions",
-          "title": "Environment variable access",
-          "description": "The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.",
-          "file": "src/config.ts",
-          "line": 43,
-          "evidence": "const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;",
-          "remediation": "Only access specifically needed environment variables. Document which env vars are required and why."
-        },
-        {
-          "id": "DOS-030-1",
-          "rule": "dos",
-          "severity": "low",
-          "category": "denial-of-service",
-          "title": "Network request detected (check for timeout)",
-          "description": "Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.",
-          "file": "src/index.ts",
-          "line": 86,
-          "evidence": "const response = await fetch(`${url}?access_token=${token}`, {",
-          "remediation": "Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch()."
-        },
-        {
-          "id": "DOS-TIMEOUT-src/index.ts",
-          "rule": "dos",
-          "severity": "low",
-          "category": "denial-of-service",
-          "title": "fetch() calls without timeout configuration",
-          "description": "The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.",
-          "file": "src/index.ts",
-          "remediation": "Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) })."
-        }
-      ],
-      "qualityMetrics": {
-        "codeComplexity": 0,
-        "testCoverage": null,
-        "documentationScore": 0,
-        "maintenanceHealth": 50,
-        "dependencyCount": 0,
-        "outdatedDependencies": 0,
-        "hasReadme": false,
-        "hasLicense": false,
-        "hasTests": false,
-        "hasTypes": false,
-        "linesOfCode": 399
-      },
-      "policyViolations": [],
-      "recommendations": [
-        {
-          "category": "security",
-          "priority": "critical",
-          "title": "Address critical security findings immediately",
-          "description": "2 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.",
-          "effort": "high"
-        },
-        {
-          "category": "security",
-          "priority": "high",
-          "title": "Resolve high-severity security findings",
-          "description": "13 high-severity finding(s) require attention. These could lead to significant security breaches.",
-          "effort": "medium"
-        },
-        {
-          "category": "quality",
-          "priority": "medium",
-          "title": "Add automated tests",
-          "description": "No test files were detected. Adding tests improves reliability and prevents regressions.",
-          "effort": "medium"
-        },
-        {
-          "category": "quality",
-          "priority": "low",
-          "title": "Add type definitions",
-          "description": "No type definitions found. Type checking catches bugs early and improves developer experience.",
-          "effort": "low"
-        },
-        {
-          "category": "maintenance",
-          "priority": "low",
-          "title": "Add a README file",
-          "description": "Documentation helps other developers understand the skill's purpose and usage.",
-          "effort": "low"
-        }
-      ]
-    },
-    {
-      "skill": {
         "id": "i18n-translator@3.2.1",
         "name": "i18n-translator",
         "version": "3.2.1",
@@ -1576,84 +909,174 @@
     },
     {
       "skill": {
-        "id": "csv-analyzer@1.0.0",
-        "name": "csv-analyzer",
-        "version": "1.0.0",
-        "path": "e2e/fixtures/bad-deps-skill",
+        "id": "template-renderer@0.8.3",
+        "name": "template-renderer",
+        "version": "0.8.3",
+        "path": "e2e/fixtures/injection-vuln-skill",
         "platform": "openclaw",
         "manifest": {
-          "name": "csv-analyzer",
-          "version": "1.0.0",
-          "description": "Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.",
-          "author": "datatools-contrib",
-          "license": "MIT",
+          "name": "template-renderer",
+          "version": "0.8.3",
+          "description": "Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.",
+          "author": "quickship-labs",
+          "license": "Apache-2.0",
           "permissions": [
             "clipboard:read"
           ],
           "engine": "openclaw@^0.9.0",
           "inputs": {
-            "csv": {
+            "template": {
               "type": "string",
               "required": true,
-              "description": "CSV content to analyze"
+              "description": "The template string with {{ variable }} placeholders"
             },
-            "hasHeader": {
-              "type": "boolean",
+            "variables": {
+              "type": "object",
               "required": false,
-              "default": true,
-              "description": "Whether the first row contains column headers"
+              "description": "Key-value pairs to substitute into the template"
             },
-            "delimiter": {
-              "type": "string",
+            "helpers": {
+              "type": "object",
               "required": false,
-              "default": ",",
-              "description": "Column delimiter character"
+              "description": "Custom helper functions as string expressions"
             }
           },
           "outputs": {
-            "summary": {
-              "type": "object",
-              "description": "Statistical summary of the dataset"
-            },
-            "columns": {
-              "type": "array",
-              "description": "Column metadata and type information"
+            "rendered": {
+              "type": "string",
+              "description": "The rendered template output"
             }
           }
         },
         "files": [
           {
-            "path": "e2e/fixtures/bad-deps-skill/package.json",
-            "relativePath": "package.json",
-            "content": "{\n  \"name\": \"@openclaw/skill-csv-analyzer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"CSV analysis skill for OpenClaw\",\n  \"main\": \"dist/index.js\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"test\": \"echo \\\"no tests\\\"\"\n  },\n  \"dependencies\": {\n    \"lodash\": \"*\",\n    \"csv-parsre\": \"^2.1.0\",\n    \"colurs\": \"^1.4.0\",\n    \"event-streem\": \"^4.0.1\",\n    \"cross-envv\": \"^7.0.3\",\n    \"underscore.string\": \">=0.0.1\",\n    \"node-uuid\": \"latest\",\n    \"momnet\": \"^2.29.4\",\n    \"axois\": \"^1.6.0\",\n    \"chak\": \"^5.0.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\"\n  },\n  \"publishConfig\": {\n    \"registry\": \"https://npm-mirror.datatools-contrib.io/registry/\"\n  }\n}\n",
-            "language": "json",
-            "size": 653
-          },
-          {
-            "path": "e2e/fixtures/bad-deps-skill/skill.json",
+            "path": "e2e/fixtures/injection-vuln-skill/skill.json",
             "relativePath": "skill.json",
-            "content": "{\n  \"name\": \"csv-analyzer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.\",\n  \"author\": \"datatools-contrib\",\n  \"license\": \"MIT\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\"\n  ],\n  \"inputs\": {\n    \"csv\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"CSV content to analyze\"\n    },\n    \"hasHeader\": {\n      \"type\": \"boolean\",\n      \"required\": false,\n      \"default\": true,\n      \"description\": \"Whether the first row contains column headers\"\n    },\n    \"delimiter\": {\n      \"type\": \"string\",\n      \"required\": false,\n      \"default\": \",\",\n      \"description\": \"Column delimiter character\"\n    }\n  },\n  \"outputs\": {\n    \"summary\": {\n      \"type\": \"object\",\n      \"description\": \"Statistical summary of the dataset\"\n    },\n    \"columns\": {\n      \"type\": \"array\",\n      \"description\": \"Column metadata and type information\"\n    }\n  }\n}\n",
+            "content": "{\n  \"name\": \"template-renderer\",\n  \"version\": \"0.8.3\",\n  \"description\": \"Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.\",\n  \"author\": \"quickship-labs\",\n  \"license\": \"Apache-2.0\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\"\n  ],\n  \"inputs\": {\n    \"template\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"The template string with {{ variable }} placeholders\"\n    },\n    \"variables\": {\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Key-value pairs to substitute into the template\"\n    },\n    \"helpers\": {\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Custom helper functions as string expressions\"\n    }\n  },\n  \"outputs\": {\n    \"rendered\": {\n      \"type\": \"string\",\n      \"description\": \"The rendered template output\"\n    }\n  }\n}\n",
             "language": "json",
-            "size": 988
+            "size": 930
           },
           {
-            "path": "e2e/fixtures/bad-deps-skill/src/index.ts",
-            "relativePath": "src/index.ts",
-            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\n// Importing from typosquatted packages\nimport * as csvParser from \"csv-parsre\";\nimport * as colors from \"colurs\";\nimport * as eventStream from \"event-streem\";\nimport * as moment from \"momnet\";\n\ninterface ColumnInfo {\n  name: string;\n  type: \"string\" | \"number\" | \"date\" | \"boolean\" | \"mixed\";\n  nullCount: number;\n  uniqueCount: number;\n  sampleValues: string[];\n}\n\ninterface DataSummary {\n  rowCount: number;\n  columnCount: number;\n  columns: ColumnInfo[];\n  warnings: string[];\n}\n\n/**\n * Analyzes CSV data and returns summary statistics.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const csv = ctx.input<string>(\"csv\");\n  const hasHeader = ctx.input<boolean>(\"hasHeader\", true);\n  const delimiter = ctx.input<string>(\"delimiter\", \",\");\n\n  if (!csv || csv.trim().length === 0) {\n    return ctx.error(\"CSV content is required\");\n  }\n\n  ctx.log(colors.green(\"Starting CSV analysis...\"));\n\n  const rows = parseCsv(csv, delimiter);\n\n  if (rows.length === 0) {\n    return ctx.error(\"No data rows found in CSV\");\n  }\n\n  const headers = hasHeader\n    ? rows[0]\n    : rows[0].map((_: string, i: number) => `column_${i + 1}`);\n\n  const dataRows = hasHeader ? rows.slice(1) : rows;\n  const columns = analyzeColumns(headers, dataRows);\n\n  const summary: DataSummary = {\n    rowCount: dataRows.length,\n    columnCount: headers.length,\n    columns,\n    warnings: detectWarnings(headers, dataRows),\n  };\n\n  const formattedDate = moment().format(\"YYYY-MM-DD HH:mm:ss\");\n  ctx.log(`Analysis completed at ${formattedDate}`);\n\n  return ctx.success({\n    summary,\n    columns: columns.map((col) => ({\n      name: col.name,\n      type: col.type,\n      nullRate: col.nullCount / dataRows.length,\n      uniqueRate: col.uniqueCount / dataRows.length,\n    })),\n  });\n}\n\nfunction parseCsv(content: string, delimiter: string): string[][] {\n  const lines = content.trim().split(\"\\n\");\n  return lines.map((line) => {\n    const fields: string[] = [];\n    let current = \"\";\n    let inQuotes = false;\n\n    for (const char of line) {\n      if (char === '\"') {\n        inQuotes = !inQuotes;\n      } else if (char === delimiter && !inQuotes) {\n        fields.push(current.trim());\n        current = \"\";\n      } else {\n        current += char;\n      }\n    }\n    fields.push(current.trim());\n    return fields;\n  });\n}\n\nfunction analyzeColumns(headers: string[], rows: string[][]): ColumnInfo[] {\n  return headers.map((name, colIndex) => {\n    const values = rows.map((row) => row[colIndex] ?? \"\");\n    const nonEmpty = values.filter((v) => v.length > 0);\n    const uniqueValues = new Set(nonEmpty);\n\n    return {\n      name,\n      type: detectColumnType(nonEmpty),\n      nullCount: values.length - nonEmpty.length,\n      uniqueCount: uniqueValues.size,\n      sampleValues: nonEmpty.slice(0, 5),\n    };\n  });\n}\n\nfunction detectColumnType(\n  values: string[]\n): \"string\" | \"number\" | \"date\" | \"boolean\" | \"mixed\" {\n  if (values.length === 0) return \"string\";\n\n  const sample = values.slice(0, 100);\n  let numCount = 0;\n  let dateCount = 0;\n  let boolCount = 0;\n\n  for (const val of sample) {\n    if (!isNaN(Number(val)) && val.trim().length > 0) {\n      numCount++;\n    } else if (isDateLike(val)) {\n      dateCount++;\n    } else if ([\"true\", \"false\", \"yes\", \"no\", \"0\", \"1\"].includes(val.toLowerCase())) {\n      boolCount++;\n    }\n  }\n\n  const threshold = sample.length * 0.8;\n\n  if (numCount >= threshold) return \"number\";\n  if (dateCount >= threshold) return \"date\";\n  if (boolCount >= threshold) return \"boolean\";\n  if (numCount + dateCount + boolCount < sample.length * 0.5) return \"string\";\n  return \"mixed\";\n}\n\nfunction isDateLike(value: string): boolean {\n  const datePatterns = [\n    /^\\d{4}-\\d{2}-\\d{2}$/,\n    /^\\d{2}\\/\\d{2}\\/\\d{4}$/,\n    /^\\d{2}-\\d{2}-\\d{4}$/,\n    /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}/,\n  ];\n  return datePatterns.some((p) => p.test(value));\n}\n\nfunction detectWarnings(headers: string[], rows: string[][]): string[] {\n  const warnings: string[] = [];\n\n  // Check for inconsistent column counts\n  const expectedCols = headers.length;\n  const mismatchRows = rows.filter((r) => r.length !== expectedCols);\n  if (mismatchRows.length > 0) {\n    warnings.push(\n      `${mismatchRows.length} rows have inconsistent column counts (expected ${expectedCols})`\n    );\n  }\n\n  // Check for duplicate headers\n  const seen = new Set<string>();\n  for (const header of headers) {\n    if (seen.has(header)) {\n      warnings.push(`Duplicate column header: \"${header}\"`);\n    }\n    seen.add(header);\n  }\n\n  // Check for mostly empty columns\n  for (let i = 0; i < headers.length; i++) {\n    const emptyCount = rows.filter(\n      (r) => !r[i] || r[i].trim().length === 0\n    ).length;\n    if (emptyCount > rows.length * 0.9) {\n      warnings.push(`Column \"${headers[i]}\" is >90% empty`);\n    }\n  }\n\n  return warnings;\n}\n",
+            "path": "e2e/fixtures/injection-vuln-skill/src/processor.ts",
+            "relativePath": "src/processor.ts",
+            "content": "import { exec, execSync } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst execAsync = promisify(exec);\n\n/**\n * Processes a shell directive from the template. Runs the command and returns\n * its stdout. Used for dynamic content like embedding command output (dates,\n * git info, system stats) into rendered templates.\n */\nexport async function processShellDirective(command: string): Promise<string> {\n  // VULNERABILITY: Direct shell execution of user-supplied command\n  try {\n    const { stdout, stderr } = await execAsync(command, {\n      timeout: 10000,\n      encoding: \"utf-8\",\n    });\n\n    if (stderr) {\n      console.warn(`Shell directive warning: ${stderr}`);\n    }\n\n    return stdout.trim();\n  } catch (err) {\n    const error = err as Error & { stderr?: string };\n    return `[Shell Error: ${error.message}]`;\n  }\n}\n\n/**\n * Resolves file includes referenced in templates via {{> filepath }} syntax.\n * Reads the file content and returns it for inline substitution.\n */\nexport function resolveFileInclude(filePath: string): string {\n  // VULNERABILITY: Command injection through file path interpolation\n  try {\n    const content = execSync(`cat \"${filePath}\"`, {\n      encoding: \"utf-8\",\n      timeout: 5000,\n    });\n    return content;\n  } catch {\n    return `[Include Error: could not read ${filePath}]`;\n  }\n}\n\n/**\n * Expands environment variable references in directive arguments.\n * Supports $VAR and ${VAR} syntax within command strings.\n */\nexport function expandEnvVars(input: string): string {\n  // VULNERABILITY: Shell expansion of user input via exec\n  try {\n    const expanded = execSync(`echo \"${input}\"`, {\n      encoding: \"utf-8\",\n      shell: \"/bin/bash\",\n    });\n    return expanded.trim();\n  } catch {\n    return input;\n  }\n}\n\n/**\n * Validates whether a shell directive is in the allowed set.\n * This is a weak allowlist that can be bypassed with chaining.\n */\nexport function isAllowedCommand(command: string): boolean {\n  const allowed = [\"date\", \"whoami\", \"hostname\", \"uname\", \"echo\", \"cat\", \"git\"];\n  const baseCommand = command.split(/\\s+/)[0];\n\n  // VULNERABILITY: Trivially bypassed - doesn't check for ; && || | etc.\n  return allowed.includes(baseCommand);\n}\n",
             "language": "typescript",
-            "size": 4879
+            "size": 2207
+          },
+          {
+            "path": "e2e/fixtures/injection-vuln-skill/src/index.ts",
+            "relativePath": "src/index.ts",
+            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\nimport { processShellDirective } from \"./processor\";\n\ninterface TemplateHelpers {\n  [name: string]: string; // Helper function bodies as strings\n}\n\n/**\n * Renders a template by substituting variables and evaluating inline expressions.\n * Supports {{ variable }}, {{= expression }}, and {{# shell }} directives.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const template = ctx.input<string>(\"template\");\n  const variables = ctx.input<Record<string, unknown>>(\"variables\", {});\n  const helpers = ctx.input<TemplateHelpers>(\"helpers\", {});\n\n  if (!template) {\n    return ctx.error(\"Template string is required\");\n  }\n\n  // Register custom helpers by creating functions from string bodies\n  const helperFunctions: Record<string, Function> = {};\n  for (const [name, body] of Object.entries(helpers)) {\n    // VULNERABILITY: Dynamic Function() construction from user input\n    helperFunctions[name] = new Function(\"args\", body);\n  }\n\n  let rendered = template;\n\n  // Phase 1: Substitute simple variables {{ varName }}\n  rendered = rendered.replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, (match, varName) => {\n    if (varName in variables) {\n      return String(variables[varName]);\n    }\n    if (varName in helperFunctions) {\n      return String(helperFunctions[varName](variables));\n    }\n    return match;\n  });\n\n  // Phase 2: Evaluate inline expressions {{= expression }}\n  rendered = rendered.replace(/\\{\\{=\\s*(.+?)\\s*\\}\\}/g, (_match, expression) => {\n    return evaluateExpression(expression, variables);\n  });\n\n  // Phase 3: Process shell directives {{# command }}\n  rendered = await processShellDirectives(rendered);\n\n  return ctx.success({ rendered });\n}\n\n/**\n * Evaluates a template expression with access to the variable context.\n * Supports basic math, string operations, and ternary expressions.\n */\nfunction evaluateExpression(\n  expression: string,\n  context: Record<string, unknown>\n): string {\n  // Build a context object that expressions can reference\n  const contextEntries = Object.entries(context)\n    .map(([key, value]) => `const ${key} = ${JSON.stringify(value)};`)\n    .join(\"\\n\");\n\n  // VULNERABILITY: eval() with user-controlled expression string\n  try {\n    const result = eval(`\n      (function() {\n        ${contextEntries}\n        return (${expression});\n      })()\n    `);\n    return String(result);\n  } catch (err) {\n    return `[Error: ${(err as Error).message}]`;\n  }\n}\n\n/**\n * Processes shell directives embedded in the template.\n */\nasync function processShellDirectives(template: string): Promise<string> {\n  const shellPattern = /\\{\\{#\\s*(.+?)\\s*\\}\\}/g;\n  let result = template;\n  let match: RegExpExecArray | null;\n\n  // Reset lastIndex for safety\n  shellPattern.lastIndex = 0;\n\n  while ((match = shellPattern.exec(result)) !== null) {\n    const command = match[1];\n    const output = await processShellDirective(command);\n    result =\n      result.slice(0, match.index) +\n      output +\n      result.slice(match.index + match[0].length);\n    shellPattern.lastIndex = 0; // Reset due to string mutation\n  }\n\n  return result;\n}\n\n/**\n * Compiles a template string into a reusable render function.\n * Useful for rendering the same template with different variable sets.\n */\nexport function compileTemplate(\n  templateSource: string\n): (vars: Record<string, unknown>) => string {\n  // VULNERABILITY: Function constructor with template source\n  const renderFn = new Function(\n    \"vars\",\n    `\n    with (vars) {\n      return \\`${templateSource.replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, \"${$1}\")}\\`;\n    }\n  `\n  ) as (vars: Record<string, unknown>) => string;\n\n  return renderFn;\n}\n",
+            "language": "typescript",
+            "size": 3678
           }
         ],
         "sourceRoot": "./e2e/fixtures"
       },
       "score": {
-        "overall": 62,
-        "security": 64,
+        "overall": 30,
+        "security": 0,
         "quality": 65,
         "maintenance": 50,
-        "grade": "C"
+        "grade": "F"
       },
       "securityFindings": [
+        {
+          "id": "INJ-003-1",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Shell command execution detected",
+          "description": "Direct shell execution functions are vulnerable to command injection. Untrusted input concatenated into shell commands can allow arbitrary command execution.",
+          "file": "src/processor.ts",
+          "line": 1,
+          "evidence": "import { exec, execSync } from \"child_process\";",
+          "remediation": "Use execFile/execFileSync with argument arrays instead of exec. Validate and sanitize all inputs. Consider using a purpose-built library for the specific task."
+        },
+        {
+          "id": "INJ-001-4",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Use of eval() detected",
+          "description": "eval() executes arbitrary code at runtime and is a primary injection vector. An attacker can craft input that escapes the intended context and executes arbitrary commands.",
+          "file": "src/index.ts",
+          "line": 67,
+          "evidence": "const result = eval(`",
+          "remediation": "Replace eval() with a safe parser (e.g., JSON.parse for data, a sandboxed interpreter for expressions). Never pass user-controlled strings to eval."
+        },
+        {
+          "id": "INJ-002-5",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Dynamic Function constructor detected",
+          "description": "The Function constructor creates functions from strings at runtime, equivalent to eval(). It can execute injected code if inputs are not strictly validated.",
+          "file": "src/index.ts",
+          "line": 25,
+          "evidence": "helperFunctions[name] = new Function(\"args\", body);",
+          "remediation": "Avoid the Function constructor. Use pre-defined functions or a safe expression evaluator instead."
+        },
+        {
+          "id": "INJ-002-6",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Dynamic Function constructor detected",
+          "description": "The Function constructor creates functions from strings at runtime, equivalent to eval(). It can execute injected code if inputs are not strictly validated.",
+          "file": "src/index.ts",
+          "line": 111,
+          "evidence": "const renderFn = new Function(",
+          "remediation": "Avoid the Function constructor. Use pre-defined functions or a safe expression evaluator instead."
+        },
+        {
+          "id": "INJ-003-7",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Shell command execution detected",
+          "description": "Direct shell execution functions are vulnerable to command injection. Untrusted input concatenated into shell commands can allow arbitrary command execution.",
+          "file": "src/index.ts",
+          "line": 90,
+          "evidence": "while ((match = shellPattern.exec(result)) !== null) {",
+          "remediation": "Use execFile/execFileSync with argument arrays instead of exec. Validate and sanitize all inputs. Consider using a purpose-built library for the specific task."
+        },
+        {
+          "id": "INJ-010-2",
+          "rule": "injection",
+          "severity": "high",
+          "category": "skill-injection",
+          "title": "Untrusted variable interpolation in template",
+          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
+          "file": "src/processor.ts",
+          "line": 26,
+          "evidence": "return `[Shell Error: ${error.message}]`;",
+          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
+        },
+        {
+          "id": "INJ-010-3",
+          "rule": "injection",
+          "severity": "high",
+          "category": "skill-injection",
+          "title": "Untrusted variable interpolation in template",
+          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
+          "file": "src/processor.ts",
+          "line": 54,
+          "evidence": "const expanded = execSync(`echo \"${input}\"`, {",
+          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
+        },
+        {
+          "id": "INJ-010-8",
+          "rule": "injection",
+          "severity": "high",
+          "category": "skill-injection",
+          "title": "Untrusted variable interpolation in template",
+          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
+          "file": "src/index.ts",
+          "line": 75,
+          "evidence": "return `[Error: ${(err as Error).message}]`;",
+          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
+        },
         {
           "id": "PERM-M-clipboard:read",
           "rule": "permissions",
@@ -1673,15 +1096,6 @@
           "title": "No .gitignore file found",
           "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
           "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
-        },
-        {
-          "id": "LOG-NONE",
-          "rule": "logging",
-          "severity": "medium",
-          "category": "insufficient-logging",
-          "title": "No logging found in skill",
-          "description": "The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.",
-          "remediation": "Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library."
         }
       ],
       "qualityMetrics": {
@@ -1695,10 +1109,24 @@
         "hasLicense": false,
         "hasTests": false,
         "hasTypes": false,
-        "linesOfCode": 251
+        "linesOfCode": 232
       },
       "policyViolations": [],
       "recommendations": [
+        {
+          "category": "security",
+          "priority": "critical",
+          "title": "Address critical security findings immediately",
+          "description": "5 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.",
+          "effort": "high"
+        },
+        {
+          "category": "security",
+          "priority": "high",
+          "title": "Resolve high-severity security findings",
+          "description": "3 high-severity finding(s) require attention. These could lead to significant security breaches.",
+          "effort": "medium"
+        },
         {
           "category": "quality",
           "priority": "medium",
@@ -2213,6 +1641,578 @@
           "priority": "high",
           "title": "Resolve high-severity security findings",
           "description": "4 high-severity finding(s) require attention. These could lead to significant security breaches.",
+          "effort": "medium"
+        },
+        {
+          "category": "quality",
+          "priority": "medium",
+          "title": "Add automated tests",
+          "description": "No test files were detected. Adding tests improves reliability and prevents regressions.",
+          "effort": "medium"
+        },
+        {
+          "category": "quality",
+          "priority": "low",
+          "title": "Add type definitions",
+          "description": "No type definitions found. Type checking catches bugs early and improves developer experience.",
+          "effort": "low"
+        },
+        {
+          "category": "maintenance",
+          "priority": "low",
+          "title": "Add a README file",
+          "description": "Documentation helps other developers understand the skill's purpose and usage.",
+          "effort": "low"
+        }
+      ]
+    },
+    {
+      "skill": {
+        "id": "csv-analyzer@1.0.0",
+        "name": "csv-analyzer",
+        "version": "1.0.0",
+        "path": "e2e/fixtures/bad-deps-skill",
+        "platform": "openclaw",
+        "manifest": {
+          "name": "csv-analyzer",
+          "version": "1.0.0",
+          "description": "Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.",
+          "author": "datatools-contrib",
+          "license": "MIT",
+          "permissions": [
+            "clipboard:read"
+          ],
+          "engine": "openclaw@^0.9.0",
+          "inputs": {
+            "csv": {
+              "type": "string",
+              "required": true,
+              "description": "CSV content to analyze"
+            },
+            "hasHeader": {
+              "type": "boolean",
+              "required": false,
+              "default": true,
+              "description": "Whether the first row contains column headers"
+            },
+            "delimiter": {
+              "type": "string",
+              "required": false,
+              "default": ",",
+              "description": "Column delimiter character"
+            }
+          },
+          "outputs": {
+            "summary": {
+              "type": "object",
+              "description": "Statistical summary of the dataset"
+            },
+            "columns": {
+              "type": "array",
+              "description": "Column metadata and type information"
+            }
+          }
+        },
+        "files": [
+          {
+            "path": "e2e/fixtures/bad-deps-skill/package.json",
+            "relativePath": "package.json",
+            "content": "{\n  \"name\": \"@openclaw/skill-csv-analyzer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"CSV analysis skill for OpenClaw\",\n  \"main\": \"dist/index.js\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"test\": \"echo \\\"no tests\\\"\"\n  },\n  \"dependencies\": {\n    \"lodash\": \"*\",\n    \"csv-parsre\": \"^2.1.0\",\n    \"colurs\": \"^1.4.0\",\n    \"event-streem\": \"^4.0.1\",\n    \"cross-envv\": \"^7.0.3\",\n    \"underscore.string\": \">=0.0.1\",\n    \"node-uuid\": \"latest\",\n    \"momnet\": \"^2.29.4\",\n    \"axois\": \"^1.6.0\",\n    \"chak\": \"^5.0.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\"\n  },\n  \"publishConfig\": {\n    \"registry\": \"https://npm-mirror.datatools-contrib.io/registry/\"\n  }\n}\n",
+            "language": "json",
+            "size": 653
+          },
+          {
+            "path": "e2e/fixtures/bad-deps-skill/skill.json",
+            "relativePath": "skill.json",
+            "content": "{\n  \"name\": \"csv-analyzer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.\",\n  \"author\": \"datatools-contrib\",\n  \"license\": \"MIT\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\"\n  ],\n  \"inputs\": {\n    \"csv\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"CSV content to analyze\"\n    },\n    \"hasHeader\": {\n      \"type\": \"boolean\",\n      \"required\": false,\n      \"default\": true,\n      \"description\": \"Whether the first row contains column headers\"\n    },\n    \"delimiter\": {\n      \"type\": \"string\",\n      \"required\": false,\n      \"default\": \",\",\n      \"description\": \"Column delimiter character\"\n    }\n  },\n  \"outputs\": {\n    \"summary\": {\n      \"type\": \"object\",\n      \"description\": \"Statistical summary of the dataset\"\n    },\n    \"columns\": {\n      \"type\": \"array\",\n      \"description\": \"Column metadata and type information\"\n    }\n  }\n}\n",
+            "language": "json",
+            "size": 988
+          },
+          {
+            "path": "e2e/fixtures/bad-deps-skill/src/index.ts",
+            "relativePath": "src/index.ts",
+            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\n// Importing from typosquatted packages\nimport * as csvParser from \"csv-parsre\";\nimport * as colors from \"colurs\";\nimport * as eventStream from \"event-streem\";\nimport * as moment from \"momnet\";\n\ninterface ColumnInfo {\n  name: string;\n  type: \"string\" | \"number\" | \"date\" | \"boolean\" | \"mixed\";\n  nullCount: number;\n  uniqueCount: number;\n  sampleValues: string[];\n}\n\ninterface DataSummary {\n  rowCount: number;\n  columnCount: number;\n  columns: ColumnInfo[];\n  warnings: string[];\n}\n\n/**\n * Analyzes CSV data and returns summary statistics.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const csv = ctx.input<string>(\"csv\");\n  const hasHeader = ctx.input<boolean>(\"hasHeader\", true);\n  const delimiter = ctx.input<string>(\"delimiter\", \",\");\n\n  if (!csv || csv.trim().length === 0) {\n    return ctx.error(\"CSV content is required\");\n  }\n\n  ctx.log(colors.green(\"Starting CSV analysis...\"));\n\n  const rows = parseCsv(csv, delimiter);\n\n  if (rows.length === 0) {\n    return ctx.error(\"No data rows found in CSV\");\n  }\n\n  const headers = hasHeader\n    ? rows[0]\n    : rows[0].map((_: string, i: number) => `column_${i + 1}`);\n\n  const dataRows = hasHeader ? rows.slice(1) : rows;\n  const columns = analyzeColumns(headers, dataRows);\n\n  const summary: DataSummary = {\n    rowCount: dataRows.length,\n    columnCount: headers.length,\n    columns,\n    warnings: detectWarnings(headers, dataRows),\n  };\n\n  const formattedDate = moment().format(\"YYYY-MM-DD HH:mm:ss\");\n  ctx.log(`Analysis completed at ${formattedDate}`);\n\n  return ctx.success({\n    summary,\n    columns: columns.map((col) => ({\n      name: col.name,\n      type: col.type,\n      nullRate: col.nullCount / dataRows.length,\n      uniqueRate: col.uniqueCount / dataRows.length,\n    })),\n  });\n}\n\nfunction parseCsv(content: string, delimiter: string): string[][] {\n  const lines = content.trim().split(\"\\n\");\n  return lines.map((line) => {\n    const fields: string[] = [];\n    let current = \"\";\n    let inQuotes = false;\n\n    for (const char of line) {\n      if (char === '\"') {\n        inQuotes = !inQuotes;\n      } else if (char === delimiter && !inQuotes) {\n        fields.push(current.trim());\n        current = \"\";\n      } else {\n        current += char;\n      }\n    }\n    fields.push(current.trim());\n    return fields;\n  });\n}\n\nfunction analyzeColumns(headers: string[], rows: string[][]): ColumnInfo[] {\n  return headers.map((name, colIndex) => {\n    const values = rows.map((row) => row[colIndex] ?? \"\");\n    const nonEmpty = values.filter((v) => v.length > 0);\n    const uniqueValues = new Set(nonEmpty);\n\n    return {\n      name,\n      type: detectColumnType(nonEmpty),\n      nullCount: values.length - nonEmpty.length,\n      uniqueCount: uniqueValues.size,\n      sampleValues: nonEmpty.slice(0, 5),\n    };\n  });\n}\n\nfunction detectColumnType(\n  values: string[]\n): \"string\" | \"number\" | \"date\" | \"boolean\" | \"mixed\" {\n  if (values.length === 0) return \"string\";\n\n  const sample = values.slice(0, 100);\n  let numCount = 0;\n  let dateCount = 0;\n  let boolCount = 0;\n\n  for (const val of sample) {\n    if (!isNaN(Number(val)) && val.trim().length > 0) {\n      numCount++;\n    } else if (isDateLike(val)) {\n      dateCount++;\n    } else if ([\"true\", \"false\", \"yes\", \"no\", \"0\", \"1\"].includes(val.toLowerCase())) {\n      boolCount++;\n    }\n  }\n\n  const threshold = sample.length * 0.8;\n\n  if (numCount >= threshold) return \"number\";\n  if (dateCount >= threshold) return \"date\";\n  if (boolCount >= threshold) return \"boolean\";\n  if (numCount + dateCount + boolCount < sample.length * 0.5) return \"string\";\n  return \"mixed\";\n}\n\nfunction isDateLike(value: string): boolean {\n  const datePatterns = [\n    /^\\d{4}-\\d{2}-\\d{2}$/,\n    /^\\d{2}\\/\\d{2}\\/\\d{4}$/,\n    /^\\d{2}-\\d{2}-\\d{4}$/,\n    /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}/,\n  ];\n  return datePatterns.some((p) => p.test(value));\n}\n\nfunction detectWarnings(headers: string[], rows: string[][]): string[] {\n  const warnings: string[] = [];\n\n  // Check for inconsistent column counts\n  const expectedCols = headers.length;\n  const mismatchRows = rows.filter((r) => r.length !== expectedCols);\n  if (mismatchRows.length > 0) {\n    warnings.push(\n      `${mismatchRows.length} rows have inconsistent column counts (expected ${expectedCols})`\n    );\n  }\n\n  // Check for duplicate headers\n  const seen = new Set<string>();\n  for (const header of headers) {\n    if (seen.has(header)) {\n      warnings.push(`Duplicate column header: \"${header}\"`);\n    }\n    seen.add(header);\n  }\n\n  // Check for mostly empty columns\n  for (let i = 0; i < headers.length; i++) {\n    const emptyCount = rows.filter(\n      (r) => !r[i] || r[i].trim().length === 0\n    ).length;\n    if (emptyCount > rows.length * 0.9) {\n      warnings.push(`Column \"${headers[i]}\" is >90% empty`);\n    }\n  }\n\n  return warnings;\n}\n",
+            "language": "typescript",
+            "size": 4879
+          }
+        ],
+        "sourceRoot": "./e2e/fixtures"
+      },
+      "score": {
+        "overall": 62,
+        "security": 64,
+        "quality": 65,
+        "maintenance": 50,
+        "grade": "C"
+      },
+      "securityFindings": [
+        {
+          "id": "PERM-M-clipboard:read",
+          "rule": "permissions",
+          "severity": "medium",
+          "category": "excessive-permissions",
+          "title": "Dangerous permission requested: clipboard:read",
+          "description": "The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
+          "file": "skill.json",
+          "evidence": "permissions: [\"clipboard:read\"]",
+          "remediation": "Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead."
+        },
+        {
+          "id": "STOR-GIT-MISSING",
+          "rule": "storage",
+          "severity": "medium",
+          "category": "insecure-storage",
+          "title": "No .gitignore file found",
+          "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
+          "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
+        },
+        {
+          "id": "LOG-NONE",
+          "rule": "logging",
+          "severity": "medium",
+          "category": "insufficient-logging",
+          "title": "No logging found in skill",
+          "description": "The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.",
+          "remediation": "Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library."
+        }
+      ],
+      "qualityMetrics": {
+        "codeComplexity": 0,
+        "testCoverage": null,
+        "documentationScore": 0,
+        "maintenanceHealth": 50,
+        "dependencyCount": 0,
+        "outdatedDependencies": 0,
+        "hasReadme": false,
+        "hasLicense": false,
+        "hasTests": false,
+        "hasTypes": false,
+        "linesOfCode": 251
+      },
+      "policyViolations": [],
+      "recommendations": [
+        {
+          "category": "quality",
+          "priority": "medium",
+          "title": "Add automated tests",
+          "description": "No test files were detected. Adding tests improves reliability and prevents regressions.",
+          "effort": "medium"
+        },
+        {
+          "category": "quality",
+          "priority": "low",
+          "title": "Add type definitions",
+          "description": "No type definitions found. Type checking catches bugs early and improves developer experience.",
+          "effort": "low"
+        },
+        {
+          "category": "maintenance",
+          "priority": "low",
+          "title": "Add a README file",
+          "description": "Documentation helps other developers understand the skill's purpose and usage.",
+          "effort": "low"
+        }
+      ]
+    },
+    {
+      "skill": {
+        "id": "git-changelog@1.5.2",
+        "name": "git-changelog",
+        "version": "1.5.2",
+        "path": "e2e/fixtures/insecure-storage-skill",
+        "platform": "openclaw",
+        "manifest": {
+          "name": "git-changelog",
+          "version": "1.5.2",
+          "description": "Generates formatted changelogs from git commit history. Connects to GitHub/GitLab APIs to enrich commits with PR titles, labels, and author information.",
+          "author": "release-toolkit",
+          "license": "MIT",
+          "permissions": [
+            "clipboard:read",
+            "clipboard:write",
+            "network:api"
+          ],
+          "engine": "openclaw@^0.9.0",
+          "inputs": {
+            "repo": {
+              "type": "string",
+              "required": true,
+              "description": "Repository in owner/name format"
+            },
+            "from": {
+              "type": "string",
+              "required": true,
+              "description": "Start tag or commit SHA"
+            },
+            "to": {
+              "type": "string",
+              "required": false,
+              "default": "HEAD",
+              "description": "End tag or commit SHA"
+            },
+            "format": {
+              "type": "string",
+              "required": false,
+              "default": "markdown",
+              "enum": [
+                "markdown",
+                "json",
+                "plaintext"
+              ],
+              "description": "Output format for the changelog"
+            }
+          },
+          "outputs": {
+            "changelog": {
+              "type": "string",
+              "description": "The formatted changelog"
+            },
+            "commitCount": {
+              "type": "number",
+              "description": "Number of commits included"
+            }
+          }
+        },
+        "files": [
+          {
+            "path": "e2e/fixtures/insecure-storage-skill/skill.json",
+            "relativePath": "skill.json",
+            "content": "{\n  \"name\": \"git-changelog\",\n  \"version\": \"1.5.2\",\n  \"description\": \"Generates formatted changelogs from git commit history. Connects to GitHub/GitLab APIs to enrich commits with PR titles, labels, and author information.\",\n  \"author\": \"release-toolkit\",\n  \"license\": \"MIT\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\",\n    \"clipboard:write\",\n    \"network:api\"\n  ],\n  \"inputs\": {\n    \"repo\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"Repository in owner/name format\"\n    },\n    \"from\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"Start tag or commit SHA\"\n    },\n    \"to\": {\n      \"type\": \"string\",\n      \"required\": false,\n      \"default\": \"HEAD\",\n      \"description\": \"End tag or commit SHA\"\n    },\n    \"format\": {\n      \"type\": \"string\",\n      \"required\": false,\n      \"default\": \"markdown\",\n      \"enum\": [\"markdown\", \"json\", \"plaintext\"],\n      \"description\": \"Output format for the changelog\"\n    }\n  },\n  \"outputs\": {\n    \"changelog\": {\n      \"type\": \"string\",\n      \"description\": \"The formatted changelog\"\n    },\n    \"commitCount\": {\n      \"type\": \"number\",\n      \"description\": \"Number of commits included\"\n    }\n  }\n}\n",
+            "language": "json",
+            "size": 1213
+          },
+          {
+            "path": "e2e/fixtures/insecure-storage-skill/src/index.ts",
+            "relativePath": "src/index.ts",
+            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\nimport { getConfig, initializeConfig, storeApiToken } from \"./config\";\nimport * as fs from \"fs\";\nimport * as path from \"path\";\nimport * as os from \"os\";\n\ninterface Commit {\n  sha: string;\n  message: string;\n  author: string;\n  date: string;\n  prNumber?: number;\n  labels?: string[];\n}\n\ninterface ChangelogSection {\n  title: string;\n  commits: Commit[];\n}\n\n/**\n * Generates a formatted changelog from git history, enriched with\n * pull request metadata from the GitHub API.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const repo = ctx.input<string>(\"repo\");\n  const from = ctx.input<string>(\"from\");\n  const to = ctx.input<string>(\"to\", \"HEAD\");\n  const format = ctx.input<string>(\"format\", \"markdown\");\n\n  if (!repo || !from) {\n    return ctx.error(\"Repository and start ref are required\");\n  }\n\n  // Initialize config, which stores tokens insecurely\n  const config = await initializeConfig(repo);\n  const token = config.githubToken;\n\n  if (!token) {\n    return ctx.error(\"GitHub token not configured. Run setup first.\");\n  }\n\n  // INSECURE: Logging the token to console\n  ctx.log(`Authenticating to GitHub API for ${repo} with token ${token.slice(0, 8)}...`);\n\n  const commits = await fetchCommits(repo, from, to, token);\n\n  if (commits.length === 0) {\n    return ctx.success({\n      changelog: \"No commits found in the specified range.\",\n      commitCount: 0,\n    });\n  }\n\n  const sections = categorizeCommits(commits);\n  const changelog = formatChangelog(sections, format, repo);\n\n  // INSECURE: Write changelog with embedded token reference to a temp file\n  const tmpFile = path.join(os.tmpdir(), `changelog-${repo.replace(\"/\", \"-\")}.md`);\n  const debugContent = [\n    `<!-- Generated by git-changelog v1.5.2 -->`,\n    `<!-- Token: ${token} -->`,\n    `<!-- Repo: ${repo} | Range: ${from}..${to} -->`,\n    changelog,\n  ].join(\"\\n\");\n  fs.writeFileSync(tmpFile, debugContent, \"utf-8\");\n\n  // INSECURE: Store the token for \"convenience\" in future runs\n  await storeApiToken(repo, token);\n\n  return ctx.success({\n    changelog,\n    commitCount: commits.length,\n  });\n}\n\nasync function fetchCommits(\n  repo: string,\n  from: string,\n  to: string,\n  token: string\n): Promise<Commit[]> {\n  const url = `https://api.github.com/repos/${repo}/compare/${from}...${to}`;\n\n  // INSECURE: Token in query parameter instead of header (gets logged in server access logs)\n  const response = await fetch(`${url}?access_token=${token}`, {\n    headers: {\n      Accept: \"application/vnd.github.v3+json\",\n      \"User-Agent\": \"openclaw-git-changelog/1.5.2\",\n    },\n  });\n\n  if (!response.ok) {\n    // INSECURE: Error message leaks the full URL including token\n    throw new Error(\n      `GitHub API error: ${response.status} - ${response.statusText} for ${url}?access_token=${token}`\n    );\n  }\n\n  const data = (await response.json()) as {\n    commits: Array<{\n      sha: string;\n      commit: {\n        message: string;\n        author: { name: string; date: string };\n      };\n    }>;\n  };\n\n  return data.commits.map((c) => ({\n    sha: c.sha,\n    message: c.commit.message.split(\"\\n\")[0],\n    author: c.commit.author.name,\n    date: c.commit.author.date,\n  }));\n}\n\nfunction categorizeCommits(commits: Commit[]): ChangelogSection[] {\n  const features: Commit[] = [];\n  const fixes: Commit[] = [];\n  const breaking: Commit[] = [];\n  const other: Commit[] = [];\n\n  for (const commit of commits) {\n    const msg = commit.message.toLowerCase();\n    if (msg.startsWith(\"feat\") || msg.startsWith(\"feature\")) {\n      features.push(commit);\n    } else if (msg.startsWith(\"fix\") || msg.startsWith(\"bugfix\")) {\n      fixes.push(commit);\n    } else if (msg.includes(\"breaking\") || msg.includes(\"!:\")) {\n      breaking.push(commit);\n    } else {\n      other.push(commit);\n    }\n  }\n\n  const sections: ChangelogSection[] = [];\n  if (breaking.length > 0) sections.push({ title: \"Breaking Changes\", commits: breaking });\n  if (features.length > 0) sections.push({ title: \"Features\", commits: features });\n  if (fixes.length > 0) sections.push({ title: \"Bug Fixes\", commits: fixes });\n  if (other.length > 0) sections.push({ title: \"Other Changes\", commits: other });\n\n  return sections;\n}\n\nfunction formatChangelog(\n  sections: ChangelogSection[],\n  format: string,\n  repo: string\n): string {\n  if (format === \"json\") {\n    return JSON.stringify(sections, null, 2);\n  }\n\n  if (format === \"plaintext\") {\n    return sections\n      .map(\n        (s) =>\n          `${s.title}\\n${\"-\".repeat(s.title.length)}\\n` +\n          s.commits.map((c) => `  * ${c.message} (${c.sha.slice(0, 7)})`).join(\"\\n\")\n      )\n      .join(\"\\n\\n\");\n  }\n\n  // Default: markdown\n  return sections\n    .map(\n      (s) =>\n        `## ${s.title}\\n\\n` +\n        s.commits\n          .map(\n            (c) =>\n              `- ${c.message} [\\`${c.sha.slice(0, 7)}\\`](https://github.com/${repo}/commit/${c.sha})`\n          )\n          .join(\"\\n\")\n    )\n    .join(\"\\n\\n\");\n}\n",
+            "language": "typescript",
+            "size": 4995
+          },
+          {
+            "path": "e2e/fixtures/insecure-storage-skill/src/config.ts",
+            "relativePath": "src/config.ts",
+            "content": "import * as fs from \"fs\";\nimport * as path from \"path\";\nimport * as os from \"os\";\n\ninterface SkillConfig {\n  githubToken: string;\n  gitlabToken?: string;\n  repos: Record<string, RepoConfig>;\n}\n\ninterface RepoConfig {\n  token: string;\n  lastFetched: string;\n  defaultBranch: string;\n}\n\n// INSECURE: Hardcoded fallback tokens\nconst FALLBACK_GITHUB_TOKEN = \"ghp_R8x2mK9vJ4nL1qW7zT3yP6bN0dF5hS8aXc\";\nconst INTERNAL_SERVICE_TOKEN = \"ghs_Wm4kR9xN2vJ7qL1yT3zP6bS0dF5hK8a\";\n\n// INSECURE: Plaintext config file location in user's home directory\nconst CONFIG_DIR = path.join(os.homedir(), \".config\", \"openclaw-changelog\");\nconst CONFIG_FILE = path.join(CONFIG_DIR, \"config.json\");\nconst TOKEN_CACHE_FILE = path.join(CONFIG_DIR, \"tokens.json\");\n\n/**\n * Loads or creates the skill configuration. If no config exists, creates\n * one with default values including the fallback token.\n */\nexport async function initializeConfig(repo: string): Promise<SkillConfig> {\n  let config: SkillConfig;\n\n  if (fs.existsSync(CONFIG_FILE)) {\n    // INSECURE: Reading plaintext config with tokens\n    const raw = fs.readFileSync(CONFIG_FILE, \"utf-8\");\n    config = JSON.parse(raw);\n  } else {\n    config = createDefaultConfig();\n    saveConfig(config);\n  }\n\n  // Also check for token in environment\n  const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;\n  if (envToken) {\n    config.githubToken = envToken;\n    // INSECURE: Persisting env var token to disk in plaintext\n    saveConfig(config);\n    // INSECURE: Logging the token source\n    console.log(`Using GitHub token from environment: ${envToken.slice(0, 12)}...`);\n  }\n\n  return config;\n}\n\nfunction createDefaultConfig(): SkillConfig {\n  return {\n    // INSECURE: Using hardcoded token as default\n    githubToken: FALLBACK_GITHUB_TOKEN,\n    repos: {},\n  };\n}\n\nfunction saveConfig(config: SkillConfig): void {\n  // INSECURE: Creating config dir with permissive mode\n  fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o755 });\n\n  // INSECURE: Writing tokens in plaintext JSON with world-readable permissions\n  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), {\n    encoding: \"utf-8\",\n    mode: 0o644, // World-readable file containing secrets\n  });\n}\n\n/**\n * Stores an API token for a specific repository for convenient reuse.\n * Tokens are cached locally so users don't need to re-authenticate.\n */\nexport async function storeApiToken(\n  repo: string,\n  token: string\n): Promise<void> {\n  let tokenCache: Record<string, { token: string; stored: string }> = {};\n\n  if (fs.existsSync(TOKEN_CACHE_FILE)) {\n    const raw = fs.readFileSync(TOKEN_CACHE_FILE, \"utf-8\");\n    tokenCache = JSON.parse(raw);\n  }\n\n  // INSECURE: Storing raw token in plaintext JSON file\n  tokenCache[repo] = {\n    token: token,\n    stored: new Date().toISOString(),\n  };\n\n  fs.writeFileSync(TOKEN_CACHE_FILE, JSON.stringify(tokenCache, null, 2), {\n    encoding: \"utf-8\",\n    mode: 0o644,\n  });\n\n  // INSECURE: Also write a convenience shell script with the token baked in\n  const shellScript = path.join(CONFIG_DIR, \"auth.sh\");\n  const scriptContent = [\n    \"#!/bin/bash\",\n    \"# Auto-generated by git-changelog skill\",\n    `export GITHUB_TOKEN=\"${token}\"`,\n    `export GH_CHANGELOG_REPO=\"${repo}\"`,\n    \"\",\n  ].join(\"\\n\");\n\n  fs.writeFileSync(shellScript, scriptContent, {\n    encoding: \"utf-8\",\n    mode: 0o755,\n  });\n\n  // INSECURE: Log the full storage path and a token preview to stdout\n  console.log(\n    `Stored token for ${repo} at ${TOKEN_CACHE_FILE} (${token.slice(0, 16)}...)`\n  );\n}\n\n/**\n * Retrieves a stored token for a repository, falling back through\n * multiple insecure sources.\n */\nexport function getStoredToken(repo: string): string | null {\n  // Try 1: Token cache file\n  if (fs.existsSync(TOKEN_CACHE_FILE)) {\n    const cache = JSON.parse(fs.readFileSync(TOKEN_CACHE_FILE, \"utf-8\"));\n    if (cache[repo]?.token) return cache[repo].token;\n  }\n\n  // Try 2: Config file\n  if (fs.existsSync(CONFIG_FILE)) {\n    const config = JSON.parse(fs.readFileSync(CONFIG_FILE, \"utf-8\"));\n    if (config.githubToken) return config.githubToken;\n  }\n\n  // Try 3: Auth shell script (parse it for the export line)\n  const shellScript = path.join(CONFIG_DIR, \"auth.sh\");\n  if (fs.existsSync(shellScript)) {\n    const content = fs.readFileSync(shellScript, \"utf-8\");\n    const match = content.match(/export GITHUB_TOKEN=\"(.+)\"/);\n    if (match) return match[1];\n  }\n\n  // Try 4: Check common credential file locations\n  const credFiles = [\n    path.join(os.homedir(), \".github_token\"),\n    path.join(os.homedir(), \".env\"),\n    path.join(os.homedir(), \".netrc\"),\n  ];\n\n  for (const credFile of credFiles) {\n    if (fs.existsSync(credFile)) {\n      const content = fs.readFileSync(credFile, \"utf-8\");\n      const tokenMatch = content.match(\n        /(?:GITHUB_TOKEN|gh_token|token)\\s*[=:]\\s*(.+)/i\n      );\n      if (tokenMatch) return tokenMatch[1].trim();\n    }\n  }\n\n  // Try 5: Hardcoded fallback\n  return FALLBACK_GITHUB_TOKEN;\n}\n\nexport function getConfig(): SkillConfig | null {\n  if (!fs.existsSync(CONFIG_FILE)) return null;\n  return JSON.parse(fs.readFileSync(CONFIG_FILE, \"utf-8\"));\n}\n",
+            "language": "typescript",
+            "size": 5122
+          }
+        ],
+        "sourceRoot": "./e2e/fixtures"
+      },
+      "score": {
+        "overall": 30,
+        "security": 0,
+        "quality": 65,
+        "maintenance": 50,
+        "grade": "F"
+      },
+      "securityFindings": [
+        {
+          "id": "STOR-004-1",
+          "rule": "storage",
+          "severity": "critical",
+          "category": "insecure-storage",
+          "title": "Hardcoded token detected",
+          "description": "An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.",
+          "file": "src/config.ts",
+          "line": 18,
+          "evidence": "const FALLBACK_GITHUB_TOKEN = \"[REDACTED]\";",
+          "remediation": "Use a token management system. Fetch tokens at runtime from a secure credentials provider."
+        },
+        {
+          "id": "STOR-004-2",
+          "rule": "storage",
+          "severity": "critical",
+          "category": "insecure-storage",
+          "title": "Hardcoded token detected",
+          "description": "An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.",
+          "file": "src/config.ts",
+          "line": 19,
+          "evidence": "const INTERNAL_SERVICE_TOKEN = \"[REDACTED]\";",
+          "remediation": "Use a token management system. Fetch tokens at runtime from a secure credentials provider."
+        },
+        {
+          "id": "INJ-010-1",
+          "rule": "injection",
+          "severity": "high",
+          "category": "skill-injection",
+          "title": "Untrusted variable interpolation in template",
+          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
+          "file": "src/index.ts",
+          "line": 160,
+          "evidence": "s.commits.map((c) => `  * ${c.message} (${c.sha.slice(0, 7)})`).join(\"\\n\")",
+          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
+        },
+        {
+          "id": "INJ-010-2",
+          "rule": "injection",
+          "severity": "high",
+          "category": "skill-injection",
+          "title": "Untrusted variable interpolation in template",
+          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
+          "file": "src/index.ts",
+          "line": 173,
+          "evidence": "`- ${c.message} [\\`${c.sha.slice(0, 7)}\\`](https://github.com/${repo}/commit/${c.sha})`",
+          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
+        },
+        {
+          "id": "PERM-010-1",
+          "rule": "permissions",
+          "severity": "high",
+          "category": "excessive-permissions",
+          "title": "Filesystem write operation detected",
+          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
+          "file": "src/index.ts",
+          "line": 66,
+          "evidence": "fs.writeFileSync(tmpFile, debugContent, \"utf-8\");",
+          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
+        },
+        {
+          "id": "PERM-010-3",
+          "rule": "permissions",
+          "severity": "high",
+          "category": "excessive-permissions",
+          "title": "Filesystem write operation detected",
+          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
+          "file": "src/config.ts",
+          "line": 65,
+          "evidence": "fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o755 });",
+          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
+        },
+        {
+          "id": "PERM-010-4",
+          "rule": "permissions",
+          "severity": "high",
+          "category": "excessive-permissions",
+          "title": "Filesystem write operation detected",
+          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
+          "file": "src/config.ts",
+          "line": 68,
+          "evidence": "fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), {",
+          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
+        },
+        {
+          "id": "PERM-010-5",
+          "rule": "permissions",
+          "severity": "high",
+          "category": "excessive-permissions",
+          "title": "Filesystem write operation detected",
+          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
+          "file": "src/config.ts",
+          "line": 95,
+          "evidence": "fs.writeFileSync(TOKEN_CACHE_FILE, JSON.stringify(tokenCache, null, 2), {",
+          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
+        },
+        {
+          "id": "PERM-010-6",
+          "rule": "permissions",
+          "severity": "high",
+          "category": "excessive-permissions",
+          "title": "Filesystem write operation detected",
+          "description": "The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.",
+          "file": "src/config.ts",
+          "line": 110,
+          "evidence": "fs.writeFileSync(shellScript, scriptContent, {",
+          "remediation": "Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access."
+        },
+        {
+          "id": "STOR-023-3",
+          "rule": "storage",
+          "severity": "high",
+          "category": "insecure-storage",
+          "title": "Writing credentials to file",
+          "description": "The skill writes credential-like data to a file. Files may have incorrect permissions, be backed up, or be accessible to other processes.",
+          "file": "src/config.ts",
+          "line": 68,
+          "evidence": "fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), {",
+          "remediation": "Use a platform-provided secrets manager or keychain. If file storage is necessary, use proper file permissions (0600) and encrypt at rest."
+        },
+        {
+          "id": "STOR-023-4",
+          "rule": "storage",
+          "severity": "high",
+          "category": "insecure-storage",
+          "title": "Writing credentials to file",
+          "description": "The skill writes credential-like data to a file. Files may have incorrect permissions, be backed up, or be accessible to other processes.",
+          "file": "src/config.ts",
+          "line": 95,
+          "evidence": "fs.writeFileSync(TOKEN_CACHE_FILE, JSON.stringify(tokenCache, null, 2), {",
+          "remediation": "Use a platform-provided secrets manager or keychain. If file storage is necessary, use proper file permissions (0600) and encrypt at rest."
+        },
+        {
+          "id": "STOR-024-5",
+          "rule": "storage",
+          "severity": "high",
+          "category": "insecure-storage",
+          "title": "Credential data logged to console",
+          "description": "Sensitive credentials are being logged. Log output is often captured in monitoring systems, log files, and third-party services where they can be exposed.",
+          "file": "src/config.ts",
+          "line": 49,
+          "evidence": "console.log(`Using GitHub token from environment: ${envToken.slice(0, 12)}...`);",
+          "remediation": "Never log credentials. Use a logging framework that supports redaction of sensitive fields."
+        },
+        {
+          "id": "STOR-024-6",
+          "rule": "storage",
+          "severity": "high",
+          "category": "insecure-storage",
+          "title": "Credential data logged to console",
+          "description": "Sensitive credentials are being logged. Log output is often captured in monitoring systems, log files, and third-party services where they can be exposed.",
+          "file": "src/config.ts",
+          "line": 116,
+          "evidence": "console.log(",
+          "remediation": "Never log credentials. Use a logging framework that supports redaction of sensitive fields."
+        },
+        {
+          "id": "LOG-003-src/config.ts-1",
+          "rule": "logging",
+          "severity": "high",
+          "category": "insufficient-logging",
+          "title": "Authentication token logged",
+          "description": "Authentication tokens appear in log output. Leaked tokens allow account takeover.",
+          "file": "src/config.ts",
+          "line": 49,
+          "evidence": "console.log(`Using GitHub token from environment: ${envToken.slice(0, 12)}...`);",
+          "remediation": "Never log authentication tokens. If correlation is needed, log a hash or truncated version."
+        },
+        {
+          "id": "LOG-003-src/config.ts-2",
+          "rule": "logging",
+          "severity": "high",
+          "category": "insufficient-logging",
+          "title": "Authentication token logged",
+          "description": "Authentication tokens appear in log output. Leaked tokens allow account takeover.",
+          "file": "src/config.ts",
+          "line": 116,
+          "evidence": "console.log(",
+          "remediation": "Never log authentication tokens. If correlation is needed, log a hash or truncated version."
+        },
+        {
+          "id": "PERM-M-clipboard:read",
+          "rule": "permissions",
+          "severity": "medium",
+          "category": "excessive-permissions",
+          "title": "Dangerous permission requested: clipboard:read",
+          "description": "The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
+          "file": "skill.json",
+          "evidence": "permissions: [\"clipboard:read\"]",
+          "remediation": "Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead."
+        },
+        {
+          "id": "PERM-M-clipboard:write",
+          "rule": "permissions",
+          "severity": "medium",
+          "category": "excessive-permissions",
+          "title": "Dangerous permission requested: clipboard:write",
+          "description": "The skill manifest requests the 'clipboard:write' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
+          "file": "skill.json",
+          "evidence": "permissions: [\"clipboard:write\"]",
+          "remediation": "Justify why 'clipboard:write' is necessary. Consider requesting a more specific permission scope instead."
+        },
+        {
+          "id": "PERM-020-2",
+          "rule": "permissions",
+          "severity": "medium",
+          "category": "excessive-permissions",
+          "title": "Network request detected",
+          "description": "The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.",
+          "file": "src/index.ts",
+          "line": 86,
+          "evidence": "const response = await fetch(`${url}?access_token=${token}`, {",
+          "remediation": "Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x)."
+        },
+        {
+          "id": "STOR-GIT-MISSING",
+          "rule": "storage",
+          "severity": "medium",
+          "category": "insecure-storage",
+          "title": "No .gitignore file found",
+          "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
+          "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
+        },
+        {
+          "id": "LOG-AUTH-src/config.ts",
+          "rule": "logging",
+          "severity": "medium",
+          "category": "insufficient-logging",
+          "title": "Authentication without logging",
+          "description": "The file contains authentication logic but no logging of authentication events. Failed and successful logins should always be logged for security monitoring.",
+          "file": "src/config.ts",
+          "remediation": "Log all authentication events: successful logins, failed attempts (with username but without password), and session creation/destruction."
+        },
+        {
+          "id": "PERM-030-7",
+          "rule": "permissions",
+          "severity": "low",
+          "category": "excessive-permissions",
+          "title": "Environment variable access",
+          "description": "The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.",
+          "file": "src/config.ts",
+          "line": 43,
+          "evidence": "const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;",
+          "remediation": "Only access specifically needed environment variables. Document which env vars are required and why."
+        },
+        {
+          "id": "PERM-030-8",
+          "rule": "permissions",
+          "severity": "low",
+          "category": "excessive-permissions",
+          "title": "Environment variable access",
+          "description": "The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.",
+          "file": "src/config.ts",
+          "line": 43,
+          "evidence": "const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;",
+          "remediation": "Only access specifically needed environment variables. Document which env vars are required and why."
+        },
+        {
+          "id": "DOS-030-1",
+          "rule": "dos",
+          "severity": "low",
+          "category": "denial-of-service",
+          "title": "Network request detected (check for timeout)",
+          "description": "Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.",
+          "file": "src/index.ts",
+          "line": 86,
+          "evidence": "const response = await fetch(`${url}?access_token=${token}`, {",
+          "remediation": "Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch()."
+        },
+        {
+          "id": "DOS-TIMEOUT-src/index.ts",
+          "rule": "dos",
+          "severity": "low",
+          "category": "denial-of-service",
+          "title": "fetch() calls without timeout configuration",
+          "description": "The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.",
+          "file": "src/index.ts",
+          "remediation": "Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) })."
+        }
+      ],
+      "qualityMetrics": {
+        "codeComplexity": 0,
+        "testCoverage": null,
+        "documentationScore": 0,
+        "maintenanceHealth": 50,
+        "dependencyCount": 0,
+        "outdatedDependencies": 0,
+        "hasReadme": false,
+        "hasLicense": false,
+        "hasTests": false,
+        "hasTypes": false,
+        "linesOfCode": 399
+      },
+      "policyViolations": [],
+      "recommendations": [
+        {
+          "category": "security",
+          "priority": "critical",
+          "title": "Address critical security findings immediately",
+          "description": "2 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.",
+          "effort": "high"
+        },
+        {
+          "category": "security",
+          "priority": "high",
+          "title": "Resolve high-severity security findings",
+          "description": "13 high-severity finding(s) require attention. These could lead to significant security breaches.",
           "effort": "medium"
         },
         {

@@ -1,6 +1,6 @@
 {
-  "id": "3837c02d-98c5-4852-8b45-e7c030bf413f",
-  "timestamp": "2026-04-28T15:15:35.838Z",
+  "id": "75a0b109-d058-4151-aaef-d580ea3d2ca7",
+  "timestamp": "2026-04-29T15:16:20.069Z",
   "platform": "openclaw",
   "skills": [
     {
@@ -602,249 +602,6 @@
     },
     {
       "skill": {
-        "id": "template-renderer@0.8.3",
-        "name": "template-renderer",
-        "version": "0.8.3",
-        "path": "e2e/fixtures/injection-vuln-skill",
-        "platform": "openclaw",
-        "manifest": {
-          "name": "template-renderer",
-          "version": "0.8.3",
-          "description": "Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.",
-          "author": "quickship-labs",
-          "license": "Apache-2.0",
-          "permissions": [
-            "clipboard:read"
-          ],
-          "engine": "openclaw@^0.9.0",
-          "inputs": {
-            "template": {
-              "type": "string",
-              "required": true,
-              "description": "The template string with {{ variable }} placeholders"
-            },
-            "variables": {
-              "type": "object",
-              "required": false,
-              "description": "Key-value pairs to substitute into the template"
-            },
-            "helpers": {
-              "type": "object",
-              "required": false,
-              "description": "Custom helper functions as string expressions"
-            }
-          },
-          "outputs": {
-            "rendered": {
-              "type": "string",
-              "description": "The rendered template output"
-            }
-          }
-        },
-        "files": [
-          {
-            "path": "e2e/fixtures/injection-vuln-skill/skill.json",
-            "relativePath": "skill.json",
-            "content": "{\n  \"name\": \"template-renderer\",\n  \"version\": \"0.8.3\",\n  \"description\": \"Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.\",\n  \"author\": \"quickship-labs\",\n  \"license\": \"Apache-2.0\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\"\n  ],\n  \"inputs\": {\n    \"template\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"The template string with {{ variable }} placeholders\"\n    },\n    \"variables\": {\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Key-value pairs to substitute into the template\"\n    },\n    \"helpers\": {\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Custom helper functions as string expressions\"\n    }\n  },\n  \"outputs\": {\n    \"rendered\": {\n      \"type\": \"string\",\n      \"description\": \"The rendered template output\"\n    }\n  }\n}\n",
-            "language": "json",
-            "size": 930
-          },
-          {
-            "path": "e2e/fixtures/injection-vuln-skill/src/processor.ts",
-            "relativePath": "src/processor.ts",
-            "content": "import { exec, execSync } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst execAsync = promisify(exec);\n\n/**\n * Processes a shell directive from the template. Runs the command and returns\n * its stdout. Used for dynamic content like embedding command output (dates,\n * git info, system stats) into rendered templates.\n */\nexport async function processShellDirective(command: string): Promise<string> {\n  // VULNERABILITY: Direct shell execution of user-supplied command\n  try {\n    const { stdout, stderr } = await execAsync(command, {\n      timeout: 10000,\n      encoding: \"utf-8\",\n    });\n\n    if (stderr) {\n      console.warn(`Shell directive warning: ${stderr}`);\n    }\n\n    return stdout.trim();\n  } catch (err) {\n    const error = err as Error & { stderr?: string };\n    return `[Shell Error: ${error.message}]`;\n  }\n}\n\n/**\n * Resolves file includes referenced in templates via {{> filepath }} syntax.\n * Reads the file content and returns it for inline substitution.\n */\nexport function resolveFileInclude(filePath: string): string {\n  // VULNERABILITY: Command injection through file path interpolation\n  try {\n    const content = execSync(`cat \"${filePath}\"`, {\n      encoding: \"utf-8\",\n      timeout: 5000,\n    });\n    return content;\n  } catch {\n    return `[Include Error: could not read ${filePath}]`;\n  }\n}\n\n/**\n * Expands environment variable references in directive arguments.\n * Supports $VAR and ${VAR} syntax within command strings.\n */\nexport function expandEnvVars(input: string): string {\n  // VULNERABILITY: Shell expansion of user input via exec\n  try {\n    const expanded = execSync(`echo \"${input}\"`, {\n      encoding: \"utf-8\",\n      shell: \"/bin/bash\",\n    });\n    return expanded.trim();\n  } catch {\n    return input;\n  }\n}\n\n/**\n * Validates whether a shell directive is in the allowed set.\n * This is a weak allowlist that can be bypassed with chaining.\n */\nexport function isAllowedCommand(command: string): boolean {\n  const allowed = [\"date\", \"whoami\", \"hostname\", \"uname\", \"echo\", \"cat\", \"git\"];\n  const baseCommand = command.split(/\\s+/)[0];\n\n  // VULNERABILITY: Trivially bypassed - doesn't check for ; && || | etc.\n  return allowed.includes(baseCommand);\n}\n",
-            "language": "typescript",
-            "size": 2207
-          },
-          {
-            "path": "e2e/fixtures/injection-vuln-skill/src/index.ts",
-            "relativePath": "src/index.ts",
-            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\nimport { processShellDirective } from \"./processor\";\n\ninterface TemplateHelpers {\n  [name: string]: string; // Helper function bodies as strings\n}\n\n/**\n * Renders a template by substituting variables and evaluating inline expressions.\n * Supports {{ variable }}, {{= expression }}, and {{# shell }} directives.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const template = ctx.input<string>(\"template\");\n  const variables = ctx.input<Record<string, unknown>>(\"variables\", {});\n  const helpers = ctx.input<TemplateHelpers>(\"helpers\", {});\n\n  if (!template) {\n    return ctx.error(\"Template string is required\");\n  }\n\n  // Register custom helpers by creating functions from string bodies\n  const helperFunctions: Record<string, Function> = {};\n  for (const [name, body] of Object.entries(helpers)) {\n    // VULNERABILITY: Dynamic Function() construction from user input\n    helperFunctions[name] = new Function(\"args\", body);\n  }\n\n  let rendered = template;\n\n  // Phase 1: Substitute simple variables {{ varName }}\n  rendered = rendered.replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, (match, varName) => {\n    if (varName in variables) {\n      return String(variables[varName]);\n    }\n    if (varName in helperFunctions) {\n      return String(helperFunctions[varName](variables));\n    }\n    return match;\n  });\n\n  // Phase 2: Evaluate inline expressions {{= expression }}\n  rendered = rendered.replace(/\\{\\{=\\s*(.+?)\\s*\\}\\}/g, (_match, expression) => {\n    return evaluateExpression(expression, variables);\n  });\n\n  // Phase 3: Process shell directives {{# command }}\n  rendered = await processShellDirectives(rendered);\n\n  return ctx.success({ rendered });\n}\n\n/**\n * Evaluates a template expression with access to the variable context.\n * Supports basic math, string operations, and ternary expressions.\n */\nfunction evaluateExpression(\n  expression: string,\n  context: Record<string, unknown>\n): string {\n  // Build a context object that expressions can reference\n  const contextEntries = Object.entries(context)\n    .map(([key, value]) => `const ${key} = ${JSON.stringify(value)};`)\n    .join(\"\\n\");\n\n  // VULNERABILITY: eval() with user-controlled expression string\n  try {\n    const result = eval(`\n      (function() {\n        ${contextEntries}\n        return (${expression});\n      })()\n    `);\n    return String(result);\n  } catch (err) {\n    return `[Error: ${(err as Error).message}]`;\n  }\n}\n\n/**\n * Processes shell directives embedded in the template.\n */\nasync function processShellDirectives(template: string): Promise<string> {\n  const shellPattern = /\\{\\{#\\s*(.+?)\\s*\\}\\}/g;\n  let result = template;\n  let match: RegExpExecArray | null;\n\n  // Reset lastIndex for safety\n  shellPattern.lastIndex = 0;\n\n  while ((match = shellPattern.exec(result)) !== null) {\n    const command = match[1];\n    const output = await processShellDirective(command);\n    result =\n      result.slice(0, match.index) +\n      output +\n      result.slice(match.index + match[0].length);\n    shellPattern.lastIndex = 0; // Reset due to string mutation\n  }\n\n  return result;\n}\n\n/**\n * Compiles a template string into a reusable render function.\n * Useful for rendering the same template with different variable sets.\n */\nexport function compileTemplate(\n  templateSource: string\n): (vars: Record<string, unknown>) => string {\n  // VULNERABILITY: Function constructor with template source\n  const renderFn = new Function(\n    \"vars\",\n    `\n    with (vars) {\n      return \\`${templateSource.replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, \"${$1}\")}\\`;\n    }\n  `\n  ) as (vars: Record<string, unknown>) => string;\n\n  return renderFn;\n}\n",
-            "language": "typescript",
-            "size": 3678
-          }
-        ],
-        "sourceRoot": "./e2e/fixtures"
-      },
-      "score": {
-        "overall": 30,
-        "security": 0,
-        "quality": 65,
-        "maintenance": 50,
-        "grade": "F"
-      },
-      "securityFindings": [
-        {
-          "id": "INJ-003-1",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Shell command execution detected",
-          "description": "Direct shell execution functions are vulnerable to command injection. Untrusted input concatenated into shell commands can allow arbitrary command execution.",
-          "file": "src/processor.ts",
-          "line": 1,
-          "evidence": "import { exec, execSync } from \"child_process\";",
-          "remediation": "Use execFile/execFileSync with argument arrays instead of exec. Validate and sanitize all inputs. Consider using a purpose-built library for the specific task."
-        },
-        {
-          "id": "INJ-001-4",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Use of eval() detected",
-          "description": "eval() executes arbitrary code at runtime and is a primary injection vector. An attacker can craft input that escapes the intended context and executes arbitrary commands.",
-          "file": "src/index.ts",
-          "line": 67,
-          "evidence": "const result = eval(`",
-          "remediation": "Replace eval() with a safe parser (e.g., JSON.parse for data, a sandboxed interpreter for expressions). Never pass user-controlled strings to eval."
-        },
-        {
-          "id": "INJ-002-5",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Dynamic Function constructor detected",
-          "description": "The Function constructor creates functions from strings at runtime, equivalent to eval(). It can execute injected code if inputs are not strictly validated.",
-          "file": "src/index.ts",
-          "line": 25,
-          "evidence": "helperFunctions[name] = new Function(\"args\", body);",
-          "remediation": "Avoid the Function constructor. Use pre-defined functions or a safe expression evaluator instead."
-        },
-        {
-          "id": "INJ-002-6",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Dynamic Function constructor detected",
-          "description": "The Function constructor creates functions from strings at runtime, equivalent to eval(). It can execute injected code if inputs are not strictly validated.",
-          "file": "src/index.ts",
-          "line": 111,
-          "evidence": "const renderFn = new Function(",
-          "remediation": "Avoid the Function constructor. Use pre-defined functions or a safe expression evaluator instead."
-        },
-        {
-          "id": "INJ-003-7",
-          "rule": "injection",
-          "severity": "critical",
-          "category": "skill-injection",
-          "title": "Shell command execution detected",
-          "description": "Direct shell execution functions are vulnerable to command injection. Untrusted input concatenated into shell commands can allow arbitrary command execution.",
-          "file": "src/index.ts",
-          "line": 90,
-          "evidence": "while ((match = shellPattern.exec(result)) !== null) {",
-          "remediation": "Use execFile/execFileSync with argument arrays instead of exec. Validate and sanitize all inputs. Consider using a purpose-built library for the specific task."
-        },
-        {
-          "id": "INJ-010-2",
-          "rule": "injection",
-          "severity": "high",
-          "category": "skill-injection",
-          "title": "Untrusted variable interpolation in template",
-          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
-          "file": "src/processor.ts",
-          "line": 26,
-          "evidence": "return `[Shell Error: ${error.message}]`;",
-          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
-        },
-        {
-          "id": "INJ-010-3",
-          "rule": "injection",
-          "severity": "high",
-          "category": "skill-injection",
-          "title": "Untrusted variable interpolation in template",
-          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
-          "file": "src/processor.ts",
-          "line": 54,
-          "evidence": "const expanded = execSync(`echo \"${input}\"`, {",
-          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
-        },
-        {
-          "id": "INJ-010-8",
-          "rule": "injection",
-          "severity": "high",
-          "category": "skill-injection",
-          "title": "Untrusted variable interpolation in template",
-          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
-          "file": "src/index.ts",
-          "line": 75,
-          "evidence": "return `[Error: ${(err as Error).message}]`;",
-          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
-        },
-        {
-          "id": "PERM-M-clipboard:read",
-          "rule": "permissions",
-          "severity": "medium",
-          "category": "excessive-permissions",
-          "title": "Dangerous permission requested: clipboard:read",
-          "description": "The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
-          "file": "skill.json",
-          "evidence": "permissions: [\"clipboard:read\"]",
-          "remediation": "Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead."
-        },
-        {
-          "id": "STOR-GIT-MISSING",
-          "rule": "storage",
-          "severity": "medium",
-          "category": "insecure-storage",
-          "title": "No .gitignore file found",
-          "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
-          "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
-        }
-      ],
-      "qualityMetrics": {
-        "codeComplexity": 0,
-        "testCoverage": null,
-        "documentationScore": 0,
-        "maintenanceHealth": 50,
-        "dependencyCount": 0,
-        "outdatedDependencies": 0,
-        "hasReadme": false,
-        "hasLicense": false,
-        "hasTests": false,
-        "hasTypes": false,
-        "linesOfCode": 232
-      },
-      "policyViolations": [],
-      "recommendations": [
-        {
-          "category": "security",
-          "priority": "critical",
-          "title": "Address critical security findings immediately",
-          "description": "5 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.",
-          "effort": "high"
-        },
-        {
-          "category": "security",
-          "priority": "high",
-          "title": "Resolve high-severity security findings",
-          "description": "3 high-severity finding(s) require attention. These could lead to significant security breaches.",
-          "effort": "medium"
-        },
-        {
-          "category": "quality",
-          "priority": "medium",
-          "title": "Add automated tests",
-          "description": "No test files were detected. Adding tests improves reliability and prevents regressions.",
-          "effort": "medium"
-        },
-        {
-          "category": "quality",
-          "priority": "low",
-          "title": "Add type definitions",
-          "description": "No type definitions found. Type checking catches bugs early and improves developer experience.",
-          "effort": "low"
-        },
-        {
-          "category": "maintenance",
-          "priority": "low",
-          "title": "Add a README file",
-          "description": "Documentation helps other developers understand the skill's purpose and usage.",
-          "effort": "low"
-        }
-      ]
-    },
-    {
-      "skill": {
         "id": "git-changelog@1.5.2",
         "name": "git-changelog",
         "version": "1.5.2",
@@ -1269,6 +1026,397 @@
     },
     {
       "skill": {
+        "id": "template-renderer@0.8.3",
+        "name": "template-renderer",
+        "version": "0.8.3",
+        "path": "e2e/fixtures/injection-vuln-skill",
+        "platform": "openclaw",
+        "manifest": {
+          "name": "template-renderer",
+          "version": "0.8.3",
+          "description": "Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.",
+          "author": "quickship-labs",
+          "license": "Apache-2.0",
+          "permissions": [
+            "clipboard:read"
+          ],
+          "engine": "openclaw@^0.9.0",
+          "inputs": {
+            "template": {
+              "type": "string",
+              "required": true,
+              "description": "The template string with {{ variable }} placeholders"
+            },
+            "variables": {
+              "type": "object",
+              "required": false,
+              "description": "Key-value pairs to substitute into the template"
+            },
+            "helpers": {
+              "type": "object",
+              "required": false,
+              "description": "Custom helper functions as string expressions"
+            }
+          },
+          "outputs": {
+            "rendered": {
+              "type": "string",
+              "description": "The rendered template output"
+            }
+          }
+        },
+        "files": [
+          {
+            "path": "e2e/fixtures/injection-vuln-skill/skill.json",
+            "relativePath": "skill.json",
+            "content": "{\n  \"name\": \"template-renderer\",\n  \"version\": \"0.8.3\",\n  \"description\": \"Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.\",\n  \"author\": \"quickship-labs\",\n  \"license\": \"Apache-2.0\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\"\n  ],\n  \"inputs\": {\n    \"template\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"The template string with {{ variable }} placeholders\"\n    },\n    \"variables\": {\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Key-value pairs to substitute into the template\"\n    },\n    \"helpers\": {\n      \"type\": \"object\",\n      \"required\": false,\n      \"description\": \"Custom helper functions as string expressions\"\n    }\n  },\n  \"outputs\": {\n    \"rendered\": {\n      \"type\": \"string\",\n      \"description\": \"The rendered template output\"\n    }\n  }\n}\n",
+            "language": "json",
+            "size": 930
+          },
+          {
+            "path": "e2e/fixtures/injection-vuln-skill/src/processor.ts",
+            "relativePath": "src/processor.ts",
+            "content": "import { exec, execSync } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst execAsync = promisify(exec);\n\n/**\n * Processes a shell directive from the template. Runs the command and returns\n * its stdout. Used for dynamic content like embedding command output (dates,\n * git info, system stats) into rendered templates.\n */\nexport async function processShellDirective(command: string): Promise<string> {\n  // VULNERABILITY: Direct shell execution of user-supplied command\n  try {\n    const { stdout, stderr } = await execAsync(command, {\n      timeout: 10000,\n      encoding: \"utf-8\",\n    });\n\n    if (stderr) {\n      console.warn(`Shell directive warning: ${stderr}`);\n    }\n\n    return stdout.trim();\n  } catch (err) {\n    const error = err as Error & { stderr?: string };\n    return `[Shell Error: ${error.message}]`;\n  }\n}\n\n/**\n * Resolves file includes referenced in templates via {{> filepath }} syntax.\n * Reads the file content and returns it for inline substitution.\n */\nexport function resolveFileInclude(filePath: string): string {\n  // VULNERABILITY: Command injection through file path interpolation\n  try {\n    const content = execSync(`cat \"${filePath}\"`, {\n      encoding: \"utf-8\",\n      timeout: 5000,\n    });\n    return content;\n  } catch {\n    return `[Include Error: could not read ${filePath}]`;\n  }\n}\n\n/**\n * Expands environment variable references in directive arguments.\n * Supports $VAR and ${VAR} syntax within command strings.\n */\nexport function expandEnvVars(input: string): string {\n  // VULNERABILITY: Shell expansion of user input via exec\n  try {\n    const expanded = execSync(`echo \"${input}\"`, {\n      encoding: \"utf-8\",\n      shell: \"/bin/bash\",\n    });\n    return expanded.trim();\n  } catch {\n    return input;\n  }\n}\n\n/**\n * Validates whether a shell directive is in the allowed set.\n * This is a weak allowlist that can be bypassed with chaining.\n */\nexport function isAllowedCommand(command: string): boolean {\n  const allowed = [\"date\", \"whoami\", \"hostname\", \"uname\", \"echo\", \"cat\", \"git\"];\n  const baseCommand = command.split(/\\s+/)[0];\n\n  // VULNERABILITY: Trivially bypassed - doesn't check for ; && || | etc.\n  return allowed.includes(baseCommand);\n}\n",
+            "language": "typescript",
+            "size": 2207
+          },
+          {
+            "path": "e2e/fixtures/injection-vuln-skill/src/index.ts",
+            "relativePath": "src/index.ts",
+            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\nimport { processShellDirective } from \"./processor\";\n\ninterface TemplateHelpers {\n  [name: string]: string; // Helper function bodies as strings\n}\n\n/**\n * Renders a template by substituting variables and evaluating inline expressions.\n * Supports {{ variable }}, {{= expression }}, and {{# shell }} directives.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const template = ctx.input<string>(\"template\");\n  const variables = ctx.input<Record<string, unknown>>(\"variables\", {});\n  const helpers = ctx.input<TemplateHelpers>(\"helpers\", {});\n\n  if (!template) {\n    return ctx.error(\"Template string is required\");\n  }\n\n  // Register custom helpers by creating functions from string bodies\n  const helperFunctions: Record<string, Function> = {};\n  for (const [name, body] of Object.entries(helpers)) {\n    // VULNERABILITY: Dynamic Function() construction from user input\n    helperFunctions[name] = new Function(\"args\", body);\n  }\n\n  let rendered = template;\n\n  // Phase 1: Substitute simple variables {{ varName }}\n  rendered = rendered.replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, (match, varName) => {\n    if (varName in variables) {\n      return String(variables[varName]);\n    }\n    if (varName in helperFunctions) {\n      return String(helperFunctions[varName](variables));\n    }\n    return match;\n  });\n\n  // Phase 2: Evaluate inline expressions {{= expression }}\n  rendered = rendered.replace(/\\{\\{=\\s*(.+?)\\s*\\}\\}/g, (_match, expression) => {\n    return evaluateExpression(expression, variables);\n  });\n\n  // Phase 3: Process shell directives {{# command }}\n  rendered = await processShellDirectives(rendered);\n\n  return ctx.success({ rendered });\n}\n\n/**\n * Evaluates a template expression with access to the variable context.\n * Supports basic math, string operations, and ternary expressions.\n */\nfunction evaluateExpression(\n  expression: string,\n  context: Record<string, unknown>\n): string {\n  // Build a context object that expressions can reference\n  const contextEntries = Object.entries(context)\n    .map(([key, value]) => `const ${key} = ${JSON.stringify(value)};`)\n    .join(\"\\n\");\n\n  // VULNERABILITY: eval() with user-controlled expression string\n  try {\n    const result = eval(`\n      (function() {\n        ${contextEntries}\n        return (${expression});\n      })()\n    `);\n    return String(result);\n  } catch (err) {\n    return `[Error: ${(err as Error).message}]`;\n  }\n}\n\n/**\n * Processes shell directives embedded in the template.\n */\nasync function processShellDirectives(template: string): Promise<string> {\n  const shellPattern = /\\{\\{#\\s*(.+?)\\s*\\}\\}/g;\n  let result = template;\n  let match: RegExpExecArray | null;\n\n  // Reset lastIndex for safety\n  shellPattern.lastIndex = 0;\n\n  while ((match = shellPattern.exec(result)) !== null) {\n    const command = match[1];\n    const output = await processShellDirective(command);\n    result =\n      result.slice(0, match.index) +\n      output +\n      result.slice(match.index + match[0].length);\n    shellPattern.lastIndex = 0; // Reset due to string mutation\n  }\n\n  return result;\n}\n\n/**\n * Compiles a template string into a reusable render function.\n * Useful for rendering the same template with different variable sets.\n */\nexport function compileTemplate(\n  templateSource: string\n): (vars: Record<string, unknown>) => string {\n  // VULNERABILITY: Function constructor with template source\n  const renderFn = new Function(\n    \"vars\",\n    `\n    with (vars) {\n      return \\`${templateSource.replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, \"${$1}\")}\\`;\n    }\n  `\n  ) as (vars: Record<string, unknown>) => string;\n\n  return renderFn;\n}\n",
+            "language": "typescript",
+            "size": 3678
+          }
+        ],
+        "sourceRoot": "./e2e/fixtures"
+      },
+      "score": {
+        "overall": 30,
+        "security": 0,
+        "quality": 65,
+        "maintenance": 50,
+        "grade": "F"
+      },
+      "securityFindings": [
+        {
+          "id": "INJ-003-1",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Shell command execution detected",
+          "description": "Direct shell execution functions are vulnerable to command injection. Untrusted input concatenated into shell commands can allow arbitrary command execution.",
+          "file": "src/processor.ts",
+          "line": 1,
+          "evidence": "import { exec, execSync } from \"child_process\";",
+          "remediation": "Use execFile/execFileSync with argument arrays instead of exec. Validate and sanitize all inputs. Consider using a purpose-built library for the specific task."
+        },
+        {
+          "id": "INJ-001-4",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Use of eval() detected",
+          "description": "eval() executes arbitrary code at runtime and is a primary injection vector. An attacker can craft input that escapes the intended context and executes arbitrary commands.",
+          "file": "src/index.ts",
+          "line": 67,
+          "evidence": "const result = eval(`",
+          "remediation": "Replace eval() with a safe parser (e.g., JSON.parse for data, a sandboxed interpreter for expressions). Never pass user-controlled strings to eval."
+        },
+        {
+          "id": "INJ-002-5",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Dynamic Function constructor detected",
+          "description": "The Function constructor creates functions from strings at runtime, equivalent to eval(). It can execute injected code if inputs are not strictly validated.",
+          "file": "src/index.ts",
+          "line": 25,
+          "evidence": "helperFunctions[name] = new Function(\"args\", body);",
+          "remediation": "Avoid the Function constructor. Use pre-defined functions or a safe expression evaluator instead."
+        },
+        {
+          "id": "INJ-002-6",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Dynamic Function constructor detected",
+          "description": "The Function constructor creates functions from strings at runtime, equivalent to eval(). It can execute injected code if inputs are not strictly validated.",
+          "file": "src/index.ts",
+          "line": 111,
+          "evidence": "const renderFn = new Function(",
+          "remediation": "Avoid the Function constructor. Use pre-defined functions or a safe expression evaluator instead."
+        },
+        {
+          "id": "INJ-003-7",
+          "rule": "injection",
+          "severity": "critical",
+          "category": "skill-injection",
+          "title": "Shell command execution detected",
+          "description": "Direct shell execution functions are vulnerable to command injection. Untrusted input concatenated into shell commands can allow arbitrary command execution.",
+          "file": "src/index.ts",
+          "line": 90,
+          "evidence": "while ((match = shellPattern.exec(result)) !== null) {",
+          "remediation": "Use execFile/execFileSync with argument arrays instead of exec. Validate and sanitize all inputs. Consider using a purpose-built library for the specific task."
+        },
+        {
+          "id": "INJ-010-2",
+          "rule": "injection",
+          "severity": "high",
+          "category": "skill-injection",
+          "title": "Untrusted variable interpolation in template",
+          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
+          "file": "src/processor.ts",
+          "line": 26,
+          "evidence": "return `[Shell Error: ${error.message}]`;",
+          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
+        },
+        {
+          "id": "INJ-010-3",
+          "rule": "injection",
+          "severity": "high",
+          "category": "skill-injection",
+          "title": "Untrusted variable interpolation in template",
+          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
+          "file": "src/processor.ts",
+          "line": 54,
+          "evidence": "const expanded = execSync(`echo \"${input}\"`, {",
+          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
+        },
+        {
+          "id": "INJ-010-8",
+          "rule": "injection",
+          "severity": "high",
+          "category": "skill-injection",
+          "title": "Untrusted variable interpolation in template",
+          "description": "User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.",
+          "file": "src/index.ts",
+          "line": 75,
+          "evidence": "return `[Error: ${(err as Error).message}]`;",
+          "remediation": "Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation."
+        },
+        {
+          "id": "PERM-M-clipboard:read",
+          "rule": "permissions",
+          "severity": "medium",
+          "category": "excessive-permissions",
+          "title": "Dangerous permission requested: clipboard:read",
+          "description": "The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
+          "file": "skill.json",
+          "evidence": "permissions: [\"clipboard:read\"]",
+          "remediation": "Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead."
+        },
+        {
+          "id": "STOR-GIT-MISSING",
+          "rule": "storage",
+          "severity": "medium",
+          "category": "insecure-storage",
+          "title": "No .gitignore file found",
+          "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
+          "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
+        }
+      ],
+      "qualityMetrics": {
+        "codeComplexity": 0,
+        "testCoverage": null,
+        "documentationScore": 0,
+        "maintenanceHealth": 50,
+        "dependencyCount": 0,
+        "outdatedDependencies": 0,
+        "hasReadme": false,
+        "hasLicense": false,
+        "hasTests": false,
+        "hasTypes": false,
+        "linesOfCode": 232
+      },
+      "policyViolations": [],
+      "recommendations": [
+        {
+          "category": "security",
+          "priority": "critical",
+          "title": "Address critical security findings immediately",
+          "description": "5 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.",
+          "effort": "high"
+        },
+        {
+          "category": "security",
+          "priority": "high",
+          "title": "Resolve high-severity security findings",
+          "description": "3 high-severity finding(s) require attention. These could lead to significant security breaches.",
+          "effort": "medium"
+        },
+        {
+          "category": "quality",
+          "priority": "medium",
+          "title": "Add automated tests",
+          "description": "No test files were detected. Adding tests improves reliability and prevents regressions.",
+          "effort": "medium"
+        },
+        {
+          "category": "quality",
+          "priority": "low",
+          "title": "Add type definitions",
+          "description": "No type definitions found. Type checking catches bugs early and improves developer experience.",
+          "effort": "low"
+        },
+        {
+          "category": "maintenance",
+          "priority": "low",
+          "title": "Add a README file",
+          "description": "Documentation helps other developers understand the skill's purpose and usage.",
+          "effort": "low"
+        }
+      ]
+    },
+    {
+      "skill": {
+        "id": "csv-analyzer@1.0.0",
+        "name": "csv-analyzer",
+        "version": "1.0.0",
+        "path": "e2e/fixtures/bad-deps-skill",
+        "platform": "openclaw",
+        "manifest": {
+          "name": "csv-analyzer",
+          "version": "1.0.0",
+          "description": "Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.",
+          "author": "datatools-contrib",
+          "license": "MIT",
+          "permissions": [
+            "clipboard:read"
+          ],
+          "engine": "openclaw@^0.9.0",
+          "inputs": {
+            "csv": {
+              "type": "string",
+              "required": true,
+              "description": "CSV content to analyze"
+            },
+            "hasHeader": {
+              "type": "boolean",
+              "required": false,
+              "default": true,
+              "description": "Whether the first row contains column headers"
+            },
+            "delimiter": {
+              "type": "string",
+              "required": false,
+              "default": ",",
+              "description": "Column delimiter character"
+            }
+          },
+          "outputs": {
+            "summary": {
+              "type": "object",
+              "description": "Statistical summary of the dataset"
+            },
+            "columns": {
+              "type": "array",
+              "description": "Column metadata and type information"
+            }
+          }
+        },
+        "files": [
+          {
+            "path": "e2e/fixtures/bad-deps-skill/package.json",
+            "relativePath": "package.json",
+            "content": "{\n  \"name\": \"@openclaw/skill-csv-analyzer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"CSV analysis skill for OpenClaw\",\n  \"main\": \"dist/index.js\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"test\": \"echo \\\"no tests\\\"\"\n  },\n  \"dependencies\": {\n    \"lodash\": \"*\",\n    \"csv-parsre\": \"^2.1.0\",\n    \"colurs\": \"^1.4.0\",\n    \"event-streem\": \"^4.0.1\",\n    \"cross-envv\": \"^7.0.3\",\n    \"underscore.string\": \">=0.0.1\",\n    \"node-uuid\": \"latest\",\n    \"momnet\": \"^2.29.4\",\n    \"axois\": \"^1.6.0\",\n    \"chak\": \"^5.0.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\"\n  },\n  \"publishConfig\": {\n    \"registry\": \"https://npm-mirror.datatools-contrib.io/registry/\"\n  }\n}\n",
+            "language": "json",
+            "size": 653
+          },
+          {
+            "path": "e2e/fixtures/bad-deps-skill/skill.json",
+            "relativePath": "skill.json",
+            "content": "{\n  \"name\": \"csv-analyzer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.\",\n  \"author\": \"datatools-contrib\",\n  \"license\": \"MIT\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\"\n  ],\n  \"inputs\": {\n    \"csv\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"CSV content to analyze\"\n    },\n    \"hasHeader\": {\n      \"type\": \"boolean\",\n      \"required\": false,\n      \"default\": true,\n      \"description\": \"Whether the first row contains column headers\"\n    },\n    \"delimiter\": {\n      \"type\": \"string\",\n      \"required\": false,\n      \"default\": \",\",\n      \"description\": \"Column delimiter character\"\n    }\n  },\n  \"outputs\": {\n    \"summary\": {\n      \"type\": \"object\",\n      \"description\": \"Statistical summary of the dataset\"\n    },\n    \"columns\": {\n      \"type\": \"array\",\n      \"description\": \"Column metadata and type information\"\n    }\n  }\n}\n",
+            "language": "json",
+            "size": 988
+          },
+          {
+            "path": "e2e/fixtures/bad-deps-skill/src/index.ts",
+            "relativePath": "src/index.ts",
+            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\n// Importing from typosquatted packages\nimport * as csvParser from \"csv-parsre\";\nimport * as colors from \"colurs\";\nimport * as eventStream from \"event-streem\";\nimport * as moment from \"momnet\";\n\ninterface ColumnInfo {\n  name: string;\n  type: \"string\" | \"number\" | \"date\" | \"boolean\" | \"mixed\";\n  nullCount: number;\n  uniqueCount: number;\n  sampleValues: string[];\n}\n\ninterface DataSummary {\n  rowCount: number;\n  columnCount: number;\n  columns: ColumnInfo[];\n  warnings: string[];\n}\n\n/**\n * Analyzes CSV data and returns summary statistics.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const csv = ctx.input<string>(\"csv\");\n  const hasHeader = ctx.input<boolean>(\"hasHeader\", true);\n  const delimiter = ctx.input<string>(\"delimiter\", \",\");\n\n  if (!csv || csv.trim().length === 0) {\n    return ctx.error(\"CSV content is required\");\n  }\n\n  ctx.log(colors.green(\"Starting CSV analysis...\"));\n\n  const rows = parseCsv(csv, delimiter);\n\n  if (rows.length === 0) {\n    return ctx.error(\"No data rows found in CSV\");\n  }\n\n  const headers = hasHeader\n    ? rows[0]\n    : rows[0].map((_: string, i: number) => `column_${i + 1}`);\n\n  const dataRows = hasHeader ? rows.slice(1) : rows;\n  const columns = analyzeColumns(headers, dataRows);\n\n  const summary: DataSummary = {\n    rowCount: dataRows.length,\n    columnCount: headers.length,\n    columns,\n    warnings: detectWarnings(headers, dataRows),\n  };\n\n  const formattedDate = moment().format(\"YYYY-MM-DD HH:mm:ss\");\n  ctx.log(`Analysis completed at ${formattedDate}`);\n\n  return ctx.success({\n    summary,\n    columns: columns.map((col) => ({\n      name: col.name,\n      type: col.type,\n      nullRate: col.nullCount / dataRows.length,\n      uniqueRate: col.uniqueCount / dataRows.length,\n    })),\n  });\n}\n\nfunction parseCsv(content: string, delimiter: string): string[][] {\n  const lines = content.trim().split(\"\\n\");\n  return lines.map((line) => {\n    const fields: string[] = [];\n    let current = \"\";\n    let inQuotes = false;\n\n    for (const char of line) {\n      if (char === '\"') {\n        inQuotes = !inQuotes;\n      } else if (char === delimiter && !inQuotes) {\n        fields.push(current.trim());\n        current = \"\";\n      } else {\n        current += char;\n      }\n    }\n    fields.push(current.trim());\n    return fields;\n  });\n}\n\nfunction analyzeColumns(headers: string[], rows: string[][]): ColumnInfo[] {\n  return headers.map((name, colIndex) => {\n    const values = rows.map((row) => row[colIndex] ?? \"\");\n    const nonEmpty = values.filter((v) => v.length > 0);\n    const uniqueValues = new Set(nonEmpty);\n\n    return {\n      name,\n      type: detectColumnType(nonEmpty),\n      nullCount: values.length - nonEmpty.length,\n      uniqueCount: uniqueValues.size,\n      sampleValues: nonEmpty.slice(0, 5),\n    };\n  });\n}\n\nfunction detectColumnType(\n  values: string[]\n): \"string\" | \"number\" | \"date\" | \"boolean\" | \"mixed\" {\n  if (values.length === 0) return \"string\";\n\n  const sample = values.slice(0, 100);\n  let numCount = 0;\n  let dateCount = 0;\n  let boolCount = 0;\n\n  for (const val of sample) {\n    if (!isNaN(Number(val)) && val.trim().length > 0) {\n      numCount++;\n    } else if (isDateLike(val)) {\n      dateCount++;\n    } else if ([\"true\", \"false\", \"yes\", \"no\", \"0\", \"1\"].includes(val.toLowerCase())) {\n      boolCount++;\n    }\n  }\n\n  const threshold = sample.length * 0.8;\n\n  if (numCount >= threshold) return \"number\";\n  if (dateCount >= threshold) return \"date\";\n  if (boolCount >= threshold) return \"boolean\";\n  if (numCount + dateCount + boolCount < sample.length * 0.5) return \"string\";\n  return \"mixed\";\n}\n\nfunction isDateLike(value: string): boolean {\n  const datePatterns = [\n    /^\\d{4}-\\d{2}-\\d{2}$/,\n    /^\\d{2}\\/\\d{2}\\/\\d{4}$/,\n    /^\\d{2}-\\d{2}-\\d{4}$/,\n    /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}/,\n  ];\n  return datePatterns.some((p) => p.test(value));\n}\n\nfunction detectWarnings(headers: string[], rows: string[][]): string[] {\n  const warnings: string[] = [];\n\n  // Check for inconsistent column counts\n  const expectedCols = headers.length;\n  const mismatchRows = rows.filter((r) => r.length !== expectedCols);\n  if (mismatchRows.length > 0) {\n    warnings.push(\n      `${mismatchRows.length} rows have inconsistent column counts (expected ${expectedCols})`\n    );\n  }\n\n  // Check for duplicate headers\n  const seen = new Set<string>();\n  for (const header of headers) {\n    if (seen.has(header)) {\n      warnings.push(`Duplicate column header: \"${header}\"`);\n    }\n    seen.add(header);\n  }\n\n  // Check for mostly empty columns\n  for (let i = 0; i < headers.length; i++) {\n    const emptyCount = rows.filter(\n      (r) => !r[i] || r[i].trim().length === 0\n    ).length;\n    if (emptyCount > rows.length * 0.9) {\n      warnings.push(`Column \"${headers[i]}\" is >90% empty`);\n    }\n  }\n\n  return warnings;\n}\n",
+            "language": "typescript",
+            "size": 4879
+          }
+        ],
+        "sourceRoot": "./e2e/fixtures"
+      },
+      "score": {
+        "overall": 62,
+        "security": 64,
+        "quality": 65,
+        "maintenance": 50,
+        "grade": "C"
+      },
+      "securityFindings": [
+        {
+          "id": "PERM-M-clipboard:read",
+          "rule": "permissions",
+          "severity": "medium",
+          "category": "excessive-permissions",
+          "title": "Dangerous permission requested: clipboard:read",
+          "description": "The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
+          "file": "skill.json",
+          "evidence": "permissions: [\"clipboard:read\"]",
+          "remediation": "Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead."
+        },
+        {
+          "id": "STOR-GIT-MISSING",
+          "rule": "storage",
+          "severity": "medium",
+          "category": "insecure-storage",
+          "title": "No .gitignore file found",
+          "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
+          "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
+        },
+        {
+          "id": "LOG-NONE",
+          "rule": "logging",
+          "severity": "medium",
+          "category": "insufficient-logging",
+          "title": "No logging found in skill",
+          "description": "The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.",
+          "remediation": "Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library."
+        }
+      ],
+      "qualityMetrics": {
+        "codeComplexity": 0,
+        "testCoverage": null,
+        "documentationScore": 0,
+        "maintenanceHealth": 50,
+        "dependencyCount": 0,
+        "outdatedDependencies": 0,
+        "hasReadme": false,
+        "hasLicense": false,
+        "hasTests": false,
+        "hasTypes": false,
+        "linesOfCode": 251
+      },
+      "policyViolations": [],
+      "recommendations": [
+        {
+          "category": "quality",
+          "priority": "medium",
+          "title": "Add automated tests",
+          "description": "No test files were detected. Adding tests improves reliability and prevents regressions.",
+          "effort": "medium"
+        },
+        {
+          "category": "quality",
+          "priority": "low",
+          "title": "Add type definitions",
+          "description": "No type definitions found. Type checking catches bugs early and improves developer experience.",
+          "effort": "low"
+        },
+        {
+          "category": "maintenance",
+          "priority": "low",
+          "title": "Add a README file",
+          "description": "Documentation helps other developers understand the skill's purpose and usage.",
+          "effort": "low"
+        }
+      ]
+    },
+    {
+      "skill": {
         "id": "i18n-translator@3.2.1",
         "name": "i18n-translator",
         "version": "3.2.1",
@@ -1551,154 +1699,6 @@
           "description": "4 high-severity finding(s) require attention. These could lead to significant security breaches.",
           "effort": "medium"
         },
-        {
-          "category": "quality",
-          "priority": "medium",
-          "title": "Add automated tests",
-          "description": "No test files were detected. Adding tests improves reliability and prevents regressions.",
-          "effort": "medium"
-        },
-        {
-          "category": "quality",
-          "priority": "low",
-          "title": "Add type definitions",
-          "description": "No type definitions found. Type checking catches bugs early and improves developer experience.",
-          "effort": "low"
-        },
-        {
-          "category": "maintenance",
-          "priority": "low",
-          "title": "Add a README file",
-          "description": "Documentation helps other developers understand the skill's purpose and usage.",
-          "effort": "low"
-        }
-      ]
-    },
-    {
-      "skill": {
-        "id": "csv-analyzer@1.0.0",
-        "name": "csv-analyzer",
-        "version": "1.0.0",
-        "path": "e2e/fixtures/bad-deps-skill",
-        "platform": "openclaw",
-        "manifest": {
-          "name": "csv-analyzer",
-          "version": "1.0.0",
-          "description": "Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.",
-          "author": "datatools-contrib",
-          "license": "MIT",
-          "permissions": [
-            "clipboard:read"
-          ],
-          "engine": "openclaw@^0.9.0",
-          "inputs": {
-            "csv": {
-              "type": "string",
-              "required": true,
-              "description": "CSV content to analyze"
-            },
-            "hasHeader": {
-              "type": "boolean",
-              "required": false,
-              "default": true,
-              "description": "Whether the first row contains column headers"
-            },
-            "delimiter": {
-              "type": "string",
-              "required": false,
-              "default": ",",
-              "description": "Column delimiter character"
-            }
-          },
-          "outputs": {
-            "summary": {
-              "type": "object",
-              "description": "Statistical summary of the dataset"
-            },
-            "columns": {
-              "type": "array",
-              "description": "Column metadata and type information"
-            }
-          }
-        },
-        "files": [
-          {
-            "path": "e2e/fixtures/bad-deps-skill/package.json",
-            "relativePath": "package.json",
-            "content": "{\n  \"name\": \"@openclaw/skill-csv-analyzer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"CSV analysis skill for OpenClaw\",\n  \"main\": \"dist/index.js\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"test\": \"echo \\\"no tests\\\"\"\n  },\n  \"dependencies\": {\n    \"lodash\": \"*\",\n    \"csv-parsre\": \"^2.1.0\",\n    \"colurs\": \"^1.4.0\",\n    \"event-streem\": \"^4.0.1\",\n    \"cross-envv\": \"^7.0.3\",\n    \"underscore.string\": \">=0.0.1\",\n    \"node-uuid\": \"latest\",\n    \"momnet\": \"^2.29.4\",\n    \"axois\": \"^1.6.0\",\n    \"chak\": \"^5.0.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\"\n  },\n  \"publishConfig\": {\n    \"registry\": \"https://npm-mirror.datatools-contrib.io/registry/\"\n  }\n}\n",
-            "language": "json",
-            "size": 653
-          },
-          {
-            "path": "e2e/fixtures/bad-deps-skill/skill.json",
-            "relativePath": "skill.json",
-            "content": "{\n  \"name\": \"csv-analyzer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.\",\n  \"author\": \"datatools-contrib\",\n  \"license\": \"MIT\",\n  \"engine\": \"openclaw@^0.9.0\",\n  \"permissions\": [\n    \"clipboard:read\"\n  ],\n  \"inputs\": {\n    \"csv\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"description\": \"CSV content to analyze\"\n    },\n    \"hasHeader\": {\n      \"type\": \"boolean\",\n      \"required\": false,\n      \"default\": true,\n      \"description\": \"Whether the first row contains column headers\"\n    },\n    \"delimiter\": {\n      \"type\": \"string\",\n      \"required\": false,\n      \"default\": \",\",\n      \"description\": \"Column delimiter character\"\n    }\n  },\n  \"outputs\": {\n    \"summary\": {\n      \"type\": \"object\",\n      \"description\": \"Statistical summary of the dataset\"\n    },\n    \"columns\": {\n      \"type\": \"array\",\n      \"description\": \"Column metadata and type information\"\n    }\n  }\n}\n",
-            "language": "json",
-            "size": 988
-          },
-          {
-            "path": "e2e/fixtures/bad-deps-skill/src/index.ts",
-            "relativePath": "src/index.ts",
-            "content": "import { SkillContext, SkillResult } from \"@openclaw/sdk\";\n// Importing from typosquatted packages\nimport * as csvParser from \"csv-parsre\";\nimport * as colors from \"colurs\";\nimport * as eventStream from \"event-streem\";\nimport * as moment from \"momnet\";\n\ninterface ColumnInfo {\n  name: string;\n  type: \"string\" | \"number\" | \"date\" | \"boolean\" | \"mixed\";\n  nullCount: number;\n  uniqueCount: number;\n  sampleValues: string[];\n}\n\ninterface DataSummary {\n  rowCount: number;\n  columnCount: number;\n  columns: ColumnInfo[];\n  warnings: string[];\n}\n\n/**\n * Analyzes CSV data and returns summary statistics.\n */\nexport async function execute(ctx: SkillContext): Promise<SkillResult> {\n  const csv = ctx.input<string>(\"csv\");\n  const hasHeader = ctx.input<boolean>(\"hasHeader\", true);\n  const delimiter = ctx.input<string>(\"delimiter\", \",\");\n\n  if (!csv || csv.trim().length === 0) {\n    return ctx.error(\"CSV content is required\");\n  }\n\n  ctx.log(colors.green(\"Starting CSV analysis...\"));\n\n  const rows = parseCsv(csv, delimiter);\n\n  if (rows.length === 0) {\n    return ctx.error(\"No data rows found in CSV\");\n  }\n\n  const headers = hasHeader\n    ? rows[0]\n    : rows[0].map((_: string, i: number) => `column_${i + 1}`);\n\n  const dataRows = hasHeader ? rows.slice(1) : rows;\n  const columns = analyzeColumns(headers, dataRows);\n\n  const summary: DataSummary = {\n    rowCount: dataRows.length,\n    columnCount: headers.length,\n    columns,\n    warnings: detectWarnings(headers, dataRows),\n  };\n\n  const formattedDate = moment().format(\"YYYY-MM-DD HH:mm:ss\");\n  ctx.log(`Analysis completed at ${formattedDate}`);\n\n  return ctx.success({\n    summary,\n    columns: columns.map((col) => ({\n      name: col.name,\n      type: col.type,\n      nullRate: col.nullCount / dataRows.length,\n      uniqueRate: col.uniqueCount / dataRows.length,\n    })),\n  });\n}\n\nfunction parseCsv(content: string, delimiter: string): string[][] {\n  const lines = content.trim().split(\"\\n\");\n  return lines.map((line) => {\n    const fields: string[] = [];\n    let current = \"\";\n    let inQuotes = false;\n\n    for (const char of line) {\n      if (char === '\"') {\n        inQuotes = !inQuotes;\n      } else if (char === delimiter && !inQuotes) {\n        fields.push(current.trim());\n        current = \"\";\n      } else {\n        current += char;\n      }\n    }\n    fields.push(current.trim());\n    return fields;\n  });\n}\n\nfunction analyzeColumns(headers: string[], rows: string[][]): ColumnInfo[] {\n  return headers.map((name, colIndex) => {\n    const values = rows.map((row) => row[colIndex] ?? \"\");\n    const nonEmpty = values.filter((v) => v.length > 0);\n    const uniqueValues = new Set(nonEmpty);\n\n    return {\n      name,\n      type: detectColumnType(nonEmpty),\n      nullCount: values.length - nonEmpty.length,\n      uniqueCount: uniqueValues.size,\n      sampleValues: nonEmpty.slice(0, 5),\n    };\n  });\n}\n\nfunction detectColumnType(\n  values: string[]\n): \"string\" | \"number\" | \"date\" | \"boolean\" | \"mixed\" {\n  if (values.length === 0) return \"string\";\n\n  const sample = values.slice(0, 100);\n  let numCount = 0;\n  let dateCount = 0;\n  let boolCount = 0;\n\n  for (const val of sample) {\n    if (!isNaN(Number(val)) && val.trim().length > 0) {\n      numCount++;\n    } else if (isDateLike(val)) {\n      dateCount++;\n    } else if ([\"true\", \"false\", \"yes\", \"no\", \"0\", \"1\"].includes(val.toLowerCase())) {\n      boolCount++;\n    }\n  }\n\n  const threshold = sample.length * 0.8;\n\n  if (numCount >= threshold) return \"number\";\n  if (dateCount >= threshold) return \"date\";\n  if (boolCount >= threshold) return \"boolean\";\n  if (numCount + dateCount + boolCount < sample.length * 0.5) return \"string\";\n  return \"mixed\";\n}\n\nfunction isDateLike(value: string): boolean {\n  const datePatterns = [\n    /^\\d{4}-\\d{2}-\\d{2}$/,\n    /^\\d{2}\\/\\d{2}\\/\\d{4}$/,\n    /^\\d{2}-\\d{2}-\\d{4}$/,\n    /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}/,\n  ];\n  return datePatterns.some((p) => p.test(value));\n}\n\nfunction detectWarnings(headers: string[], rows: string[][]): string[] {\n  const warnings: string[] = [];\n\n  // Check for inconsistent column counts\n  const expectedCols = headers.length;\n  const mismatchRows = rows.filter((r) => r.length !== expectedCols);\n  if (mismatchRows.length > 0) {\n    warnings.push(\n      `${mismatchRows.length} rows have inconsistent column counts (expected ${expectedCols})`\n    );\n  }\n\n  // Check for duplicate headers\n  const seen = new Set<string>();\n  for (const header of headers) {\n    if (seen.has(header)) {\n      warnings.push(`Duplicate column header: \"${header}\"`);\n    }\n    seen.add(header);\n  }\n\n  // Check for mostly empty columns\n  for (let i = 0; i < headers.length; i++) {\n    const emptyCount = rows.filter(\n      (r) => !r[i] || r[i].trim().length === 0\n    ).length;\n    if (emptyCount > rows.length * 0.9) {\n      warnings.push(`Column \"${headers[i]}\" is >90% empty`);\n    }\n  }\n\n  return warnings;\n}\n",
-            "language": "typescript",
-            "size": 4879
-          }
-        ],
-        "sourceRoot": "./e2e/fixtures"
-      },
-      "score": {
-        "overall": 62,
-        "security": 64,
-        "quality": 65,
-        "maintenance": 50,
-        "grade": "C"
-      },
-      "securityFindings": [
-        {
-          "id": "PERM-M-clipboard:read",
-          "rule": "permissions",
-          "severity": "medium",
-          "category": "excessive-permissions",
-          "title": "Dangerous permission requested: clipboard:read",
-          "description": "The skill manifest requests the 'clipboard:read' permission, which grants broad access to sensitive system resources. This permission should be carefully justified.",
-          "file": "skill.json",
-          "evidence": "permissions: [\"clipboard:read\"]",
-          "remediation": "Justify why 'clipboard:read' is necessary. Consider requesting a more specific permission scope instead."
-        },
-        {
-          "id": "STOR-GIT-MISSING",
-          "rule": "storage",
-          "severity": "medium",
-          "category": "insecure-storage",
-          "title": "No .gitignore file found",
-          "description": "The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.",
-          "remediation": "Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files."
-        },
-        {
-          "id": "LOG-NONE",
-          "rule": "logging",
-          "severity": "medium",
-          "category": "insufficient-logging",
-          "title": "No logging found in skill",
-          "description": "The skill has no logging statements across any files. Without logging, it is impossible to audit the skill's behavior, detect anomalies, or investigate security incidents.",
-          "remediation": "Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library."
-        }
-      ],
-      "qualityMetrics": {
-        "codeComplexity": 0,
-        "testCoverage": null,
-        "documentationScore": 0,
-        "maintenanceHealth": 50,
-        "dependencyCount": 0,
-        "outdatedDependencies": 0,
-        "hasReadme": false,
-        "hasLicense": false,
-        "hasTests": false,
-        "hasTypes": false,
-        "linesOfCode": 251
-      },
-      "policyViolations": [],
-      "recommendations": [
         {
           "category": "quality",
           "priority": "medium",

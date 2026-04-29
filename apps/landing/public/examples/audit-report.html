@@ -482,9 +482,9 @@ body {
       <h1>AgentSec</h1>
       <div class="subtitle">Security &amp; Quality Report</div>
       <div class="meta">
-        <span>Report: d908d224-e8ba-4ec7-a479-02b1d2cb3e46</span>
+        <span>Report: ee2373e6-c97c-4b52-9eed-1c4de9d6b872</span>
         <span>Platform: openclaw</span>
-        <span>Generated: April 28, 2026 at 11:15 AM</span>
+        <span>Generated: April 29, 2026 at 11:16 AM</span>
       </div>
     </div>
 
@@ -579,7 +579,22 @@ body {
           <td class="num">13</td>
         </tr>
         <tr>
-          <td>markdown-previewer</td>
+          <td>csv-analyzer</td>
+          <td class="num">
+    <span class="score-cell">
+      <span class="score-bar">
+        <span class="score-bar-fill" style="width:62%;background:var(--teal-dim)"></span>
+      </span>
+      <span>62</span>
+    </span></td>
+          <td class="num">64</td>
+          <td class="num">65</td>
+          <td class="num">50</td>
+          <td class="num"><span class="grade-badge grade-c">C</span></td>
+          <td class="num">3</td>
+        </tr>
+        <tr>
+          <td>git-changelog</td>
           <td class="num">
     <span class="score-cell">
       <span class="score-bar">
@@ -591,7 +606,7 @@ body {
           <td class="num">65</td>
           <td class="num">50</td>
           <td class="num"><span class="grade-badge grade-f">F</span></td>
-          <td class="num">33</td>
+          <td class="num">24</td>
         </tr>
         <tr>
           <td>i18n-translator</td>
@@ -609,21 +624,6 @@ body {
           <td class="num">15</td>
         </tr>
         <tr>
-          <td>csv-analyzer</td>
-          <td class="num">
-    <span class="score-cell">
-      <span class="score-bar">
-        <span class="score-bar-fill" style="width:62%;background:var(--teal-dim)"></span>
-      </span>
-      <span>62</span>
-    </span></td>
-          <td class="num">64</td>
-          <td class="num">65</td>
-          <td class="num">50</td>
-          <td class="num"><span class="grade-badge grade-c">C</span></td>
-          <td class="num">3</td>
-        </tr>
-        <tr>
           <td>template-renderer</td>
           <td class="num">
     <span class="score-cell">
@@ -639,7 +639,7 @@ body {
           <td class="num">10</td>
         </tr>
         <tr>
-          <td>git-changelog</td>
+          <td>markdown-previewer</td>
           <td class="num">
     <span class="score-cell">
       <span class="score-bar">
@@ -651,7 +651,7 @@ body {
           <td class="num">65</td>
           <td class="num">50</td>
           <td class="num"><span class="grade-badge grade-f">F</span></td>
-          <td class="num">24</td>
+          <td class="num">33</td>
         </tr>
         <tr>
           <td>code-formatter</td>
@@ -758,32 +758,32 @@ body {
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge severity-critical">critical</span>
-        <span class="finding-title">Dangerous permission requested: shell:execute</span>
-        <span class="finding-rule">permissions</span>
+        <span class="finding-title">Hardcoded token detected</span>
+        <span class="finding-rule">storage</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill manifest requests the &#39;shell:execute&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
-        <div class="finding-evidence">permissions: [&quot;shell:execute&quot;]</div>
-        <div class="finding-remediation">Justify why &#39;shell:execute&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts:18</span></div>
+        <div class="finding-detail">An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.</div>
+        <div class="finding-evidence">const FALLBACK_GITHUB_TOKEN = &quot;[REDACTED]&quot;;</div>
+        <div class="finding-remediation">Use a token management system. Fetch tokens at runtime from a secure credentials provider.</div>
       </div>
     </div>
     <div class="finding">
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge severity-critical">critical</span>
-        <span class="finding-title">Dangerous permission requested: credentials:access</span>
-        <span class="finding-rule">permissions</span>
+        <span class="finding-title">Hardcoded token detected</span>
+        <span class="finding-rule">storage</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill manifest requests the &#39;credentials:access&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
-        <div class="finding-evidence">permissions: [&quot;credentials:access&quot;]</div>
-        <div class="finding-remediation">Justify why &#39;credentials:access&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts:19</span></div>
+        <div class="finding-detail">An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.</div>
+        <div class="finding-evidence">const INTERNAL_SERVICE_TOKEN = &quot;[REDACTED]&quot;;</div>
+        <div class="finding-remediation">Use a token management system. Fetch tokens at runtime from a secure credentials provider.</div>
       </div>
     </div>
     <div class="finding">
@@ -918,32 +918,32 @@ body {
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge severity-critical">critical</span>
-        <span class="finding-title">Hardcoded token detected</span>
-        <span class="finding-rule">storage</span>
+        <span class="finding-title">Dangerous permission requested: shell:execute</span>
+        <span class="finding-rule">permissions</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
-        <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts:18</span></div>
-        <div class="finding-detail">An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.</div>
-        <div class="finding-evidence">const FALLBACK_GITHUB_TOKEN = &quot;[REDACTED]&quot;;</div>
-        <div class="finding-remediation">Use a token management system. Fetch tokens at runtime from a secure credentials provider.</div>
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill manifest requests the &#39;shell:execute&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
+        <div class="finding-evidence">permissions: [&quot;shell:execute&quot;]</div>
+        <div class="finding-remediation">Justify why &#39;shell:execute&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
       </div>
     </div>
     <div class="finding">
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge severity-critical">critical</span>
-        <span class="finding-title">Hardcoded token detected</span>
-        <span class="finding-rule">storage</span>
+        <span class="finding-title">Dangerous permission requested: credentials:access</span>
+        <span class="finding-rule">permissions</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
-        <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts:19</span></div>
-        <div class="finding-detail">An authentication token appears to be hardcoded. Tokens in source code can be extracted and used to impersonate the skill or its users.</div>
-        <div class="finding-evidence">const INTERNAL_SERVICE_TOKEN = &quot;[REDACTED]&quot;;</div>
-        <div class="finding-remediation">Use a token management system. Fetch tokens at runtime from a secure credentials provider.</div>
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill manifest requests the &#39;credentials:access&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
+        <div class="finding-evidence">permissions: [&quot;credentials:access&quot;]</div>
+        <div class="finding-remediation">Justify why &#39;credentials:access&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
       </div>
     </div>
     <div class="finding">
@@ -1040,182 +1040,6 @@ body {
         <div class="finding-detail">MD5 or SHA1 are used for hashing. These algorithms have known collision attacks and should not be used for security-sensitive operations.</div>
         <div class="finding-evidence">return require(&#39;crypto&#39;).createHash(&#39;md5&#39;).update(input).digest(&#39;hex&#39;);</div>
         <div class="finding-remediation">Use SHA-256 or SHA-3 for hashing. For password hashing, use bcrypt, scrypt, or Argon2.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Dangerous permission requested: filesystem:write</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill manifest requests the &#39;filesystem:write&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
-        <div class="finding-evidence">permissions: [&quot;filesystem:write&quot;]</div>
-        <div class="finding-remediation">Justify why &#39;filesystem:write&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Dangerous permission requested: network:unrestricted</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill manifest requests the &#39;network:unrestricted&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
-        <div class="finding-evidence">permissions: [&quot;network:unrestricted&quot;]</div>
-        <div class="finding-remediation">Justify why &#39;network:unrestricted&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Filesystem write operation detected</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/telemetry.ts:104</span></div>
-        <div class="finding-detail">The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.</div>
-        <div class="finding-evidence">fs.mkdirSync(cacheDir, { recursive: true });</div>
-        <div class="finding-remediation">Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Filesystem write operation detected</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/telemetry.ts:106</span></div>
-        <div class="finding-detail">The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.</div>
-        <div class="finding-evidence">fs.writeFileSync(cacheFile, body, &quot;utf-8&quot;);</div>
-        <div class="finding-remediation">Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Node.js VM module usage detected</span>
-        <span class="finding-rule">injection</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
-        <div class="finding-detail"><strong>Category:</strong> skill-injection</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:119</span></div>
-        <div class="finding-detail">The vm module does not provide a true security sandbox. Code running in a vm context can escape and access the host process.</div>
-        <div class="finding-evidence">const wrappedFn = vm.runInThisContext(moduleWrapper, {</div>
-        <div class="finding-remediation">Use a hardened sandbox like isolated-vm or vm2 (with awareness of its CVEs). For untrusted code, run in a separate process with minimal privileges or use a WASM sandbox.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Filesystem write operation detected</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:152</span></div>
-        <div class="finding-detail">The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.</div>
-        <div class="finding-evidence">fs.mkdirSync(pluginDir, { recursive: true });</div>
-        <div class="finding-remediation">Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Filesystem write operation detected</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:153</span></div>
-        <div class="finding-detail">The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.</div>
-        <div class="finding-evidence">fs.writeFileSync(localPath + &quot;.js&quot;, pluginSource, &quot;utf-8&quot;);</div>
-        <div class="finding-remediation">Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Dynamic file path in write operation</span>
-        <span class="finding-rule">output-handling</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
-        <div class="finding-detail"><strong>Category:</strong> insecure-output</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:153</span></div>
-        <div class="finding-detail">File write operations with dynamically constructed paths are vulnerable to path traversal. An attacker could write to arbitrary locations using &#39;../&#39; sequences.</div>
-        <div class="finding-evidence">fs.writeFileSync(localPath + &quot;.js&quot;, pluginSource, &quot;utf-8&quot;);</div>
-        <div class="finding-remediation">Use path.resolve() and verify the resolved path is within the intended directory. Reject paths containing &#39;..&#39; components.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Untrusted variable interpolation in template</span>
-        <span class="finding-rule">injection</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> template-renderer</div>
-        <div class="finding-detail"><strong>Category:</strong> skill-injection</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/processor.ts:26</span></div>
-        <div class="finding-detail">User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.</div>
-        <div class="finding-evidence">return `[Shell Error: ${error.message}]`;</div>
-        <div class="finding-remediation">Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Untrusted variable interpolation in template</span>
-        <span class="finding-rule">injection</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> template-renderer</div>
-        <div class="finding-detail"><strong>Category:</strong> skill-injection</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/processor.ts:54</span></div>
-        <div class="finding-detail">User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.</div>
-        <div class="finding-evidence">const expanded = execSync(`echo &quot;${input}&quot;`, {</div>
-        <div class="finding-remediation">Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-high">high</span>
-        <span class="finding-title">Untrusted variable interpolation in template</span>
-        <span class="finding-rule">injection</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> template-renderer</div>
-        <div class="finding-detail"><strong>Category:</strong> skill-injection</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:75</span></div>
-        <div class="finding-detail">User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.</div>
-        <div class="finding-evidence">return `[Error: ${(err as Error).message}]`;</div>
-        <div class="finding-remediation">Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation.</div>
       </div>
     </div>
     <div class="finding">
@@ -1429,6 +1253,182 @@ body {
     <div class="finding">
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Node.js VM module usage detected</span>
+        <span class="finding-rule">injection</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
+        <div class="finding-detail"><strong>Category:</strong> skill-injection</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:119</span></div>
+        <div class="finding-detail">The vm module does not provide a true security sandbox. Code running in a vm context can escape and access the host process.</div>
+        <div class="finding-evidence">const wrappedFn = vm.runInThisContext(moduleWrapper, {</div>
+        <div class="finding-remediation">Use a hardened sandbox like isolated-vm or vm2 (with awareness of its CVEs). For untrusted code, run in a separate process with minimal privileges or use a WASM sandbox.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Filesystem write operation detected</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:152</span></div>
+        <div class="finding-detail">The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.</div>
+        <div class="finding-evidence">fs.mkdirSync(pluginDir, { recursive: true });</div>
+        <div class="finding-remediation">Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Filesystem write operation detected</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:153</span></div>
+        <div class="finding-detail">The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.</div>
+        <div class="finding-evidence">fs.writeFileSync(localPath + &quot;.js&quot;, pluginSource, &quot;utf-8&quot;);</div>
+        <div class="finding-remediation">Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Dynamic file path in write operation</span>
+        <span class="finding-rule">output-handling</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
+        <div class="finding-detail"><strong>Category:</strong> insecure-output</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:153</span></div>
+        <div class="finding-detail">File write operations with dynamically constructed paths are vulnerable to path traversal. An attacker could write to arbitrary locations using &#39;../&#39; sequences.</div>
+        <div class="finding-evidence">fs.writeFileSync(localPath + &quot;.js&quot;, pluginSource, &quot;utf-8&quot;);</div>
+        <div class="finding-remediation">Use path.resolve() and verify the resolved path is within the intended directory. Reject paths containing &#39;..&#39; components.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Untrusted variable interpolation in template</span>
+        <span class="finding-rule">injection</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> template-renderer</div>
+        <div class="finding-detail"><strong>Category:</strong> skill-injection</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/processor.ts:26</span></div>
+        <div class="finding-detail">User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.</div>
+        <div class="finding-evidence">return `[Shell Error: ${error.message}]`;</div>
+        <div class="finding-remediation">Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Untrusted variable interpolation in template</span>
+        <span class="finding-rule">injection</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> template-renderer</div>
+        <div class="finding-detail"><strong>Category:</strong> skill-injection</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/processor.ts:54</span></div>
+        <div class="finding-detail">User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.</div>
+        <div class="finding-evidence">const expanded = execSync(`echo &quot;${input}&quot;`, {</div>
+        <div class="finding-remediation">Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Untrusted variable interpolation in template</span>
+        <span class="finding-rule">injection</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> template-renderer</div>
+        <div class="finding-detail"><strong>Category:</strong> skill-injection</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:75</span></div>
+        <div class="finding-detail">User-controlled variables are interpolated into template literals without sanitization. This can allow prompt injection or command injection depending on context.</div>
+        <div class="finding-evidence">return `[Error: ${(err as Error).message}]`;</div>
+        <div class="finding-remediation">Sanitize and validate all external inputs before interpolation. Use parameterized queries or structured data passing instead of string interpolation.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Dangerous permission requested: filesystem:write</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill manifest requests the &#39;filesystem:write&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
+        <div class="finding-evidence">permissions: [&quot;filesystem:write&quot;]</div>
+        <div class="finding-remediation">Justify why &#39;filesystem:write&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Dangerous permission requested: network:unrestricted</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill manifest requests the &#39;network:unrestricted&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
+        <div class="finding-evidence">permissions: [&quot;network:unrestricted&quot;]</div>
+        <div class="finding-remediation">Justify why &#39;network:unrestricted&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Filesystem write operation detected</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/telemetry.ts:104</span></div>
+        <div class="finding-detail">The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.</div>
+        <div class="finding-evidence">fs.mkdirSync(cacheDir, { recursive: true });</div>
+        <div class="finding-remediation">Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-high">high</span>
+        <span class="finding-title">Filesystem write operation detected</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/telemetry.ts:106</span></div>
+        <div class="finding-detail">The skill performs filesystem write operations that could modify or delete files on the host system. Without proper path validation, this enables path traversal attacks.</div>
+        <div class="finding-evidence">fs.writeFileSync(cacheFile, body, &quot;utf-8&quot;);</div>
+        <div class="finding-remediation">Restrict filesystem operations to a sandboxed directory. Validate all paths against an allowlist and resolve symlinks before access.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge severity-medium">medium</span>
         <span class="finding-title">Dangerous permission requested: clipboard:read</span>
         <span class="finding-rule">permissions</span>
@@ -1594,7 +1594,7 @@ body {
         <span class="finding-rule">permissions</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
         <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
         <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
         <div class="finding-detail">The skill manifest requests the &#39;clipboard:read&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
@@ -1606,91 +1606,11 @@ body {
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">Dangerous permission requested: clipboard:write</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill manifest requests the &#39;clipboard:write&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
-        <div class="finding-evidence">permissions: [&quot;clipboard:write&quot;]</div>
-        <div class="finding-remediation">Justify why &#39;clipboard:write&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">Dangerous permission requested: env:read</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill manifest requests the &#39;env:read&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
-        <div class="finding-evidence">permissions: [&quot;env:read&quot;]</div>
-        <div class="finding-remediation">Justify why &#39;env:read&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">Excessive number of permissions (9)</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill requests 9 permissions. Skills requesting many permissions have a larger attack surface and violate the principle of least privilege.</div>
-        <div class="finding-evidence">permissions: [&quot;clipboard:read&quot;, &quot;clipboard:write&quot;, &quot;filesystem:read&quot;, &quot;filesystem:write&quot;, &quot;network:unrestricted&quot;, &quot;shell:execute&quot;, &quot;credentials:access&quot;, &quot;process:spawn&quot;, &quot;env:read&quot;]</div>
-        <div class="finding-remediation">Review all requested permissions and remove any that are not strictly necessary for the skill&#39;s core functionality.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">Network request detected</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/telemetry.ts:84</span></div>
-        <div class="finding-detail">The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.</div>
-        <div class="finding-evidence">const response = await fetch(TELEMETRY_ENDPOINT, {</div>
-        <div class="finding-remediation">Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">Network request detected</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/telemetry.ts:95</span></div>
-        <div class="finding-detail">The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.</div>
-        <div class="finding-evidence">await fetch(BACKUP_ENDPOINT, {</div>
-        <div class="finding-remediation">Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
         <span class="finding-title">No .gitignore file found</span>
         <span class="finding-rule">storage</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
         <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
         
         <div class="finding-detail">The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.</div>
@@ -1706,12 +1626,92 @@ body {
         <span class="finding-rule">logging</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
         <div class="finding-detail"><strong>Category:</strong> insufficient-logging</div>
         
         <div class="finding-detail">The skill has no logging statements across any files. Without logging, it is impossible to audit the skill&#39;s behavior, detect anomalies, or investigate security incidents.</div>
         
         <div class="finding-remediation">Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">Dangerous permission requested: clipboard:read</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill manifest requests the &#39;clipboard:read&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
+        <div class="finding-evidence">permissions: [&quot;clipboard:read&quot;]</div>
+        <div class="finding-remediation">Justify why &#39;clipboard:read&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">Dangerous permission requested: clipboard:write</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill manifest requests the &#39;clipboard:write&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
+        <div class="finding-evidence">permissions: [&quot;clipboard:write&quot;]</div>
+        <div class="finding-remediation">Justify why &#39;clipboard:write&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">Network request detected</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:86</span></div>
+        <div class="finding-detail">The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.</div>
+        <div class="finding-evidence">const response = await fetch(`${url}?access_token=${token}`, {</div>
+        <div class="finding-remediation">Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">No .gitignore file found</span>
+        <span class="finding-rule">storage</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
+        
+        <div class="finding-detail">The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.</div>
+        
+        <div class="finding-remediation">Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">Authentication without logging</span>
+        <span class="finding-rule">logging</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> insufficient-logging</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts</span></div>
+        <div class="finding-detail">The file contains authentication logic but no logging of authentication events. Failed and successful logins should always be logged for security monitoring.</div>
+        
+        <div class="finding-remediation">Log all authentication events: successful logins, failed attempts (with username but without password), and session creation/destruction.</div>
       </div>
     </div>
     <div class="finding">
@@ -1834,54 +1834,6 @@ body {
         <span class="finding-rule">permissions</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill manifest requests the &#39;clipboard:read&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
-        <div class="finding-evidence">permissions: [&quot;clipboard:read&quot;]</div>
-        <div class="finding-remediation">Justify why &#39;clipboard:read&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">No .gitignore file found</span>
-        <span class="finding-rule">storage</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
-        <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
-        
-        <div class="finding-detail">The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.</div>
-        
-        <div class="finding-remediation">Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">No logging found in skill</span>
-        <span class="finding-rule">logging</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
-        <div class="finding-detail"><strong>Category:</strong> insufficient-logging</div>
-        
-        <div class="finding-detail">The skill has no logging statements across any files. Without logging, it is impossible to audit the skill&#39;s behavior, detect anomalies, or investigate security incidents.</div>
-        
-        <div class="finding-remediation">Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">Dangerous permission requested: clipboard:read</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
         <div class="finding-detail"><strong>Skill:</strong> template-renderer</div>
         <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
         <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
@@ -1914,7 +1866,7 @@ body {
         <span class="finding-rule">permissions</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
         <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
         <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
         <div class="finding-detail">The skill manifest requests the &#39;clipboard:read&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
@@ -1930,7 +1882,7 @@ body {
         <span class="finding-rule">permissions</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
         <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
         <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
         <div class="finding-detail">The skill manifest requests the &#39;clipboard:write&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
@@ -1942,15 +1894,63 @@ body {
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">Dangerous permission requested: env:read</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill manifest requests the &#39;env:read&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
+        <div class="finding-evidence">permissions: [&quot;env:read&quot;]</div>
+        <div class="finding-remediation">Justify why &#39;env:read&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">Excessive number of permissions (9)</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill requests 9 permissions. Skills requesting many permissions have a larger attack surface and violate the principle of least privilege.</div>
+        <div class="finding-evidence">permissions: [&quot;clipboard:read&quot;, &quot;clipboard:write&quot;, &quot;filesystem:read&quot;, &quot;filesystem:write&quot;, &quot;network:unrestricted&quot;, &quot;shell:execute&quot;, &quot;credentials:access&quot;, &quot;process:spawn&quot;, &quot;env:read&quot;]</div>
+        <div class="finding-remediation">Review all requested permissions and remove any that are not strictly necessary for the skill&#39;s core functionality.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
         <span class="finding-title">Network request detected</span>
         <span class="finding-rule">permissions</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
         <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:86</span></div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/telemetry.ts:84</span></div>
         <div class="finding-detail">The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.</div>
-        <div class="finding-evidence">const response = await fetch(`${url}?access_token=${token}`, {</div>
+        <div class="finding-evidence">const response = await fetch(TELEMETRY_ENDPOINT, {</div>
+        <div class="finding-remediation">Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">Network request detected</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/telemetry.ts:95</span></div>
+        <div class="finding-detail">The skill makes outbound network requests. Without URL validation, this could enable SSRF (Server-Side Request Forgery) or data exfiltration.</div>
+        <div class="finding-evidence">await fetch(BACKUP_ENDPOINT, {</div>
         <div class="finding-remediation">Validate outbound URLs against an allowlist of permitted domains. Block requests to internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x).</div>
       </div>
     </div>
@@ -1962,7 +1962,7 @@ body {
         <span class="finding-rule">storage</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
         <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
         
         <div class="finding-detail">The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.</div>
@@ -1974,16 +1974,16 @@ body {
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">Authentication without logging</span>
+        <span class="finding-title">No logging found in skill</span>
         <span class="finding-rule">logging</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Skill:</strong> markdown-previewer</div>
         <div class="finding-detail"><strong>Category:</strong> insufficient-logging</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts</span></div>
-        <div class="finding-detail">The file contains authentication logic but no logging of authentication events. Failed and successful logins should always be logged for security monitoring.</div>
         
-        <div class="finding-remediation">Log all authentication events: successful logins, failed attempts (with username but without password), and session creation/destruction.</div>
+        <div class="finding-detail">The skill has no logging statements across any files. Without logging, it is impossible to audit the skill&#39;s behavior, detect anomalies, or investigate security incidents.</div>
+        
+        <div class="finding-remediation">Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.</div>
       </div>
     </div>
     <div class="finding">
@@ -2192,6 +2192,86 @@ body {
         <div class="finding-detail">The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.</div>
         
         <div class="finding-remediation">Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) }).</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-low">low</span>
+        <span class="finding-title">Environment variable access</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts:43</span></div>
+        <div class="finding-detail">The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.</div>
+        <div class="finding-evidence">const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;</div>
+        <div class="finding-remediation">Only access specifically needed environment variables. Document which env vars are required and why.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-low">low</span>
+        <span class="finding-title">Environment variable access</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts:43</span></div>
+        <div class="finding-detail">The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.</div>
+        <div class="finding-evidence">const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;</div>
+        <div class="finding-remediation">Only access specifically needed environment variables. Document which env vars are required and why.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-low">low</span>
+        <span class="finding-title">Network request detected (check for timeout)</span>
+        <span class="finding-rule">dos</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> denial-of-service</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:86</span></div>
+        <div class="finding-detail">Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.</div>
+        <div class="finding-evidence">const response = await fetch(`${url}?access_token=${token}`, {</div>
+        <div class="finding-remediation">Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch().</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-low">low</span>
+        <span class="finding-title">fetch() calls without timeout configuration</span>
+        <span class="finding-rule">dos</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
+        <div class="finding-detail"><strong>Category:</strong> denial-of-service</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts</span></div>
+        <div class="finding-detail">The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.</div>
+        
+        <div class="finding-remediation">Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) }).</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-low">low</span>
+        <span class="finding-title">Network request detected (check for timeout)</span>
+        <span class="finding-rule">dos</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
+        <div class="finding-detail"><strong>Category:</strong> denial-of-service</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:84</span></div>
+        <div class="finding-detail">Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.</div>
+        <div class="finding-evidence">https.get(url, (res) =&gt; {</div>
+        <div class="finding-remediation">Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch().</div>
       </div>
     </div>
     <div class="finding">
@@ -2498,86 +2578,6 @@ body {
         <div class="finding-remediation">Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) }).</div>
       </div>
     </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-low">low</span>
-        <span class="finding-title">Network request detected (check for timeout)</span>
-        <span class="finding-rule">dos</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> i18n-translator</div>
-        <div class="finding-detail"><strong>Category:</strong> denial-of-service</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:84</span></div>
-        <div class="finding-detail">Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.</div>
-        <div class="finding-evidence">https.get(url, (res) =&gt; {</div>
-        <div class="finding-remediation">Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch().</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-low">low</span>
-        <span class="finding-title">Environment variable access</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts:43</span></div>
-        <div class="finding-detail">The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.</div>
-        <div class="finding-evidence">const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;</div>
-        <div class="finding-remediation">Only access specifically needed environment variables. Document which env vars are required and why.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-low">low</span>
-        <span class="finding-title">Environment variable access</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/config.ts:43</span></div>
-        <div class="finding-detail">The skill reads environment variables, which often contain secrets, API keys, and configuration data. Excessive env access increases the blast radius of a compromise.</div>
-        <div class="finding-evidence">const envToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;</div>
-        <div class="finding-remediation">Only access specifically needed environment variables. Document which env vars are required and why.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-low">low</span>
-        <span class="finding-title">Network request detected (check for timeout)</span>
-        <span class="finding-rule">dos</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
-        <div class="finding-detail"><strong>Category:</strong> denial-of-service</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts:86</span></div>
-        <div class="finding-detail">Network requests without timeouts can hang indefinitely if the remote server is slow or unresponsive, effectively creating a denial of service.</div>
-        <div class="finding-evidence">const response = await fetch(`${url}?access_token=${token}`, {</div>
-        <div class="finding-remediation">Set explicit timeouts on all network requests. Use AbortController with a timeout signal for fetch().</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-low">low</span>
-        <span class="finding-title">fetch() calls without timeout configuration</span>
-        <span class="finding-rule">dos</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> git-changelog</div>
-        <div class="finding-detail"><strong>Category:</strong> denial-of-service</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">src/index.ts</span></div>
-        <div class="finding-detail">The file contains fetch() calls but no AbortController or timeout configuration. Network requests can hang indefinitely.</div>
-        
-        <div class="finding-remediation">Use AbortController with AbortSignal.timeout() for all fetch calls. Example: fetch(url, { signal: AbortSignal.timeout(5000) }).</div>
-      </div>
-    </div>
     </div>
     
     <div class="section">
@@ -2615,13 +2615,28 @@ body {
       </div>
     </div>
     <div class="metric-card">
-      <h4>markdown-previewer</h4>
+      <h4>csv-analyzer</h4>
       <div class="metric-row"><span class="metric-label">Code Complexity</span><span class="metric-value">0</span></div>
       <div class="metric-row"><span class="metric-label">Test Coverage</span><span class="metric-value">n/a</span></div>
       <div class="metric-row"><span class="metric-label">Documentation</span><span class="metric-value">0%</span></div>
       <div class="metric-row"><span class="metric-label">Maintenance Health</span><span class="metric-value">50%</span></div>
       <div class="metric-row"><span class="metric-label">Dependencies</span><span class="metric-value">0 (0 outdated)</span></div>
-      <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">302</span></div>
+      <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">251</span></div>
+      <div class="badge-row">
+        <span class="badge badge-missing">README</span>
+        <span class="badge badge-missing">LICENSE</span>
+        <span class="badge badge-missing">TESTS</span>
+        <span class="badge badge-missing">TYPES</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <h4>git-changelog</h4>
+      <div class="metric-row"><span class="metric-label">Code Complexity</span><span class="metric-value">0</span></div>
+      <div class="metric-row"><span class="metric-label">Test Coverage</span><span class="metric-value">n/a</span></div>
+      <div class="metric-row"><span class="metric-label">Documentation</span><span class="metric-value">0%</span></div>
+      <div class="metric-row"><span class="metric-label">Maintenance Health</span><span class="metric-value">50%</span></div>
+      <div class="metric-row"><span class="metric-label">Dependencies</span><span class="metric-value">0 (0 outdated)</span></div>
+      <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">399</span></div>
       <div class="badge-row">
         <span class="badge badge-missing">README</span>
         <span class="badge badge-missing">LICENSE</span>
@@ -2645,21 +2660,6 @@ body {
       </div>
     </div>
     <div class="metric-card">
-      <h4>csv-analyzer</h4>
-      <div class="metric-row"><span class="metric-label">Code Complexity</span><span class="metric-value">0</span></div>
-      <div class="metric-row"><span class="metric-label">Test Coverage</span><span class="metric-value">n/a</span></div>
-      <div class="metric-row"><span class="metric-label">Documentation</span><span class="metric-value">0%</span></div>
-      <div class="metric-row"><span class="metric-label">Maintenance Health</span><span class="metric-value">50%</span></div>
-      <div class="metric-row"><span class="metric-label">Dependencies</span><span class="metric-value">0 (0 outdated)</span></div>
-      <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">251</span></div>
-      <div class="badge-row">
-        <span class="badge badge-missing">README</span>
-        <span class="badge badge-missing">LICENSE</span>
-        <span class="badge badge-missing">TESTS</span>
-        <span class="badge badge-missing">TYPES</span>
-      </div>
-    </div>
-    <div class="metric-card">
       <h4>template-renderer</h4>
       <div class="metric-row"><span class="metric-label">Code Complexity</span><span class="metric-value">0</span></div>
       <div class="metric-row"><span class="metric-label">Test Coverage</span><span class="metric-value">n/a</span></div>
@@ -2675,13 +2675,13 @@ body {
       </div>
     </div>
     <div class="metric-card">
-      <h4>git-changelog</h4>
+      <h4>markdown-previewer</h4>
       <div class="metric-row"><span class="metric-label">Code Complexity</span><span class="metric-value">0</span></div>
       <div class="metric-row"><span class="metric-label">Test Coverage</span><span class="metric-value">n/a</span></div>
       <div class="metric-row"><span class="metric-label">Documentation</span><span class="metric-value">0%</span></div>
       <div class="metric-row"><span class="metric-label">Maintenance Health</span><span class="metric-value">50%</span></div>
       <div class="metric-row"><span class="metric-label">Dependencies</span><span class="metric-value">0 (0 outdated)</span></div>
-      <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">399</span></div>
+      <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">302</span></div>
       <div class="badge-row">
         <span class="badge badge-missing">README</span>
         <span class="badge badge-missing">LICENSE</span>
@@ -2735,7 +2735,7 @@ body {
           <div class="rec-body">
             <div class="rec-title">Address critical security findings immediately</div>
             <div class="rec-desc">2 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.</div>
-            <div class="rec-skill">security &middot; markdown-previewer</div>
+            <div class="rec-skill">security &middot; git-changelog</div>
           </div>
         </div>
         <div class="rec">
@@ -2762,7 +2762,7 @@ body {
           <div class="rec-body">
             <div class="rec-title">Address critical security findings immediately</div>
             <div class="rec-desc">2 critical finding(s) were detected. These represent severe risks and should be resolved before deployment.</div>
-            <div class="rec-skill">security &middot; git-changelog</div>
+            <div class="rec-skill">security &middot; markdown-previewer</div>
           </div>
         </div>
         <div class="rec">
@@ -2788,8 +2788,8 @@ body {
           <span class="rec-effort effort-medium">medium</span>
           <div class="rec-body">
             <div class="rec-title">Resolve high-severity security findings</div>
-            <div class="rec-desc">4 high-severity finding(s) require attention. These could lead to significant security breaches.</div>
-            <div class="rec-skill">security &middot; markdown-previewer</div>
+            <div class="rec-desc">13 high-severity finding(s) require attention. These could lead to significant security breaches.</div>
+            <div class="rec-skill">security &middot; git-changelog</div>
           </div>
         </div>
         <div class="rec">
@@ -2815,8 +2815,8 @@ body {
           <span class="rec-effort effort-medium">medium</span>
           <div class="rec-body">
             <div class="rec-title">Resolve high-severity security findings</div>
-            <div class="rec-desc">13 high-severity finding(s) require attention. These could lead to significant security breaches.</div>
-            <div class="rec-skill">security &middot; git-changelog</div>
+            <div class="rec-desc">4 high-severity finding(s) require attention. These could lead to significant security breaches.</div>
+            <div class="rec-skill">security &middot; markdown-previewer</div>
           </div>
         </div>
         <div class="rec">
@@ -2843,7 +2843,16 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add automated tests</div>
             <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
-            <div class="rec-skill">quality &middot; markdown-previewer</div>
+            <div class="rec-skill">quality &middot; csv-analyzer</div>
+          </div>
+        </div>
+        <div class="rec">
+          <span class="severity-badge severity-medium">medium</span>
+          <span class="rec-effort effort-medium">medium</span>
+          <div class="rec-body">
+            <div class="rec-title">Add automated tests</div>
+            <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
+            <div class="rec-skill">quality &middot; git-changelog</div>
           </div>
         </div>
         <div class="rec">
@@ -2861,15 +2870,6 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add automated tests</div>
             <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
-            <div class="rec-skill">quality &middot; csv-analyzer</div>
-          </div>
-        </div>
-        <div class="rec">
-          <span class="severity-badge severity-medium">medium</span>
-          <span class="rec-effort effort-medium">medium</span>
-          <div class="rec-body">
-            <div class="rec-title">Add automated tests</div>
-            <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
             <div class="rec-skill">quality &middot; template-renderer</div>
           </div>
         </div>
@@ -2879,7 +2879,7 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add automated tests</div>
             <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
-            <div class="rec-skill">quality &middot; git-changelog</div>
+            <div class="rec-skill">quality &middot; markdown-previewer</div>
           </div>
         </div>
         <div class="rec">
@@ -2933,7 +2933,7 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add type definitions</div>
             <div class="rec-desc">No type definitions found. Type checking catches bugs early and improves developer experience.</div>
-            <div class="rec-skill">quality &middot; markdown-previewer</div>
+            <div class="rec-skill">quality &middot; csv-analyzer</div>
           </div>
         </div>
         <div class="rec">
@@ -2942,7 +2942,25 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add a README file</div>
             <div class="rec-desc">Documentation helps other developers understand the skill&#39;s purpose and usage.</div>
-            <div class="rec-skill">maintenance &middot; markdown-previewer</div>
+            <div class="rec-skill">maintenance &middot; csv-analyzer</div>
+          </div>
+        </div>
+        <div class="rec">
+          <span class="severity-badge severity-low">low</span>
+          <span class="rec-effort effort-low">low</span>
+          <div class="rec-body">
+            <div class="rec-title">Add type definitions</div>
+            <div class="rec-desc">No type definitions found. Type checking catches bugs early and improves developer experience.</div>
+            <div class="rec-skill">quality &middot; git-changelog</div>
+          </div>
+        </div>
+        <div class="rec">
+          <span class="severity-badge severity-low">low</span>
+          <span class="rec-effort effort-low">low</span>
+          <div class="rec-body">
+            <div class="rec-title">Add a README file</div>
+            <div class="rec-desc">Documentation helps other developers understand the skill&#39;s purpose and usage.</div>
+            <div class="rec-skill">maintenance &middot; git-changelog</div>
           </div>
         </div>
         <div class="rec">
@@ -2969,24 +2987,6 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add type definitions</div>
             <div class="rec-desc">No type definitions found. Type checking catches bugs early and improves developer experience.</div>
-            <div class="rec-skill">quality &middot; csv-analyzer</div>
-          </div>
-        </div>
-        <div class="rec">
-          <span class="severity-badge severity-low">low</span>
-          <span class="rec-effort effort-low">low</span>
-          <div class="rec-body">
-            <div class="rec-title">Add a README file</div>
-            <div class="rec-desc">Documentation helps other developers understand the skill&#39;s purpose and usage.</div>
-            <div class="rec-skill">maintenance &middot; csv-analyzer</div>
-          </div>
-        </div>
-        <div class="rec">
-          <span class="severity-badge severity-low">low</span>
-          <span class="rec-effort effort-low">low</span>
-          <div class="rec-body">
-            <div class="rec-title">Add type definitions</div>
-            <div class="rec-desc">No type definitions found. Type checking catches bugs early and improves developer experience.</div>
             <div class="rec-skill">quality &middot; template-renderer</div>
           </div>
         </div>
@@ -3005,7 +3005,7 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add type definitions</div>
             <div class="rec-desc">No type definitions found. Type checking catches bugs early and improves developer experience.</div>
-            <div class="rec-skill">quality &middot; git-changelog</div>
+            <div class="rec-skill">quality &middot; markdown-previewer</div>
           </div>
         </div>
         <div class="rec">
@@ -3014,7 +3014,7 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add a README file</div>
             <div class="rec-desc">Documentation helps other developers understand the skill&#39;s purpose and usage.</div>
-            <div class="rec-skill">maintenance &middot; git-changelog</div>
+            <div class="rec-skill">maintenance &middot; markdown-previewer</div>
           </div>
         </div>
         <div class="rec">

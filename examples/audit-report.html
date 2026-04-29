@@ -482,9 +482,9 @@ body {
       <h1>AgentSec</h1>
       <div class="subtitle">Security &amp; Quality Report</div>
       <div class="meta">
-        <span>Report: d908d224-e8ba-4ec7-a479-02b1d2cb3e46</span>
+        <span>Report: b16ce9cf-fa33-4fc9-a0be-c0d9e72bb1ce</span>
         <span>Platform: openclaw</span>
-        <span>Generated: April 28, 2026 at 11:15 AM</span>
+        <span>Generated: April 29, 2026 at 11:16 AM</span>
       </div>
     </div>
 
@@ -609,21 +609,6 @@ body {
           <td class="num">15</td>
         </tr>
         <tr>
-          <td>csv-analyzer</td>
-          <td class="num">
-    <span class="score-cell">
-      <span class="score-bar">
-        <span class="score-bar-fill" style="width:62%;background:var(--teal-dim)"></span>
-      </span>
-      <span>62</span>
-    </span></td>
-          <td class="num">64</td>
-          <td class="num">65</td>
-          <td class="num">50</td>
-          <td class="num"><span class="grade-badge grade-c">C</span></td>
-          <td class="num">3</td>
-        </tr>
-        <tr>
           <td>template-renderer</td>
           <td class="num">
     <span class="score-cell">
@@ -652,6 +637,21 @@ body {
           <td class="num">50</td>
           <td class="num"><span class="grade-badge grade-f">F</span></td>
           <td class="num">24</td>
+        </tr>
+        <tr>
+          <td>csv-analyzer</td>
+          <td class="num">
+    <span class="score-cell">
+      <span class="score-bar">
+        <span class="score-bar-fill" style="width:62%;background:var(--teal-dim)"></span>
+      </span>
+      <span>62</span>
+    </span></td>
+          <td class="num">64</td>
+          <td class="num">65</td>
+          <td class="num">50</td>
+          <td class="num"><span class="grade-badge grade-c">C</span></td>
+          <td class="num">3</td>
         </tr>
         <tr>
           <td>code-formatter</td>
@@ -1834,54 +1834,6 @@ body {
         <span class="finding-rule">permissions</span>
       </div>
       <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
-        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
-        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
-        <div class="finding-detail">The skill manifest requests the &#39;clipboard:read&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
-        <div class="finding-evidence">permissions: [&quot;clipboard:read&quot;]</div>
-        <div class="finding-remediation">Justify why &#39;clipboard:read&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">No .gitignore file found</span>
-        <span class="finding-rule">storage</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
-        <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
-        
-        <div class="finding-detail">The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.</div>
-        
-        <div class="finding-remediation">Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">No logging found in skill</span>
-        <span class="finding-rule">logging</span>
-      </div>
-      <div class="finding-body">
-        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
-        <div class="finding-detail"><strong>Category:</strong> insufficient-logging</div>
-        
-        <div class="finding-detail">The skill has no logging statements across any files. Without logging, it is impossible to audit the skill&#39;s behavior, detect anomalies, or investigate security incidents.</div>
-        
-        <div class="finding-remediation">Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.</div>
-      </div>
-    </div>
-    <div class="finding">
-      <div class="finding-header">
-        <span class="finding-chevron">&#9654;</span>
-        <span class="severity-badge severity-medium">medium</span>
-        <span class="finding-title">Dangerous permission requested: clipboard:read</span>
-        <span class="finding-rule">permissions</span>
-      </div>
-      <div class="finding-body">
         <div class="finding-detail"><strong>Skill:</strong> template-renderer</div>
         <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
         <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
@@ -1984,6 +1936,54 @@ body {
         <div class="finding-detail">The file contains authentication logic but no logging of authentication events. Failed and successful logins should always be logged for security monitoring.</div>
         
         <div class="finding-remediation">Log all authentication events: successful logins, failed attempts (with username but without password), and session creation/destruction.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">Dangerous permission requested: clipboard:read</span>
+        <span class="finding-rule">permissions</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
+        <div class="finding-detail"><strong>Category:</strong> excessive-permissions</div>
+        <div class="finding-detail"><strong>Location:</strong> <span class="finding-location">skill.json</span></div>
+        <div class="finding-detail">The skill manifest requests the &#39;clipboard:read&#39; permission, which grants broad access to sensitive system resources. This permission should be carefully justified.</div>
+        <div class="finding-evidence">permissions: [&quot;clipboard:read&quot;]</div>
+        <div class="finding-remediation">Justify why &#39;clipboard:read&#39; is necessary. Consider requesting a more specific permission scope instead.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">No .gitignore file found</span>
+        <span class="finding-rule">storage</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
+        <div class="finding-detail"><strong>Category:</strong> insecure-storage</div>
+        
+        <div class="finding-detail">The skill has no .gitignore file. Without it, sensitive files (.env, credentials, private keys) may be committed to version control.</div>
+        
+        <div class="finding-remediation">Add a .gitignore file that excludes .env, *.pem, *.key, credentials.json, and other sensitive files.</div>
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-chevron">&#9654;</span>
+        <span class="severity-badge severity-medium">medium</span>
+        <span class="finding-title">No logging found in skill</span>
+        <span class="finding-rule">logging</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-detail"><strong>Skill:</strong> csv-analyzer</div>
+        <div class="finding-detail"><strong>Category:</strong> insufficient-logging</div>
+        
+        <div class="finding-detail">The skill has no logging statements across any files. Without logging, it is impossible to audit the skill&#39;s behavior, detect anomalies, or investigate security incidents.</div>
+        
+        <div class="finding-remediation">Add logging for key operations: authentication, authorization decisions, data access, errors, and configuration changes. Use a structured logging library.</div>
       </div>
     </div>
     <div class="finding">
@@ -2645,21 +2645,6 @@ body {
       </div>
     </div>
     <div class="metric-card">
-      <h4>csv-analyzer</h4>
-      <div class="metric-row"><span class="metric-label">Code Complexity</span><span class="metric-value">0</span></div>
-      <div class="metric-row"><span class="metric-label">Test Coverage</span><span class="metric-value">n/a</span></div>
-      <div class="metric-row"><span class="metric-label">Documentation</span><span class="metric-value">0%</span></div>
-      <div class="metric-row"><span class="metric-label">Maintenance Health</span><span class="metric-value">50%</span></div>
-      <div class="metric-row"><span class="metric-label">Dependencies</span><span class="metric-value">0 (0 outdated)</span></div>
-      <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">251</span></div>
-      <div class="badge-row">
-        <span class="badge badge-missing">README</span>
-        <span class="badge badge-missing">LICENSE</span>
-        <span class="badge badge-missing">TESTS</span>
-        <span class="badge badge-missing">TYPES</span>
-      </div>
-    </div>
-    <div class="metric-card">
       <h4>template-renderer</h4>
       <div class="metric-row"><span class="metric-label">Code Complexity</span><span class="metric-value">0</span></div>
       <div class="metric-row"><span class="metric-label">Test Coverage</span><span class="metric-value">n/a</span></div>
@@ -2682,6 +2667,21 @@ body {
       <div class="metric-row"><span class="metric-label">Maintenance Health</span><span class="metric-value">50%</span></div>
       <div class="metric-row"><span class="metric-label">Dependencies</span><span class="metric-value">0 (0 outdated)</span></div>
       <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">399</span></div>
+      <div class="badge-row">
+        <span class="badge badge-missing">README</span>
+        <span class="badge badge-missing">LICENSE</span>
+        <span class="badge badge-missing">TESTS</span>
+        <span class="badge badge-missing">TYPES</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <h4>csv-analyzer</h4>
+      <div class="metric-row"><span class="metric-label">Code Complexity</span><span class="metric-value">0</span></div>
+      <div class="metric-row"><span class="metric-label">Test Coverage</span><span class="metric-value">n/a</span></div>
+      <div class="metric-row"><span class="metric-label">Documentation</span><span class="metric-value">0%</span></div>
+      <div class="metric-row"><span class="metric-label">Maintenance Health</span><span class="metric-value">50%</span></div>
+      <div class="metric-row"><span class="metric-label">Dependencies</span><span class="metric-value">0 (0 outdated)</span></div>
+      <div class="metric-row"><span class="metric-label">Lines of Code</span><span class="metric-value">251</span></div>
       <div class="badge-row">
         <span class="badge badge-missing">README</span>
         <span class="badge badge-missing">LICENSE</span>
@@ -2861,15 +2861,6 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add automated tests</div>
             <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
-            <div class="rec-skill">quality &middot; csv-analyzer</div>
-          </div>
-        </div>
-        <div class="rec">
-          <span class="severity-badge severity-medium">medium</span>
-          <span class="rec-effort effort-medium">medium</span>
-          <div class="rec-body">
-            <div class="rec-title">Add automated tests</div>
-            <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
             <div class="rec-skill">quality &middot; template-renderer</div>
           </div>
         </div>
@@ -2880,6 +2871,15 @@ body {
             <div class="rec-title">Add automated tests</div>
             <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
             <div class="rec-skill">quality &middot; git-changelog</div>
+          </div>
+        </div>
+        <div class="rec">
+          <span class="severity-badge severity-medium">medium</span>
+          <span class="rec-effort effort-medium">medium</span>
+          <div class="rec-body">
+            <div class="rec-title">Add automated tests</div>
+            <div class="rec-desc">No test files were detected. Adding tests improves reliability and prevents regressions.</div>
+            <div class="rec-skill">quality &middot; csv-analyzer</div>
           </div>
         </div>
         <div class="rec">
@@ -2969,24 +2969,6 @@ body {
           <div class="rec-body">
             <div class="rec-title">Add type definitions</div>
             <div class="rec-desc">No type definitions found. Type checking catches bugs early and improves developer experience.</div>
-            <div class="rec-skill">quality &middot; csv-analyzer</div>
-          </div>
-        </div>
-        <div class="rec">
-          <span class="severity-badge severity-low">low</span>
-          <span class="rec-effort effort-low">low</span>
-          <div class="rec-body">
-            <div class="rec-title">Add a README file</div>
-            <div class="rec-desc">Documentation helps other developers understand the skill&#39;s purpose and usage.</div>
-            <div class="rec-skill">maintenance &middot; csv-analyzer</div>
-          </div>
-        </div>
-        <div class="rec">
-          <span class="severity-badge severity-low">low</span>
-          <span class="rec-effort effort-low">low</span>
-          <div class="rec-body">
-            <div class="rec-title">Add type definitions</div>
-            <div class="rec-desc">No type definitions found. Type checking catches bugs early and improves developer experience.</div>
             <div class="rec-skill">quality &middot; template-renderer</div>
           </div>
         </div>
@@ -3015,6 +2997,24 @@ body {
             <div class="rec-title">Add a README file</div>
             <div class="rec-desc">Documentation helps other developers understand the skill&#39;s purpose and usage.</div>
             <div class="rec-skill">maintenance &middot; git-changelog</div>
+          </div>
+        </div>
+        <div class="rec">
+          <span class="severity-badge severity-low">low</span>
+          <span class="rec-effort effort-low">low</span>
+          <div class="rec-body">
+            <div class="rec-title">Add type definitions</div>
+            <div class="rec-desc">No type definitions found. Type checking catches bugs early and improves developer experience.</div>
+            <div class="rec-skill">quality &middot; csv-analyzer</div>
+          </div>
+        </div>
+        <div class="rec">
+          <span class="severity-badge severity-low">low</span>
+          <span class="rec-effort effort-low">low</span>
+          <div class="rec-body">
+            <div class="rec-title">Add a README file</div>
+            <div class="rec-desc">Documentation helps other developers understand the skill&#39;s purpose and usage.</div>
+            <div class="rec-skill">maintenance &middot; csv-analyzer</div>
           </div>
         </div>
         <div class="rec">
