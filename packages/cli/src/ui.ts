@@ -12,7 +12,22 @@ import type { AgentPlatform, AuditGrade, Severity } from "@agentsec/shared";
 // Color support
 // ---------------------------------------------------------------------------
 
-const NO_COLOR = !!process.env.NO_COLOR || Bun.argv.includes("--no-color");
+const NO_COLOR =
+  !!process.env.NO_COLOR ||
+  process.argv.includes("--no-color") ||
+  // bun and node both expose argv on `process`; the legacy `Bun.argv` access
+  // crashed plain-Node invocations even though the rest of the CLI requires
+  // bun. Reading `process.argv` works in both runtimes.
+  (typeof Bun !== "undefined" && Bun.argv?.includes("--no-color")) ||
+  false;
+
+/**
+ * True when the calling environment can render ANSI control sequences. False
+ * for piped output (`agentsec audit | tee log.txt`), CI logs without TTY
+ * support, and when the user passed `--no-color`. Spinner / progress chrome
+ * is suppressed in that case to keep stdout grep-friendly.
+ */
+const SUPPORTS_ANSI = !NO_COLOR && !!process.stdout.isTTY;
 
 type ColorFn = (text: string) => string;
 
@@ -118,6 +133,36 @@ export const noopSpinner: Spinner = {
 };
 
 export function createSpinner(message: string): Spinner {
+  // Non-TTY / no-color callers (piped to a file, CI without color support,
+  // `--no-color` flag) get a degraded spinner that prints status lines but
+  // skips animated frames and ANSI clear-line writes. Without this, every
+  // pipe target captured `\r\x1b[K` byte sequences from the progress redraws.
+  if (!SUPPORTS_ANSI) {
+    let stopped = false;
+    return {
+      start() {
+        stopped = false;
+        console.log(`  ${message}`);
+      },
+      update(_msg: string) {
+        // intentionally silent in non-TTY mode
+      },
+      succeed(msg: string) {
+        if (stopped) return;
+        stopped = true;
+        console.log(`  ${msg}`);
+      },
+      fail(msg: string) {
+        if (stopped) return;
+        stopped = true;
+        console.log(`  ${msg}`);
+      },
+      stop() {
+        stopped = true;
+      },
+    };
+  }
+
   let frameIndex = 0;
   let timer: ReturnType<typeof setInterval> | null = null;
   let currentMessage = message;

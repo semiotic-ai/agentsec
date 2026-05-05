@@ -55,6 +55,9 @@ function printHelp(): void {
     `  ${color.cyan("    --platform")}   Narrow to one agent platform: openclaw, claude, codex`,
   );
   console.log(`  ${color.cyan("    --path")}       Custom skill directory to scan`);
+  console.log(
+    `  ${color.cyan("    --profile")}    Rule profile: default (auto-detect Web3), web3 (force annex on every skill), strict ${color.dim("(default: default)")}`,
+  );
   console.log(`  ${color.cyan("-v, --verbose")}    Show detailed output`);
   console.log(`  ${color.cyan("    --no-color")}   Disable colored output`);
   console.log(`  ${color.cyan("-h, --help")}       Show help`);
@@ -76,6 +79,21 @@ function printHelp(): void {
   console.log(`    ${color.gray("Other")}              ./skills (and up to two levels deep)`);
   console.log();
 
+  console.log(color.bold("AST-10 WEB3 ANNEX"));
+  console.log(
+    `  ${color.dim("12 chain-specific rules (AST-W01..AST-W12) covering signing authority, Permit2 phishing,")}`,
+  );
+  console.log(
+    `  ${color.dim("EIP-7702 delegation, blind signing, RPC substitution, contract-target verification,")}`,
+  );
+  console.log(
+    `  ${color.dim("bridge replay, MCP chain-tool drift, ERC-7715 session keys, oracle/slippage,")}`,
+  );
+  console.log(
+    `  ${color.dim("key-material leaks, audit & kill-switch. Auto-applied to skills that touch chain.")}`,
+  );
+  console.log();
+
   console.log(color.bold("EXAMPLES"));
   console.log(`  ${color.dim("# Audit every default skill location on this machine")}`);
   console.log(`  agentsec`);
@@ -91,6 +109,14 @@ function printHelp(): void {
   console.log();
   console.log(`  ${color.dim("# Scan a specific directory")}`);
   console.log(`  agentsec scan --path ./my-skills`);
+  console.log();
+  console.log(`  ${color.dim("# Web3 skills are auto-detected and tagged [Web3] in the output")}`);
+  console.log(`  agentsec audit --path ./my-trader-agent`);
+  console.log();
+  console.log(
+    `  ${color.dim("# Force the AST-10 Web3 Annex on every skill (cross-team CI consistency)")}`,
+  );
+  console.log(`  agentsec audit --profile web3 --path ./my-skills`);
   console.log();
   console.log(`  ${color.dim("# Generate HTML report from previous audit")}`);
   console.log(`  agentsec report audit.json --format html --output report.html`);

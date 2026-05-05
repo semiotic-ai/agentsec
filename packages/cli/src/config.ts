@@ -25,9 +25,18 @@ export interface CliFlags {
   noColor: boolean;
   help: boolean;
   version: boolean;
+  /**
+   * Rule profile selection. `default` runs the base AST10 rules. `web3` adds
+   * the AST-10 Web3 Annex (`@agentsec/web3`). `strict` adds the annex with
+   * tighter severities. Documented in docs/plans/ast10-web3-annex-strategy.md.
+   */
+  profile: AuditProfile;
   /** Positional args after the command */
   args: string[];
 }
+
+/** Rule profile names recognized by the CLI. */
+export type AuditProfile = "default" | "web3" | "strict";
 
 export interface AuditConfig {
   /** Output format */
@@ -48,6 +57,8 @@ export interface AuditConfig {
   path: string | null;
   /** Enable verbose logging */
   verbose: boolean;
+  /** Rule profile — controls which annex rule packs are loaded. */
+  profile: AuditProfile;
 }
 
 // ---------------------------------------------------------------------------
@@ -94,6 +105,7 @@ export async function loadConfigFile(
       platform: parsed.platform,
       path: parsed.path,
       verbose: parsed.verbose,
+      profile: VALID_PROFILES.has(parsed.profile) ? parsed.profile : undefined,
     };
   } catch {
     // Silently ignore broken config files; the CLI flags will take effect.
@@ -108,13 +120,27 @@ export async function loadConfigFile(
 const VALID_FORMATS = new Set(["text", "json", "sarif", "html"]);
 const VALID_PLATFORMS = new Set(["openclaw", "claude", "codex"]);
 const VALID_COMMANDS = new Set(["audit", "scan", "report", "policy", "version", "help"]);
+const VALID_PROFILES = new Set<AuditProfile>(["default", "web3", "strict"]);
+
+/**
+ * Loud warning to stderr for an unknown enum-flag value. Silent acceptance of
+ * `--profile bogus` (the previous behavior) is worse than the error: the user
+ * thinks they ran with their chosen profile but actually got the default.
+ */
+function warnUnknownFlagValue(flag: string, value: string, valid: Iterable<string>): void {
+  const list = Array.from(valid).join(", ");
+  process.stderr.write(`agentsec: unknown ${flag} '${value}' — falling back to default. Valid: ${list}\n`);
+}
 
 /** Flags that consume the next arg as a value. Returns the number of args consumed (0 or 1). */
 function applyValueFlag(flags: CliFlags, arg: string, nextArg: string | undefined): number {
   switch (arg) {
     case "--format":
     case "-f":
-      if (nextArg && VALID_FORMATS.has(nextArg)) flags.format = nextArg as OutputFormat;
+      if (nextArg) {
+        if (VALID_FORMATS.has(nextArg)) flags.format = nextArg as OutputFormat;
+        else warnUnknownFlagValue("--format", nextArg, VALID_FORMATS);
+      }
       return 1;
     case "--output":
     case "-o":
@@ -125,13 +151,26 @@ function applyValueFlag(flags: CliFlags, arg: string, nextArg: string | undefine
       flags.policy = nextArg ?? null;
       return 1;
     case "--platform":
-      if (nextArg && VALID_PLATFORMS.has(nextArg)) {
-        flags.platform = nextArg as AgentPlatform;
-        flags.platformExplicit = true;
+      if (nextArg) {
+        if (VALID_PLATFORMS.has(nextArg)) {
+          flags.platform = nextArg as AgentPlatform;
+          flags.platformExplicit = true;
+        } else {
+          warnUnknownFlagValue("--platform", nextArg, VALID_PLATFORMS);
+        }
       }
       return 1;
     case "--path":
       flags.path = nextArg ?? null;
+      return 1;
+    case "--profile":
+      if (nextArg) {
+        if (VALID_PROFILES.has(nextArg as AuditProfile)) {
+          flags.profile = nextArg as AuditProfile;
+        } else {
+          warnUnknownFlagValue("--profile", nextArg, VALID_PROFILES);
+        }
+      }
       return 1;
     default:
       return 0;
@@ -177,6 +216,7 @@ export function parseFlags(argv: string[]): CliFlags {
     noColor: false,
     help: false,
     version: false,
+    profile: "default",
     args: [],
   };
 
@@ -233,5 +273,6 @@ export async function resolveConfig(flags: CliFlags): Promise<AuditConfig> {
     platformExplicit: flags.platformExplicit || platformFromFile,
     path: flags.path ?? fileConfig.path ?? null,
     verbose: flags.verbose || fileConfig.verbose || false,
+    profile: flags.profile !== "default" ? flags.profile : (fileConfig.profile ?? "default"),
   };
 }

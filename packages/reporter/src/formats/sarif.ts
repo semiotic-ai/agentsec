@@ -130,6 +130,17 @@ const toSecuritySeverityScore = (severity: Severity): string => {
 
 // ── Builder ─────────────────────────────────────────────────────────────── //
 
+/**
+ * SARIF rule ID that downstream tools (GitHub Code Scanning, VS Code SARIF
+ * Viewer) display directly. Prefer the canonical OWASP identifier when the
+ * scanner stamped one — `AST-W02` reads better in the UI than
+ * `web3-permit-capture` and ties findings back to the published taxonomy.
+ * Falls back to the rule slug for older runs that predate `owaspId` stamping.
+ */
+const sarifRuleId = (f: SkillAuditResult["securityFindings"][number]): string => {
+  return f.owaspId && f.owaspId.length > 0 ? f.owaspId : f.rule;
+};
+
 const collectUniqueRules = (
   results: SkillAuditResult[],
 ): { rules: SarifRule[]; ruleIndexMap: Map<string, number> } => {
@@ -138,21 +149,25 @@ const collectUniqueRules = (
 
   for (const r of results) {
     for (const f of r.securityFindings) {
-      if (!ruleIndexMap.has(f.rule)) {
-        ruleIndexMap.set(f.rule, rules.length);
+      const id = sarifRuleId(f);
+      if (!ruleIndexMap.has(id)) {
+        ruleIndexMap.set(id, rules.length);
+        const tags = [f.category, "security"];
+        if (f.category.startsWith("web3-")) tags.push("web3", "ast-web3-annex");
         rules.push({
-          id: f.rule,
+          id,
           name: f.rule
             .split(/[-_]/)
             .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
             .join(""),
           shortDescription: { text: f.title },
           fullDescription: f.description ? { text: f.description } : undefined,
+          helpUri: f.owaspLink,
           defaultConfiguration: {
             level: toSarifLevel(f.severity),
           },
           properties: {
-            tags: [f.category, "security"],
+            tags,
             "security-severity": toSecuritySeverityScore(f.severity),
           },
         });

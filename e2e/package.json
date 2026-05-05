@@ -8,6 +8,7 @@
     "test": "bun test",
     "test:audit": "bun test audit.test.ts",
     "test:cli": "bun test cli.test.ts",
+    "test:web3": "bun test web3.test.ts",
     "teardown": "bun run setup.ts --teardown",
     "clean": "rm -rf dist node_modules"
   },
@@ -15,7 +16,9 @@
     "@agentsec/shared": "workspace:*",
     "@agentsec/scanner": "workspace:*",
     "@agentsec/policy": "workspace:*",
-    "@agentsec/reporter": "workspace:*"
+    "@agentsec/reporter": "workspace:*",
+    "@agentsec/web3": "workspace:*",
+    "@agentsec/openclaw": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "^1.3.11",

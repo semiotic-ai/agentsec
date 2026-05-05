@@ -17,6 +17,7 @@ import type {
   Recommendation,
   SecurityFinding,
   SkillAuditResult,
+  Web3DetectionResult,
 } from "@agentsec/shared";
 import { buildAuditScore, compareSeverity } from "@agentsec/shared";
 
@@ -86,25 +87,84 @@ async function discoverSkills(config: AuditConfig): Promise<AgentSkill[]> {
 // Scanning
 // ---------------------------------------------------------------------------
 
-async function scanSkill(skill: AgentSkill): Promise<SecurityFinding[]> {
-  try {
-    const scanner = await import("@agentsec/scanner");
+/**
+ * Pre-built scanner pair used to dispatch per-skill rule selection. The
+ * `web3` scanner is null when the annex package can't be loaded (e.g.
+ * during a development build before everything is installed). The CLI
+ * always loads the annex if available — the audit is "Web3-aware by
+ * default", and `--profile web3` only forces application onto every
+ * skill regardless of detection.
+ */
+interface ScanContext {
+  scanner: unknown;
+  web3Scanner: unknown | null;
+  detectFn: ((skill: AgentSkill) => Web3DetectionResult) | null;
+}
 
-    // Try class-based API first, then function-based
-    if (typeof scanner.scanSkill === "function") {
-      return await scanner.scanSkill(skill);
+async function buildScanContext(): Promise<ScanContext> {
+  try {
+    const scannerMod = await import("@agentsec/scanner");
+    if (typeof scannerMod.Scanner !== "function") {
+      return { scanner: null, web3Scanner: null, detectFn: null };
     }
-    if (typeof scanner.Scanner === "function") {
-      const s = new scanner.Scanner();
-      return await s.scan(skill);
+    const scanner = new scannerMod.Scanner();
+
+    let web3Scanner: unknown | null = null;
+    let detectFn: ((skill: AgentSkill) => Web3DetectionResult) | null = null;
+    try {
+      const web3Mod = await import("@agentsec/web3");
+      const rules = web3Mod.WEB3_RULES ?? web3Mod.default?.WEB3_RULES;
+      const detect = web3Mod.detectWeb3 ?? web3Mod.default?.detectWeb3;
+      if (rules && typeof detect === "function") {
+        web3Scanner = new scannerMod.Scanner({ extraRules: rules as never });
+        detectFn = detect as typeof detectFn;
+      }
+    } catch {
+      // Annex not available — fall back to base scanner only.
     }
-    if (typeof scanner.default?.scanSkill === "function") {
-      return await scanner.default.scanSkill(skill);
-    }
+
+    return { scanner, web3Scanner, detectFn };
   } catch {
-    // Package not yet built
+    return { scanner: null, web3Scanner: null, detectFn: null };
   }
-  return [];
+}
+
+/**
+ * Run the security scanner against one skill, auto-detecting Web3 capability
+ * and applying the AST-10 Web3 Annex rules when the skill is detected
+ * (or when `--profile web3` forces application).
+ */
+async function scanSkillWithDetection(
+  skill: AgentSkill,
+  ctx: ScanContext,
+  profile: AuditConfig["profile"],
+): Promise<{ findings: SecurityFinding[]; web3?: Web3DetectionResult }> {
+  let web3: Web3DetectionResult | undefined;
+  let useWeb3Scanner = false;
+
+  if (ctx.detectFn) {
+    if (profile === "web3") {
+      web3 = {
+        detected: true,
+        confidence: "definite",
+        signals: ["forced by --profile web3"],
+      };
+      useWeb3Scanner = ctx.web3Scanner !== null;
+    } else {
+      const det = ctx.detectFn(skill);
+      web3 = { detected: det.isWeb3, confidence: det.confidence, signals: det.signals };
+      useWeb3Scanner = det.isWeb3 && ctx.web3Scanner !== null;
+    }
+  }
+
+  const target = useWeb3Scanner ? ctx.web3Scanner : ctx.scanner;
+  if (!target || typeof (target as { scan: unknown }).scan !== "function") {
+    return { findings: [], web3 };
+  }
+  const findings = await (target as { scan: (s: AgentSkill) => Promise<SecurityFinding[]> }).scan(
+    skill,
+  );
+  return { findings, web3 };
 }
 
 // ---------------------------------------------------------------------------
@@ -373,7 +433,11 @@ function printSummary(summary: AuditSummary): void {
   );
 }
 
-function printCompactSummary(summary: AuditSummary): void {
+function printCompactSummary(
+  summary: AuditSummary,
+  web3Count = 0,
+  results: SkillAuditResult[] = [],
+): void {
   console.log();
 
   // One-line stats
@@ -382,6 +446,9 @@ function printCompactSummary(summary: AuditSummary): void {
     `avg score ${color.bold(String(summary.averageScore))}`,
     `${color.green(String(summary.certifiedSkills))} certified`,
   ];
+  if (web3Count > 0) {
+    parts.push(`${color.cyan(String(web3Count))} ${color.cyan("Web3")}`);
+  }
   if (summary.blockedSkills > 0) {
     parts.push(color.red(`${summary.blockedSkills} blocked`));
   }
@@ -400,12 +467,37 @@ function printCompactSummary(summary: AuditSummary): void {
     if (summary.lowFindings > 0) findingParts.push(color.cyan(`${summary.lowFindings} low`));
     console.log(`  ${color.dim("Findings:")} ${findingParts.join(color.dim(", "))}`);
   }
+
+  // When critical findings exist, surface the worst-offender skills so the
+  // reader has a concrete next step without having to run `--verbose`. We
+  // show up to 3 \u2014 beyond that the value drops and the line wraps badly.
+  if (summary.criticalFindings > 0 && results.length > 0) {
+    const ranked = results
+      .map((r) => ({
+        skill: r.skill.name,
+        critical: r.securityFindings.filter((f) => f.severity === "critical").length,
+        topRule: (r.securityFindings.find((f) => f.severity === "critical")?.owaspId ?? "")
+          .toString(),
+      }))
+      .filter((r) => r.critical > 0)
+      .sort((a, b) => b.critical - a.critical)
+      .slice(0, 3);
+
+    if (ranked.length > 0) {
+      const summaries = ranked.map((r) => {
+        const tag = r.topRule ? color.dim(` [${r.topRule}]`) : "";
+        return `${color.bold(r.skill)}${tag} ${color.red(`${r.critical} critical`)}`;
+      });
+      console.log(`  ${color.dim("Worst:")} ${summaries.join(color.dim(", "))}`);
+    }
+  }
 }
 
 function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
   console.log();
+  const web3Tag = result.web3?.detected ? ` ${color.cyan(color.bold("[Web3]"))}` : "";
   console.log(
-    `  ${color.bold(result.skill.name)} ${color.dim(`v${result.skill.version}`)}  ` +
+    `  ${color.bold(result.skill.name)} ${color.dim(`v${result.skill.version}`)}${web3Tag}  ` +
       formatGrade(result.score.grade, result.score.overall),
   );
   const platform = (result.skill.discoveredAs ?? null) as AgentPlatform | null;
@@ -419,6 +511,10 @@ function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
   keyValue("  Quality", `${result.score.quality}/100`);
   keyValue("  Maintenance", `${result.score.maintenance}/100`);
 
+  if (verbose && result.web3?.detected && result.web3.signals.length > 0) {
+    console.log(`    ${color.cyan("Web3 signals:")} ${color.dim(result.web3.signals.join("; "))}`);
+  }
+
   // Findings
   if (result.securityFindings.length > 0) {
     console.log();
@@ -428,13 +524,17 @@ function printSkillResult(result: SkillAuditResult, verbose: boolean): void {
     const toShow = verbose ? sorted : sorted.slice(0, 5);
 
     for (const finding of toShow) {
-      console.log(`    ${severityBadge(finding.severity)} ${finding.title}`);
+      const owaspTag = finding.owaspId ? ` ${color.dim(`[${finding.owaspId}]`)}` : "";
+      console.log(`    ${severityBadge(finding.severity)} ${finding.title}${owaspTag}`);
       if (verbose && finding.description) {
         console.log(`      ${color.dim(finding.description)}`);
       }
       if (finding.file) {
         const loc = finding.line ? `${finding.file}:${finding.line}` : finding.file;
         console.log(`      ${color.dim(loc)}`);
+      }
+      if (verbose && finding.remediation) {
+        console.log(`      ${color.cyan("Fix:")} ${color.dim(finding.remediation)}`);
       }
     }
 
@@ -620,8 +720,10 @@ async function runDiscoveryStep(
 async function auditOneSkill(
   skill: AgentSkill,
   policyConfig: PolicyConfig | null,
+  config: AuditConfig,
+  ctx: ScanContext,
 ): Promise<SkillAuditResult> {
-  const findings = await scanSkill(skill);
+  const { findings, web3 } = await scanSkillWithDetection(skill, ctx, config.profile);
   const qualityMetrics = await calculateMetrics(skill);
   const score = buildAuditScore(findings, qualityMetrics, qualityMetrics.maintenanceHealth);
   const result: SkillAuditResult = {
@@ -631,6 +733,7 @@ async function auditOneSkill(
     qualityMetrics,
     policyViolations: [],
     recommendations: [],
+    web3,
   };
   if (policyConfig) {
     result.policyViolations = await evaluatePolicy(policyConfig, result);
@@ -657,6 +760,7 @@ async function runScanStep(
     : new Map<AgentPlatform | null, AgentSkill[]>([[null, skills]]);
   const showPlatformHeaders = autoDiscover && groups.size > 1;
   let scanned = 0;
+  const ctx = await buildScanContext();
 
   for (const [platform, platformSkills] of groups) {
     if (showPlatformHeaders && !isQuiet) {
@@ -674,11 +778,12 @@ async function runScanStep(
         : createSpinner(`Scanning ${color.bold(skill.name)} (${scanned}/${skills.length})...`);
       scanSpinner.start();
 
-      const result = await auditOneSkill(skill, policyConfig);
+      const result = await auditOneSkill(skill, policyConfig, config, ctx);
       const isBlocked = result.policyViolations.some((v) => v.action === "block");
       if (isBlocked) blockedCount++;
 
-      const line = `${skill.name} ${color.dim(`v${skill.version}`)} ${formatGrade(result.score.grade, result.score.overall)}`;
+      const web3Tag = result.web3?.detected ? ` ${color.cyan(color.bold("[Web3]"))}` : "";
+      const line = `${skill.name} ${color.dim(`v${skill.version}`)}${web3Tag} ${formatGrade(result.score.grade, result.score.overall)}`;
       if (isBlocked) {
         scanSpinner.fail(`${line} ${color.red("BLOCKED")}`);
       } else {
@@ -730,7 +835,16 @@ export async function runAudit(config: AuditConfig): Promise<number> {
       return 0;
     }
     // For quiet modes, emit an empty but valid report so callers can parse stdout.
-    if (!config.output) console.log(JSON.stringify(buildEmptyReport(config.platform), null, 2));
+    if (!config.output) {
+      const empty = buildEmptyReport(config.platform);
+      try {
+        const reporter = await import("@agentsec/reporter");
+        const fmt = reporter.formatJson ?? reporter.default?.formatJson;
+        console.log(typeof fmt === "function" ? fmt(empty) : JSON.stringify(empty, null, 2));
+      } catch {
+        console.log(JSON.stringify(empty, null, 2));
+      }
+    }
     return 0;
   }
 
@@ -783,6 +897,7 @@ export async function runAudit(config: AuditConfig): Promise<number> {
   };
 
   // 6. Print results (text format to stdout)
+  const web3Count = results.filter((r) => r.web3?.detected).length;
   if (config.format === "text") {
     if (config.verbose) {
       // Detailed per-skill output (findings, score breakdown, recommendations)
@@ -792,12 +907,21 @@ export async function runAudit(config: AuditConfig): Promise<number> {
       printSummary(summary);
     } else {
       // Compact: skill grades already shown in spinners above
-      printCompactSummary(summary);
+      printCompactSummary(summary, web3Count, results);
     }
     console.log();
   } else if (config.format === "json") {
     if (!config.output) {
-      console.log(JSON.stringify(report, null, 2));
+      // Route stdout JSON through the reporter so the same redaction pass
+      // (AST-W11 key-shaped substrings stripped from raw file contents)
+      // applies whether the user pipes to a tool or writes to a file.
+      try {
+        const reporter = await import("@agentsec/reporter");
+        const fmt = reporter.formatJson ?? reporter.default?.formatJson;
+        console.log(typeof fmt === "function" ? fmt(report) : JSON.stringify(report, null, 2));
+      } catch {
+        console.log(JSON.stringify(report, null, 2));
+      }
     }
   } else if (config.format === "sarif" || config.format === "html") {
     // Delegate to reporter package

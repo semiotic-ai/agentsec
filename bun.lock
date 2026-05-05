@@ -33,7 +33,7 @@
     },
     "packages/cli": {
       "name": "agentsec",
-      "version": "0.1.4",
+      "version": "0.1.6",
       "bin": {
         "agentsec": "./dist/cli.js",
       },
@@ -44,6 +44,7 @@
         "@agentsec/reporter": "workspace:*",
         "@agentsec/scanner": "workspace:*",
         "@agentsec/shared": "workspace:*",
+        "@agentsec/web3": "workspace:*",
         "@types/bun": "^1.3.11",
         "typescript": "^6.0.2",
       },
@@ -111,6 +112,17 @@
         "typescript": "^6.0.2",
       },
     },
+    "packages/web3": {
+      "name": "@agentsec/web3",
+      "version": "0.1.0",
+      "dependencies": {
+        "@agentsec/shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.3.11",
+        "typescript": "^6.0.2",
+      },
+    },
   },
   "packages": {
     "@agentsec/landing": ["@agentsec/landing@workspace:apps/landing"],
@@ -126,6 +138,8 @@
     "@agentsec/scanner": ["@agentsec/scanner@workspace:packages/scanner"],
 
     "@agentsec/shared": ["@agentsec/shared@workspace:packages/shared"],
+
+    "@agentsec/web3": ["@agentsec/web3@workspace:packages/web3"],
 
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 

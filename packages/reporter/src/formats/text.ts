@@ -159,7 +159,10 @@ const banner = (): string => {
 
 // ── Section renderers ──────────────────────────────────────────────────── //
 
-const renderSummary = (summary: AuditSummary): string => {
+const renderSummary = (
+  summary: AuditSummary,
+  results: SkillAuditResult[] = [],
+): string => {
   const lines: string[] = [];
 
   lines.push(heading("Audit Summary"));
@@ -180,11 +183,23 @@ const renderSummary = (summary: AuditSummary): string => {
   lines.push(`  ${bold("Average Score")}  ${avgScoreBar}`);
   lines.push("");
 
+  // Web3 detection roll-up — surface annex application as a first-class
+  // signal so partnership integrations (Virtuals, Coinbase, Deckard) can
+  // cite it without re-deriving from per-skill metadata.
+  const web3Count = results.filter((r) => r.web3?.detected).length;
+  const web3Critical = results
+    .filter((r) => r.web3?.detected)
+    .reduce(
+      (sum, r) => sum + r.securityFindings.filter((f) => f.severity === "critical").length,
+      0,
+    );
+
   // Stats in two columns
   const leftCol = [
     `${teal(symbols.bullet)} Skills scanned:     ${bold(String(summary.totalSkills))}`,
     `${brightGreen(symbols.check)} Certified:          ${bold(green(String(summary.certifiedSkills)))}`,
     `${brightRed(symbols.cross)} Blocked:            ${bold(summary.blockedSkills > 0 ? red(String(summary.blockedSkills)) : String(summary.blockedSkills))}`,
+    `${cyan(symbols.bullet)} Web3 skills:        ${bold(web3Count > 0 ? cyan(String(web3Count)) : String(web3Count))}${web3Critical > 0 ? dim(` (${web3Critical} critical)`) : ""}`,
   ];
 
   const rightCol = [
@@ -211,6 +226,7 @@ const renderSkillTable = (results: SkillAuditResult[]): string => {
 
   const columns: Column[] = [
     { header: " Skill", width: 30, align: "left" },
+    { header: "Type", width: 7, align: "center" },
     { header: "Overall", width: 9, align: "center" },
     { header: "Security", width: 10, align: "center" },
     { header: "Quality", width: 9, align: "center" },
@@ -223,6 +239,7 @@ const renderSkillTable = (results: SkillAuditResult[]): string => {
     const name =
       " " +
       (r.skill.name.length > 28 ? r.skill.name.slice(0, 27) + symbols.ellipsis : r.skill.name);
+    const typeChip = r.web3?.detected ? cyan("Web3") : dim("—");
     const scoreVal = (score: number) => {
       const color =
         score >= 80 ? brightGreen : score >= 60 ? green : score >= 40 ? yellow : brightRed;
@@ -239,6 +256,7 @@ const renderSkillTable = (results: SkillAuditResult[]): string => {
 
     return [
       name,
+      typeChip,
       scoreVal(r.score.overall),
       scoreVal(r.score.security),
       scoreVal(r.score.quality),
@@ -293,9 +311,14 @@ const renderFindings = (results: SkillAuditResult[]): string => {
     const icon = severityIcon(finding.severity);
     const badge = severityBadge(finding.severity);
     const title = bold(white(finding.title));
-    const rule = dim(`[${finding.rule}]`);
+    // Lead with the OWASP ID when available (`AST-W02`) — that's the
+    // canonical identifier in the public taxonomy. Fall back to the rule
+    // slug for older runs that predate `owaspId` stamping.
+    const idTag = finding.owaspId
+      ? dim(`[${finding.owaspId} · ${finding.rule}]`)
+      : dim(`[${finding.rule}]`);
 
-    lines.push(`  ${icon} ${badge} ${title} ${rule}`);
+    lines.push(`  ${icon} ${badge} ${title} ${idTag}`);
     lines.push(`    ${dim("Skill:")} ${cyan(skill)}`);
 
     if (finding.file) {
@@ -480,7 +503,7 @@ const renderFooter = (report: AuditReport): string => {
 export const formatText = (report: AuditReport): string => {
   const sections: string[] = [
     banner(),
-    renderSummary(report.summary),
+    renderSummary(report.summary, report.skills),
     renderSkillTable(report.skills),
     renderFindings(report.skills),
     renderQualityDetails(report.skills),

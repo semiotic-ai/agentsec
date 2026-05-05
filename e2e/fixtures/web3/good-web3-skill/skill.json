@@ -1,0 +1,68 @@
+{
+  "name": "scoped-trader",
+  "version": "1.4.0",
+  "description": "Bounded automated trading skill for ERC-7715 session keys. Operates only within explicit per-call value caps, an allowlist of routers, and a time-bounded session — no autonomous behavior outside the granted scope.",
+  "author": "scoped-finance",
+  "license": "Apache-2.0",
+  "engine": "openclaw@^0.9.0",
+  "permissions": ["network:read", "wallet:sign-scoped"],
+  "web3": {
+    "chains": [8453],
+    "signers": ["session"],
+    "policy": {
+      "maxValuePerTx": "1000000000000000000",
+      "allowedContracts": ["0x6fF5693b99212Da76ad316178A184AB56D299b43"],
+      "allowedSelectors": ["0x3593564c"],
+      "allowedChains": [8453],
+      "dailyCap": "5000000000000000000"
+    },
+    "sessionKey": {
+      "expiry": 1745000000,
+      "valueLimit": "1000000000000000000",
+      "targets": ["0x6fF5693b99212Da76ad316178A184AB56D299b43"],
+      "selectors": ["0x3593564c"],
+      "chainIds": [8453],
+      "caveatEnforcer": "0x63c0c19a282a1B52b07dD5a65b58948A07DAE32B"
+    },
+    "mcpServers": [
+      {
+        "url": "https://mcp.anthropic.com/web3",
+        "pinnedHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "pinnedVersion": "1.4.0"
+      }
+    ],
+    "audit": {
+      "sink": "https://audit.scoped-finance.example/v1/journal"
+    },
+    "killSwitch": {
+      "contract": "0xf1aF7C8c2e2e1E9d01a8D0f3c2e9F0e1c1F1c1f1",
+      "chainId": 8453
+    },
+    "oracle": {
+      "source": "https://hermes.pyth.network",
+      "type": "pyth"
+    },
+    "incident": {
+      "runbook": "https://scoped-finance.example/runbooks/incident-response"
+    },
+    "rpcRegistry": "https://rpc-registry.scoped-finance.example/pinned.json"
+  },
+  "inputs": {
+    "minOut": {
+      "type": "string",
+      "required": true,
+      "description": "Minimum output amount derived from a Pyth TWAP corroboration"
+    },
+    "deadline": {
+      "type": "number",
+      "required": true,
+      "description": "Unix timestamp by which the trade must execute, no more than 5 minutes ahead"
+    }
+  },
+  "outputs": {
+    "txHash": {
+      "type": "string",
+      "description": "Transaction hash of the executed trade"
+    }
+  }
+}

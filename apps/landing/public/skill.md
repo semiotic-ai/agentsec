@@ -5,7 +5,7 @@ description: >
   installed skills against the OWASP Agentic Skills Top 10, checking skills
   before running them, gating CI/CD on skill safety, or generating audit
   reports (text, JSON, SARIF, HTML) for stakeholders.
-version: 0.1.6
+version: 0.2.0-beta.2
 homepage: https://agentsec.sh
 metadata:
   openclaw:
@@ -104,17 +104,18 @@ agentsec scan --path ./my-skills
 
 All flags work with any command.
 
-| Flag         | Short | Values                          | Default    | Purpose                        |
-| ------------ | ----- | ------------------------------- | ---------- | ------------------------------ |
-| `--format`   | `-f`  | `text`, `json`, `sarif`, `html` | `text`     | Output format                  |
-| `--output`   | `-o`  | path                            | stdout     | Write report to file           |
-| `--policy`   | `-p`  | preset name or path             | `default`  | Apply a policy preset          |
-| `--platform` |       | `openclaw`, `claude`, `codex`   | auto       | Narrow to one agent platform   |
-| `--path`     |       | path                            | auto       | Custom skill directory to scan |
-| `--verbose`  | `-v`  |                                 | off        | Show detailed findings         |
-| `--no-color` |       |                                 | off        | Disable colored output         |
-| `--help`     | `-h`  |                                 |            | Show help                      |
-| `--version`  | `-V`  |                                 |            | Print version                  |
+| Flag         | Short | Values                          | Default    | Purpose                                                  |
+| ------------ | ----- | ------------------------------- | ---------- | -------------------------------------------------------- |
+| `--format`   | `-f`  | `text`, `json`, `sarif`, `html` | `text`     | Output format                                            |
+| `--output`   | `-o`  | path                            | stdout     | Write report to file                                     |
+| `--policy`   | `-p`  | preset name or path             | `default`  | Apply a policy preset                                    |
+| `--platform` |       | `openclaw`, `claude`, `codex`   | auto       | Narrow to one agent platform                             |
+| `--path`     |       | path                            | auto       | Custom skill directory to scan                           |
+| `--profile`  |       | `default`, `web3`, `strict`     | `default`  | Rule profile. `default` auto-detects Web3 skills; `web3` forces the annex on every skill |
+| `--verbose`  | `-v`  |                                 | off        | Show detailed findings                                   |
+| `--no-color` |       |                                 | off        | Disable colored output                                   |
+| `--help`     | `-h`  |                                 |            | Show help                                                |
+| `--version`  | `-V`  |                                 |            | Print version                                            |
 
 ## Common Recipes
 
@@ -219,6 +220,38 @@ Every audit checks all ten risk categories:
 | AST08 | Poor Scanning           |
 | AST09 | No Governance           |
 | AST10 | Cross-Platform Reuse    |
+
+## AST-10 Web3 Annex (auto-detected)
+
+Web3-touching skills are detected automatically and audited against twelve additional rules — no flag required. A skill is detected as Web3 when its manifest declares a `web3:` block, when its source imports a Web3 client library (`viem`, `ethers`, `web3`, `wagmi`, `@solana/web3.js`, `@coinbase/onchainkit`, `@privy-io`, `@biconomy`, `@zerodev`), when it references a Web3 RPC method (`eth_*`, `wallet_*`, `personal_sign`, `signTypedData`), or when it ships a `.sol` file. Detected skills are tagged `[Web3]` in the output:
+
+```text
+✔ scoped-trader v1.4.0  [Web3]  C (62)
+✔ helpful-summarizer v1.2.0     A (95)
+```
+
+`--profile web3` is still available — it forces the annex onto every skill regardless of detection (useful for cross-team CI consistency):
+
+```bash
+npx agentsec audit --profile web3 --path ./my-skills
+```
+
+| ID      | Risk                                            |
+| ------- | ----------------------------------------------- |
+| AST-W01 | Unbounded Signing Authority                     |
+| AST-W02 | Implicit Permit / Permit2 Signature Capture     |
+| AST-W03 | Delegation Hijack via EIP-7702                  |
+| AST-W04 | Blind / Opaque Signing Surface                  |
+| AST-W05 | RPC Endpoint Substitution & Mempool Leakage     |
+| AST-W06 | Unverified Contract Call Targets                |
+| AST-W07 | Cross-Chain / Bridge Action Replay              |
+| AST-W08 | MCP Chain-Tool Drift / Capability Smuggling     |
+| AST-W09 | Session-Key / Permission-Caveat Erosion         |
+| AST-W10 | Slippage / Oracle Manipulation by Agent Loop    |
+| AST-W11 | Key Material in Agent Memory / Logs             |
+| AST-W12 | No On-Chain Action Audit / Kill-Switch          |
+
+Skills can declare a `web3` block in their manifest (chains, signers, policy caps, session-key scopes, MCP server pinning, audit sink, kill-switch) so the annex can verify scoping without flagging well-bounded skills. See `docs/plans/ast10-web3-annex-rules.md` for full per-rule detection signals.
 
 ## Understanding the Output
 

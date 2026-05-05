@@ -12,6 +12,13 @@ export interface ScanOptions {
   skipRules?: string[];
   /** Enable verbose logging to stderr */
   verbose?: boolean;
+  /**
+   * Extra rule definitions to merge into the built-in `ALL_RULES` set —
+   * structurally a `RuleDefinition`. Used by the CLI's `--profile` flag
+   * to plug in external rule packs like `@agentsec/web3` without
+   * making the scanner core depend on them.
+   */
+  extraRules?: RuleDefinition[];
 }
 
 /**
@@ -34,11 +41,10 @@ export class Scanner {
   private verbose: boolean;
 
   constructor(options: ScanOptions = {}) {
-    const { categories, plugins = [], skipRules = [], verbose = false } = options;
+    const { categories, plugins = [], skipRules = [], verbose = false, extraRules = [] } = options;
 
-    this.rules = categories
-      ? ALL_RULES.filter((r) => categories.includes(r.category))
-      : [...ALL_RULES];
+    const merged = [...ALL_RULES, ...extraRules];
+    this.rules = categories ? merged.filter((r) => categories.includes(r.category)) : merged;
 
     this.plugins = plugins;
     this.skipRules = new Set(skipRules);
@@ -67,6 +73,16 @@ export class Scanner {
           process.stderr.write(
             `  Rule ${rule.name} completed: ${ruleFindings.length} findings in ${elapsed.toFixed(1)}ms\n`,
           );
+        }
+
+        // Stamp the rule's OWASP identifier onto every finding it produced
+        // unless the rule already set one. This is the single seam where
+        // base AST10 and AST-W## rules become indistinguishable downstream
+        // — text/HTML/SARIF reporters, ClawHub badges, and EAS attestations
+        // all read `finding.owaspId` rather than re-deriving it from `rule`.
+        for (const f of ruleFindings) {
+          if (f.owaspId === undefined) f.owaspId = rule.owaspId;
+          if (f.owaspLink === undefined) f.owaspLink = rule.owaspLink;
         }
 
         // Filter out skipped rules

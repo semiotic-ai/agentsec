@@ -373,6 +373,28 @@ body {
   color: var(--text-muted);
 }
 
+a.finding-rule {
+  color: var(--teal);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--teal);
+}
+
+a.finding-rule:hover {
+  color: var(--cyan, #66d9ef);
+}
+
+.web3-chip {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #1a1a2e;
+  background: #66d9ef;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
 .finding-body {
   display: none;
   padding: 0 16px 16px 48px;
@@ -625,9 +647,12 @@ const renderSkillTable = (results: SkillAuditResult[]): string => {
   const rows = results
     .map((r) => {
       const gc = gradeClass(r.score.grade);
+      const web3Cell = r.web3?.detected
+        ? `<span class="web3-chip" title="${esc((r.web3.signals ?? []).join("; "))}">Web3</span>`
+        : "";
       return `
         <tr>
-          <td>${esc(r.skill.name)}</td>
+          <td>${esc(r.skill.name)} ${web3Cell}</td>
           <td class="num">${renderScoreBar(r.score.overall)}</td>
           <td class="num">${r.score.security}</td>
           <td class="num">${r.score.quality}</td>
@@ -665,13 +690,22 @@ const renderFindingCard = (finding: SecurityFinding, skillName: string): string 
       : finding.file
     : null;
 
+  // Lead with the OWASP identifier — `AST-W02` is the public-facing tag
+  // users grep for. Link to the annex/AST10 page when available so reviewers
+  // can click through from the report.
+  const idTag = finding.owaspId
+    ? finding.owaspLink
+      ? `<a class="finding-rule" href="${esc(finding.owaspLink)}" target="_blank" rel="noopener">${esc(finding.owaspId)}</a> <span class="finding-rule">${esc(finding.rule)}</span>`
+      : `<span class="finding-rule">${esc(finding.owaspId)} · ${esc(finding.rule)}</span>`
+    : `<span class="finding-rule">${esc(finding.rule)}</span>`;
+
   return `
     <div class="finding">
       <div class="finding-header">
         <span class="finding-chevron">&#9654;</span>
         <span class="severity-badge ${severityClass(finding.severity)}">${esc(finding.severity)}</span>
         <span class="finding-title">${esc(finding.title)}</span>
-        <span class="finding-rule">${esc(finding.rule)}</span>
+        ${idTag}
       </div>
       <div class="finding-body">
         <div class="finding-detail"><strong>Skill:</strong> ${esc(skillName)}</div>

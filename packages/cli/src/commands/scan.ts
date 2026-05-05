@@ -5,7 +5,12 @@
  * where you just want the raw scan data.
  */
 
-import type { AgentSkill, QualityMetrics, SecurityFinding } from "@agentsec/shared";
+import type {
+  AgentSkill,
+  QualityMetrics,
+  SecurityFinding,
+  Web3DetectionResult,
+} from "@agentsec/shared";
 import { buildAuditScore, compareSeverity } from "@agentsec/shared";
 
 import type { AuditConfig } from "../config";
@@ -46,23 +51,71 @@ async function discoverSkills(config: AuditConfig): Promise<AgentSkill[]> {
   return [];
 }
 
-async function scanSkill(skill: AgentSkill): Promise<SecurityFinding[]> {
+interface ScanContext {
+  scanner: unknown;
+  web3Scanner: unknown | null;
+  detectFn: ((skill: AgentSkill) => Web3DetectionResult) | null;
+}
+
+async function buildScanContext(): Promise<ScanContext> {
   try {
-    const scanner = await import("@agentsec/scanner");
-    if (typeof scanner.scanSkill === "function") {
-      return await scanner.scanSkill(skill);
+    const scannerMod = await import("@agentsec/scanner");
+    if (typeof scannerMod.Scanner !== "function") {
+      return { scanner: null, web3Scanner: null, detectFn: null };
     }
-    if (typeof scanner.Scanner === "function") {
-      const s = new scanner.Scanner();
-      return await s.scan(skill);
+    const scanner = new scannerMod.Scanner();
+
+    let web3Scanner: unknown | null = null;
+    let detectFn: ((skill: AgentSkill) => Web3DetectionResult) | null = null;
+    try {
+      const web3Mod = await import("@agentsec/web3");
+      const rules = web3Mod.WEB3_RULES ?? web3Mod.default?.WEB3_RULES;
+      const detect = web3Mod.detectWeb3 ?? web3Mod.default?.detectWeb3;
+      if (rules && typeof detect === "function") {
+        web3Scanner = new scannerMod.Scanner({ extraRules: rules as never });
+        detectFn = detect as typeof detectFn;
+      }
+    } catch {
+      // Annex unavailable.
     }
-    if (typeof scanner.default?.scanSkill === "function") {
-      return await scanner.default.scanSkill(skill);
-    }
+
+    return { scanner, web3Scanner, detectFn };
   } catch {
-    // Package not yet built
+    return { scanner: null, web3Scanner: null, detectFn: null };
   }
-  return [];
+}
+
+async function scanSkillWithDetection(
+  skill: AgentSkill,
+  ctx: ScanContext,
+  profile: AuditConfig["profile"],
+): Promise<{ findings: SecurityFinding[]; web3?: Web3DetectionResult }> {
+  let web3: Web3DetectionResult | undefined;
+  let useWeb3Scanner = false;
+
+  if (ctx.detectFn) {
+    if (profile === "web3") {
+      web3 = {
+        detected: true,
+        confidence: "definite",
+        signals: ["forced by --profile web3"],
+      };
+      useWeb3Scanner = ctx.web3Scanner !== null;
+    } else {
+      const det = ctx.detectFn(skill);
+      web3 = { detected: det.isWeb3, confidence: det.confidence, signals: det.signals };
+      useWeb3Scanner = det.isWeb3 && ctx.web3Scanner !== null;
+    }
+  }
+
+  const target = useWeb3Scanner ? ctx.web3Scanner : ctx.scanner;
+  if (!target || typeof (target as { scan: unknown }).scan !== "function") {
+    return { findings: [], web3 };
+  }
+  const findings = await (target as { scan: (s: AgentSkill) => Promise<SecurityFinding[]> }).scan(
+    skill,
+  );
+  return { findings, web3 };
 }
 
 async function calculateMetrics(skill: AgentSkill): Promise<QualityMetrics> {
@@ -99,6 +152,7 @@ interface ScanResult {
   skill: AgentSkill;
   findings: SecurityFinding[];
   metrics: QualityMetrics;
+  web3?: Web3DetectionResult;
 }
 
 function printScanResult(result: ScanResult, verbose: boolean): void {
@@ -106,11 +160,16 @@ function printScanResult(result: ScanResult, verbose: boolean): void {
   const score = buildAuditScore(findings, metrics, metrics.maintenanceHealth);
 
   console.log();
+  const web3Tag = result.web3?.detected ? ` ${color.cyan(color.bold("[Web3]"))}` : "";
   console.log(
-    `  ${color.bold(skill.name)} ${color.dim(`v${skill.version}`)}  ` +
+    `  ${color.bold(skill.name)} ${color.dim(`v${skill.version}`)}${web3Tag}  ` +
       formatGrade(score.grade, score.overall),
   );
   console.log(`  ${color.dim(skill.path)}`);
+
+  if (verbose && result.web3?.detected && result.web3.signals.length > 0) {
+    console.log(`    ${color.cyan("Web3 signals:")} ${color.dim(result.web3.signals.join("; "))}`);
+  }
 
   if (findings.length === 0) {
     info("  No security findings");
@@ -121,7 +180,8 @@ function printScanResult(result: ScanResult, verbose: boolean): void {
   const toShow = verbose ? sorted : sorted.slice(0, 10);
 
   for (const finding of toShow) {
-    console.log(`    ${severityBadge(finding.severity)} ${finding.title}`);
+    const owaspTag = finding.owaspId ? ` ${color.dim(`[${finding.owaspId}]`)}` : "";
+    console.log(`    ${severityBadge(finding.severity)} ${finding.title}${owaspTag}`);
     if (verbose) {
       if (finding.description) {
         console.log(`      ${color.dim(finding.description)}`);
@@ -131,7 +191,7 @@ function printScanResult(result: ScanResult, verbose: boolean): void {
         console.log(`      ${color.dim(loc)}`);
       }
       if (finding.remediation) {
-        console.log(`      ${color.cyan("Fix:")} ${finding.remediation}`);
+        console.log(`      ${color.cyan("Fix:")} ${color.dim(finding.remediation)}`);
       }
     }
   }
@@ -171,6 +231,7 @@ export async function runScan(config: AuditConfig): Promise<number> {
 
   const results: ScanResult[] = [];
   let totalFindings = 0;
+  const ctx = await buildScanContext();
 
   for (let i = 0; i < skills.length; i++) {
     const skill = skills[i];
@@ -179,7 +240,7 @@ export async function runScan(config: AuditConfig): Promise<number> {
     );
     scanSpinner.start();
 
-    const findings = await scanSkill(skill);
+    const { findings, web3 } = await scanSkillWithDetection(skill, ctx, config.profile);
     const metrics = await calculateMetrics(skill);
     totalFindings += findings.length;
 
@@ -187,17 +248,20 @@ export async function runScan(config: AuditConfig): Promise<number> {
       (f) => f.severity === "critical" || f.severity === "high",
     ).length;
 
+    const web3Tag = web3?.detected ? ` ${color.cyan(color.bold("[Web3]"))}` : "";
     if (critHigh > 0) {
       scanSpinner.fail(
-        `${skill.name} -- ${findings.length} finding(s), ${color.red(`${critHigh} critical/high`)}`,
+        `${skill.name}${web3Tag} -- ${findings.length} finding(s), ${color.red(`${critHigh} critical/high`)}`,
       );
     } else if (findings.length > 0) {
-      scanSpinner.succeed(`${skill.name} -- ${color.yellow(`${findings.length} finding(s)`)}`);
+      scanSpinner.succeed(
+        `${skill.name}${web3Tag} -- ${color.yellow(`${findings.length} finding(s)`)}`,
+      );
     } else {
-      scanSpinner.succeed(`${skill.name} -- ${color.green("clean")}`);
+      scanSpinner.succeed(`${skill.name}${web3Tag} -- ${color.green("clean")}`);
     }
 
-    results.push({ skill, findings, metrics });
+    results.push({ skill, findings, metrics, web3 });
   }
 
   // Print results (text format)
