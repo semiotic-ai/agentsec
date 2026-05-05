@@ -169,3 +169,7 @@ This project implements scanning and auditing based on OWASP Agentic Skills Top 
 | AST08 | Poor Scanning           |
 | AST09 | No Governance           |
 | AST10 | Cross-Platform Reuse    |
+
+### Web3 Annex (AST-W01–W12)
+
+Twelve chain-specific rules ship in `@agentsec/web3` (signing authority, Permit2 capture, EIP-7702 delegation, blind signing, RPC substitution, contract-target verification, bridge replay, MCP chain-tool drift, ERC-7715 session keys, oracle/slippage, key-material leaks, audit/kill-switch). Auto-applied to skills that touch chain; force on with `--profile web3` for cross-team CI consistency. Strategy and per-rule spec live in [docs/plans/ast10-web3-annex-strategy.md](docs/plans/ast10-web3-annex-strategy.md).

@@ -148,6 +148,31 @@ Every scan checks for all 10 risk categories:
 | **AST09** | No Governance           | Missing audit logs, absent policy enforcement           |
 | **AST10** | Cross-Platform Reuse    | Platform-specific validation gaps, portability issues   |
 
+### Web3 Annex (AST-W01–W12)
+
+Skills that touch chain (signing, RPC, EIP-7702 delegation, MCP chain-tools, etc.) are auto-detected and audited against 12 additional rules from the [`@agentsec/web3`](./packages/web3/README.md) annex. Force the rule pack on for cross-team CI consistency:
+
+```bash
+npx agentsec --profile web3
+```
+
+| ID         | Risk                                       |
+| ---------- | ------------------------------------------ |
+| **AST-W01** | Unbounded Signing Authority               |
+| **AST-W02** | Implicit Permit / Permit2 Signature Capture |
+| **AST-W03** | Delegation Hijack via EIP-7702            |
+| **AST-W04** | Blind / Opaque Signing                    |
+| **AST-W05** | RPC Substitution / Mempool Leakage        |
+| **AST-W06** | Unverified Contract Call Targets          |
+| **AST-W07** | Cross-Chain / Bridge Action Replay        |
+| **AST-W08** | MCP Chain-Tool Drift / Capability Smuggling |
+| **AST-W09** | Session-Key Permission-Caveat Erosion     |
+| **AST-W10** | Slippage / Oracle Manipulation by Agent Loop |
+| **AST-W11** | Key Material in Agent Memory / Logs       |
+| **AST-W12** | No On-Chain Action Audit / Kill-Switch    |
+
+Findings carry their canonical OWASP code in every report format (text, JSON, HTML, SARIF) — `rule.id` in SARIF is `AST-W##` with a `helpUri` to the annex doc.
+
 ## Supported Agents
 
 - **Claude Code** — scans installed skills and MCP servers

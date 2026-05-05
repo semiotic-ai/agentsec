@@ -41,9 +41,9 @@ export function Hero(): React.ReactNode {
                   className="w-1.5 h-1.5 rounded-full bg-brand-teal animate-pulse-teal"
                   aria-hidden="true"
                 />
-                OWASP AST-10 aligned
+                OWASP AST-10 + Web3 Annex
               </span>
-              <span className="text-[13px] text-brand-dim">v0.2.0-beta.2 · MIT</span>
+              <span className="text-[13px] text-brand-dim">v0.2.0 · MIT</span>
             </div>
 
             <h1 className="font-display mb-6 text-brand-text">
