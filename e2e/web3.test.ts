@@ -16,7 +16,7 @@ import { Scanner } from "@agentsec/scanner";
 import type { AgentSkill, SecurityFinding } from "@agentsec/shared";
 import { detectWeb3, WEB3_RULES } from "@agentsec/web3";
 
-const FIXTURES_ROOT = resolve(import.meta.dir, "fixtures/web3");
+const FIXTURES_ROOT = resolve(import.meta.dir, "fixtures");
 
 interface VulnExpectation {
   fixture: string;
