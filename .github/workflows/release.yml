@@ -88,6 +88,10 @@ jobs:
       # we must pass it explicitly. Read it from packages/cli/package.json (the
       # canonical stamp) so the same value works for both tag-push and dispatch.
       version: ${{ needs.release.outputs.version }}
+      # Scope the publish to the semiotic-ai owner namespace so the package slug
+      # doesn't collide with the legacy markeljan/agentsec skill listing on the
+      # global namespace.
+      owner: semiotic-ai
     secrets:
       clawhub_token: ${{ secrets.CLAWHUB_API_TOKEN }}
 
