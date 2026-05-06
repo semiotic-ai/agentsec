@@ -78,6 +78,10 @@ jobs:
     uses: openclaw/clawhub/.github/workflows/package-publish.yml@main
     with:
       dry_run: ${{ inputs.dry-run || false }}
+      # On tag push, inputs.version is empty and the reusable workflow derives the
+      # version from the tag / SKILL.md. On workflow_dispatch we forward the dispatch
+      # input so dry-runs and manual previews work.
+      version: ${{ inputs.version }}
     secrets:
       clawhub_token: ${{ secrets.CLAWHUB_API_TOKEN }}
 
