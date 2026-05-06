@@ -49,7 +49,7 @@ const COLS: readonly FooterCol[] = [
       },
       {
         label: "ClawHub",
-        href: "https://clawhub.ai/semiotic-ai/agentsec",
+        href: "https://clawhub.ai/markeljan/agentsec",
         external: true,
       },
       {

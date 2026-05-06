@@ -10,7 +10,7 @@ const CMDS: Record<PkgManager, string> = {
   npm: "npm install -g agentsec",
   pnpm: "pnpm add -g agentsec",
   yarn: "yarn global add agentsec",
-  clawhub: "npx clawhub install agentsec",
+  clawhub: "npx clawhub install markeljan/agentsec",
 };
 
 const KEYS = Object.keys(CMDS) as PkgManager[];
