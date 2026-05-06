@@ -14,14 +14,14 @@
   <a href="https://www.npmjs.com/package/agentsec">
     <img src="https://img.shields.io/npm/dm/agentsec.svg?color=blue" alt="npm downloads">
   </a>
-  <a href="https://github.com/semiotic-agentium/agent-audit/blob/main/LICENSE">
+  <a href="https://github.com/semiotic-ai/agentsec/blob/main/LICENSE">
     <img src="https://img.shields.io/npm/l/agentsec.svg?color=blue" alt="License: MIT">
   </a>
   <a href="https://owasp.org/www-project-agentic-skills-top-10/">
     <img src="https://img.shields.io/badge/OWASP-AST10-orange.svg" alt="OWASP AST10">
   </a>
-  <a href="https://github.com/semiotic-agentium/agent-audit">
-    <img src="https://img.shields.io/badge/GitHub-agent--audit-181717?logo=github" alt="GitHub">
+  <a href="https://github.com/semiotic-ai/agentsec">
+    <img src="https://img.shields.io/badge/GitHub-agentsec-181717?logo=github" alt="GitHub">
   </a>
 </p>
 
@@ -182,10 +182,10 @@ Upload the resulting SARIF to GitHub Code Scanning to track findings over time.
 ## Links
 
 - 🌐 Website: [agentsec.sh](https://agentsec.sh)
-- 📦 GitHub: [semiotic-agentium/agent-audit](https://github.com/semiotic-agentium/agent-audit)
-- 🐛 Issues: [github.com/semiotic-agentium/agent-audit/issues](https://github.com/semiotic-agentium/agent-audit/issues)
+- 📦 GitHub: [semiotic-ai/agentsec](https://github.com/semiotic-ai/agentsec)
+- 🐛 Issues: [github.com/semiotic-ai/agentsec/issues](https://github.com/semiotic-ai/agentsec/issues)
 - 🧩 Skills ecosystem: [skills.sh](https://skills.sh)
 
 ## License
 
-[MIT](https://github.com/semiotic-agentium/agent-audit/blob/main/LICENSE) © AgentSec Contributors
+[MIT](https://github.com/semiotic-ai/agentsec/blob/main/LICENSE) © AgentSec Contributors

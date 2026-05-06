@@ -14,8 +14,8 @@
   <a href="https://www.npmjs.com/package/agentsec">
     <img src="https://img.shields.io/npm/dm/agentsec.svg?color=blue" alt="npm downloads">
   </a>
-  <a href="https://github.com/semiotic-agentium/agent-audit">
-    <img src="https://img.shields.io/badge/GitHub-agent--audit-181717?logo=github" alt="GitHub">
+  <a href="https://github.com/semiotic-ai/agentsec">
+    <img src="https://img.shields.io/badge/GitHub-agentsec-181717?logo=github" alt="GitHub">
   </a>
   <a href="./LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">

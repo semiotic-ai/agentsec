@@ -15,7 +15,7 @@ const CMDS: Record<PkgManager, string> = {
 
 const KEYS = Object.keys(CMDS) as PkgManager[];
 
-const GITHUB_URL = "https://github.com/semiotic-agentium";
+const GITHUB_URL = "https://github.com/semiotic-ai/agentsec";
 
 export function Install(): React.ReactNode {
   const [tab, setTab] = useState<PkgManager>("npx");

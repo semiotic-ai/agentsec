@@ -17,7 +17,7 @@ const NAV_LINKS: readonly NavLink[] = [
   { href: "/examples", label: "Examples" },
 ];
 
-const GITHUB_URL = "https://github.com/semiotic-agentium";
+const GITHUB_URL = "https://github.com/semiotic-ai/agentsec";
 
 export function Header(): React.ReactNode {
   const [isScrolled, setIsScrolled] = useState(false);

@@ -13,8 +13,8 @@ Use **bun** everywhere. Do not use npm, yarn, or pnpm.
 ## Quick Setup
 
 ```bash
-git clone https://github.com/semiotic-agentium/agent-audit.git
-cd agent-audit
+git clone https://github.com/semiotic-ai/agentsec.git
+cd agentsec
 bun install
 bun run build
 bun run test

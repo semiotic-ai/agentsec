@@ -18,4 +18,4 @@ export const SITE_TITLE = "AgentSec — audit every skill your AI agents run";
 export const SITE_DESCRIPTION =
   "One command audits every skill your AI agent has installed. Vulnerabilities, supply chain risks, and policy violations — checked against OWASP AST10, automatically.";
 export const SITE_TWITTER = "@semiotic_agentium";
-export const GITHUB_URL = "https://github.com/semiotic-agentium";
+export const GITHUB_URL = "https://github.com/semiotic-ai/agentsec";

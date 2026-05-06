@@ -7,12 +7,12 @@
   "author": "AgentSec Contributors",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/semiotic-agentium/agent-audit.git",
+    "url": "git+https://github.com/semiotic-ai/agentsec.git",
     "directory": "packages/cli"
   },
   "homepage": "https://agentsec.sh",
   "bugs": {
-    "url": "https://github.com/semiotic-agentium/agent-audit/issues"
+    "url": "https://github.com/semiotic-ai/agentsec/issues"
   },
   "keywords": [
     "security",
