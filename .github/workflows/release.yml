@@ -75,30 +75,12 @@ jobs:
           cd packages/cli
           npm publish --dry-run
 
-  clawhub:
-    name: Publish skill to ClawHub
-    needs: release
-    # Non-blocking until the legacy markeljan/agentsec v0.1.5 skill listing
-    # is yanked from clawhub.ai — the new `package publish` flow rejects
-    # any name that collides with an existing skill slug globally.
-    continue-on-error: true
-    permissions:
-      contents: read
-      id-token: write
-    uses: openclaw/clawhub/.github/workflows/package-publish.yml@main
-    with:
-      dry_run: ${{ inputs.dry-run || false }}
-      # ClawHub's reusable workflow does not auto-derive the version from a tag —
-      # we must pass it explicitly. Read it from packages/cli/package.json (the
-      # canonical stamp) so the same value works for both tag-push and dispatch.
-      version: ${{ needs.release.outputs.version }}
-      # Publish under markeljan — that's the account CLAWHUB_API_TOKEN
-      # belongs to and where the canonical clawhub.ai/markeljan/agentsec
-      # listing lives. The repo moved to semiotic-ai/agentsec on GitHub but
-      # the ClawHub identity stays with markeljan.
-      owner: markeljan
-    secrets:
-      clawhub_token: ${{ secrets.CLAWHUB_API_TOKEN }}
+  # NOTE: ClawHub publish is currently manual. ClawHub's new `package publish`
+  # flow refuses any name that collides with an existing skill slug globally,
+  # and the legacy markeljan/agentsec v0.1.5 skill listing occupies "agentsec".
+  # ClawHub does not allow yanking versions, so we cannot clear the slug.
+  # After each release, run the manual command documented in AGENTS.md to
+  # update the existing skill listing via the legacy `clawhub publish` path.
 
   skillssh:
     name: Publish skill to skills.sh
