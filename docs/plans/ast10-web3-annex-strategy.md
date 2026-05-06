@@ -2,7 +2,7 @@
 
 **Status:** Draft v0.1 · 2026-04-29
 **Owner:** @Markeljan
-**Scope:** ship a Web3-specific extension to the OWASP Agentic Skills Top 10 (AST10) inside [agentsec](https://github.com/markeljan/agentsec), and use it as the wedge to land partnerships with [Virtuals Protocol](https://virtuals.io), the Coinbase / [Agentic.market](https://agentic.market) / Base ecosystem, and to power [deckard.network](https://deckard.network).
+**Scope:** ship a Web3-specific extension to the OWASP Agentic Skills Top 10 (AST10) inside [agentsec](https://github.com/semiotic-ai/agentsec), and use it as the wedge to land partnerships with [Virtuals Protocol](https://virtuals.io), the Coinbase / [Agentic.market](https://agentic.market) / Base ecosystem, and to power [deckard.network](https://deckard.network).
 
 ---
 
