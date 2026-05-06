@@ -26,7 +26,7 @@
   <a href="https://skills.sh">
     <img src="https://img.shields.io/badge/skills.sh-ecosystem-purple.svg" alt="skills.sh">
   </a>
-  <a href="https://clawhub.ai/markeljan/agentsec">
+  <a href="https://clawhub.ai/semiotic-ai/agentsec">
     <img src="https://img.shields.io/badge/clawhub-agentsec-FF6B35.svg" alt="ClawHub">
   </a>
 </p>
@@ -45,7 +45,7 @@ No flags needed. agentsec walks every default skills directory on your machine â
 
 ### Use as an Agent Skill
 
-`agentsec` is published as an OpenClaw skill on [ClawHub](https://clawhub.ai/markeljan/agentsec). Agents that support ClawHub can install it directly:
+`agentsec` is published as an OpenClaw skill on [ClawHub](https://clawhub.ai/semiotic-ai/agentsec). Agents that support ClawHub can install it directly:
 
 ```bash
 npx clawhub install agentsec
@@ -180,7 +180,7 @@ Findings carry their canonical OWASP code in every report format (text, JSON, HT
 - **Codex** â€” skill and plugin scanning
 - More platforms coming soon
 
-Browse the skills ecosystem at [skills.sh](https://skills.sh) and [clawhub.ai](https://clawhub.ai). The `agentsec` skill itself is published at [clawhub.ai/markeljan/agentsec](https://clawhub.ai/markeljan/agentsec).
+Browse the skills ecosystem at [skills.sh](https://skills.sh) and [clawhub.ai](https://clawhub.ai). The `agentsec` skill itself is published at [clawhub.ai/semiotic-ai/agentsec](https://clawhub.ai/semiotic-ai/agentsec).
 
 ## Configuration
 

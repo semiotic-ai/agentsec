@@ -60,7 +60,7 @@ export interface Web3RuleDefinition {
 }
 
 const ANNEX_LINK =
-  "https://github.com/markeljan/agentsec/blob/main/docs/plans/ast10-web3-annex-rules.md";
+  "https://github.com/semiotic-ai/agentsec/blob/main/docs/plans/ast10-web3-annex-rules.md";
 
 /** All AST-10 Web3 Annex rules. Ordered AST-W01..AST-W12. */
 export const WEB3_RULES: Web3RuleDefinition[] = [

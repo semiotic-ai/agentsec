@@ -133,7 +133,7 @@ If you add a new place where the version needs to appear, add an entry to `STAMP
 After bumping: review the diff, commit, then push a `vX.Y.Z` tag. The release workflow runs two jobs in sequence:
 
 1. `release` — builds, tests, runs `check:versions`, then publishes the CLI to npm.
-2. `clawhub` — calls the reusable workflow `openclaw/clawhub/.github/workflows/package-publish.yml@main`, which reads the SKILL.md frontmatter at the tagged commit and publishes the skill to [ClawHub](https://clawhub.ai/markeljan/agentsec). Authenticates via the `CLAWHUB_API_TOKEN` repo secret (mapped to the reusable workflow's `clawhub_token` input).
+2. `clawhub` — calls the reusable workflow `openclaw/clawhub/.github/workflows/package-publish.yml@main`, which reads the SKILL.md frontmatter at the tagged commit and publishes the skill to [ClawHub](https://clawhub.ai/semiotic-ai/agentsec). Authenticates via the `CLAWHUB_API_TOKEN` repo secret (mapped to the reusable workflow's `clawhub_token` input).
 
 So one `git push --tags` is the only manual step — npm and ClawHub both pick up the new version automatically. `workflow_dispatch` with `dry-run: true` previews both publishes without mutating either registry.
 
