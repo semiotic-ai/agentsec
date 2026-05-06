@@ -75,12 +75,49 @@ jobs:
           cd packages/cli
           npm publish --dry-run
 
-  # NOTE: ClawHub publish is currently manual. ClawHub's new `package publish`
-  # flow refuses any name that collides with an existing skill slug globally,
-  # and the legacy markeljan/agentsec v0.1.5 skill listing occupies "agentsec".
-  # ClawHub does not allow yanking versions, so we cannot clear the slug.
-  # After each release, run the manual command documented in AGENTS.md to
-  # update the existing skill listing via the legacy `clawhub publish` path.
+  clawhub:
+    name: Publish skill to ClawHub
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.11"
+
+      - name: Write ClawHub auth config
+        if: ${{ !inputs.dry-run }}
+        env:
+          CLAWHUB_API_TOKEN: ${{ secrets.CLAWHUB_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          config="$RUNNER_TEMP/clawhub-config.json"
+          jq -n --arg token "$CLAWHUB_API_TOKEN" \
+            '{registry: "https://clawhub.ai", token: $token}' > "$config"
+          echo "CLAWHUB_CONFIG_PATH=$config" >> "$GITHUB_ENV"
+
+      - name: Publish to ClawHub via legacy skill flow
+        if: ${{ !inputs.dry-run }}
+        run: |
+          set -euo pipefail
+          # Uses the legacy `clawhub publish` (NOT `clawhub package publish`) — the
+          # new package-publish flow rejects names colliding with existing skill
+          # slugs globally, which the legacy markeljan/agentsec listing occupies.
+          # The legacy path updates the existing skill listing in place.
+          # Targets skills/agentsec/ (which has only SKILL.md, no plugin markers
+          # like openclaw.plugin.json or package.json) so it doesn't get bounced
+          # to the package-publish flow.
+          bunx clawhub@latest publish skills/agentsec \
+            --slug agentsec \
+            --owner markeljan \
+            --version "${{ needs.release.outputs.version }}"
 
   skillssh:
     name: Publish skill to skills.sh

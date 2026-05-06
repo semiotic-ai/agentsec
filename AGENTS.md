@@ -130,28 +130,15 @@ What the bump script touches:
 
 If you add a new place where the version needs to appear, add an entry to `STAMPS` in `scripts/version-stamps.ts` and the bump + check scripts pick it up automatically.
 
-After bumping: review the diff, commit, then push `main` and the `vX.Y.Z` tag in **separate** pushes (GitHub Actions silently drops the tag-push event when bundled with a branch push, so don't `git push --tags` together with main). The release workflow runs two jobs:
+After bumping: review the diff, commit, then push `main` and the `vX.Y.Z` tag in **separate** pushes (GitHub Actions silently drops the tag-push event when bundled with a branch push, so don't `git push --tags` together with main). The release workflow runs three jobs:
 
 1. `release` — builds, tests, runs `check:versions`, then publishes the CLI to npm. Reads the canonical version from `packages/cli/package.json` and exposes it as a job output (`needs.release.outputs.version`).
-2. `skillssh` (after `release`) — verifies the skill is discoverable via `npx skills add semiotic-ai/agentsec --list`, then runs an actual `skills add` install. The install hits the upstream telemetry endpoint at `add-skill.vercel.sh/t`, which is what registers/refreshes the listing on [skills.sh/semiotic-ai/agentsec/agentsec](https://skills.sh/semiotic-ai/agentsec/agentsec). There is no skills.sh publish API — install events are the publish mechanism. The CI install is tagged `ci=1` upstream so it does not inflate install-count metrics; the listing itself still appears.
+2. `clawhub` (after `release`) — writes a temp config file with `CLAWHUB_API_TOKEN` (pointed at via `CLAWHUB_CONFIG_PATH`), then runs `bunx clawhub publish skills/agentsec --slug agentsec --owner markeljan --version <release.outputs.version>`. Uses the **legacy** `clawhub publish` command (not `clawhub package publish`) because the new package-publish flow rejects names colliding with existing skill slugs globally and the [clawhub.ai/markeljan/agentsec](https://clawhub.ai/markeljan/agentsec) listing occupies `agentsec`. The legacy command updates the existing skill listing in place. Targets the `skills/agentsec/` subfolder (which has only `SKILL.md`, no plugin markers) so it doesn't get auto-routed to the package-publish path.
+3. `skillssh` (after `release`, parallel with `clawhub`) — verifies the skill is discoverable via `npx skills add semiotic-ai/agentsec --list`, then runs an actual `skills add` install. The install hits the upstream telemetry endpoint at `add-skill.vercel.sh/t`, which is what registers/refreshes the listing on [skills.sh/semiotic-ai/agentsec/agentsec](https://skills.sh/semiotic-ai/agentsec/agentsec). There is no skills.sh publish API — install events are the publish mechanism. The CI install is tagged `ci=1` upstream so it does not inflate install-count metrics; the listing itself still appears.
 
-`workflow_dispatch` with `dry-run: true` previews the npm publish without mutating the registry; the skills.sh install step is gated on `!inputs.dry-run` so dry-runs only run the discoverability check.
+`workflow_dispatch` with `dry-run: true` previews the npm publish without mutating the registry; the ClawHub publish + skills.sh install steps are gated on `!inputs.dry-run` so dry-runs only run the discoverability check + version-stamp validation.
 
-### ClawHub publish — manual step after each release
-
-ClawHub publish is **not automated**. The new `bunx clawhub package publish` CLI flow rejects any name that collides with an existing skill slug globally, and the legacy [clawhub.ai/markeljan/agentsec](https://clawhub.ai/markeljan/agentsec) v0.1.5 skill listing occupies the `agentsec` slug. ClawHub doesn't allow yanking versions, so the slug can't be cleared. We instead use the legacy `clawhub publish` command (different code path) which updates the existing listing in place.
-
-After each release, run from your local checkout (one-time `clawhub login` first to seed `~/.config/clawhub/config.json` with your API token):
-
-```bash
-# One-time, then cached:
-bunx clawhub@latest login
-
-# After every tag push (reads version from packages/cli/package.json):
-bun run publish:clawhub
-```
-
-The `publish:clawhub` script wraps `bunx clawhub@latest publish skills/agentsec --slug agentsec --owner markeljan --version <package.json version>`. The legacy publish path requires a folder containing `SKILL.md` and **no** plugin markers (`openclaw.plugin.json`, `package.json`, `.codex-plugin/`, `.claude-plugin/`, `.cursor-plugin/`); pointing at `skills/agentsec/` (which has only `SKILL.md`) satisfies that. The repo-root [openclaw.plugin.json](openclaw.plugin.json) only matters for the new `package publish` flow we're not using; it's left in place in case ClawHub fixes the slug situation and we switch back.
+The repo-root [openclaw.plugin.json](openclaw.plugin.json) only matters for ClawHub's new `package publish` flow we're not using; it's left in place in case the slug situation gets fixed upstream and we switch back. The `bun run publish:clawhub` script (in root `package.json`) wraps the same legacy command for local manual publishes — useful if CI is ever skipped or fails, or for ad-hoc out-of-band releases. Requires a one-time `bunx clawhub@latest login` to seed `~/.config/clawhub/config.json` (or platform equivalent) with your API token.
 
 ## Common Tasks
 
