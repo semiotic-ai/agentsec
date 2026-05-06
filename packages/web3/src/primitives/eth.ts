@@ -78,6 +78,46 @@ export function isInComment(content: string, index: number): boolean {
   return false;
 }
 
+/**
+ * Whether `index` sits inside a fenced markdown code block (``` or ~~~).
+ *
+ * Counts opening/closing fence lines that appear before `index`; an odd
+ * count means we are inside an unclosed block. Treats lines that begin
+ * with up to three spaces of indentation followed by ``` or ~~~ as a
+ * fence (matching CommonMark's allowance for fence indentation).
+ */
+export function isInFencedCodeBlock(content: string, index: number): boolean {
+  let fenceCount = 0;
+  let lineStart = 0;
+  for (let i = 0; i <= index && i < content.length; i++) {
+    if (i === index || content[i] === "\n") {
+      const lineEnd = content[i] === "\n" ? i : i;
+      const line = content.slice(lineStart, lineEnd);
+      if (/^[ \t]{0,3}(?:```|~~~)/.test(line)) fenceCount++;
+      if (content[i] === "\n") lineStart = i + 1;
+      if (i === index) break;
+    }
+  }
+  return fenceCount % 2 === 1;
+}
+
+/**
+ * Whether the byte index falls in markdown narrative prose — outside any
+ * fenced code block — for files with a markdown extension. Returns false
+ * for non-markdown files so callers can apply this unconditionally.
+ *
+ * Use this in code-pattern rules (e.g. swap-call detection, hardcoded RPC
+ * URLs) to suppress matches that hit English sentences in `.md`/`.mdx`
+ * documentation. Without this guard the regex `\\bswap\\s*\\(` matches
+ * the phrase "Execute a swap (with confirmation pattern)" in a README
+ * line and fires a critical-severity false positive.
+ */
+export function isInProse(filePath: string, content: string, index: number): boolean {
+  const ext = filePath.split(".").pop()?.toLowerCase();
+  if (ext !== "md" && ext !== "mdx") return false;
+  return !isInFencedCodeBlock(content, index);
+}
+
 /** 1-based line number for a character index in a string body. */
 export function getLineNumber(content: string, index: number): number {
   let line = 1;

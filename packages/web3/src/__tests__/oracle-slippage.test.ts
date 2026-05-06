@@ -272,3 +272,47 @@ setInterval(() => router.swap(amountIn, 0, path, to, deadline), 1000);
     expect(findings.length).toBe(0);
   });
 });
+
+describe("AST-W10: markdown prose handling", () => {
+  test("does not flag generic 'swap (...)' phrasing in markdown narrative", () => {
+    const md = `# odos-swap
+
+This sub-skill describes how to execute a swap (with confirmation pattern)
+before broadcasting. The Permit2 path lets you skip the separate approve()
+transaction.
+`;
+    const findings = checkOracleSlippage(mockSkill(md, "README.md"));
+    expect(findings.find((f) => f.id.startsWith("W10-002"))).toBeUndefined();
+  });
+
+  test("does not flag specific router names in markdown narrative", () => {
+    const md = `Call \`swapExactTokensForTokens(amountIn, ...)\` from your router.`;
+    const findings = checkOracleSlippage(mockSkill(md, "docs.md"));
+    expect(findings.find((f) => f.id.startsWith("W10-002"))).toBeUndefined();
+  });
+
+  test("still flags swap call inside a fenced code block", () => {
+    const md = `# Bad pattern
+
+\`\`\`ts
+await router.swapExactTokensForTokens(amountIn, 0, path, to, deadline);
+\`\`\`
+`;
+    const findings = checkOracleSlippage(mockSkill(md, "guide.md"));
+    expect(findings.find((f) => f.id.startsWith("W10-002"))).toBeDefined();
+  });
+
+  test("does not flag wide slippage literal in markdown prose", () => {
+    const md = `Some users set slippage = 10 in their config but you should not.`;
+    const findings = checkOracleSlippage(mockSkill(md, "tips.md"));
+    expect(findings.find((f) => f.id.startsWith("W10-003"))).toBeUndefined();
+  });
+
+  test("flags wide slippage literal inside a fenced code block", () => {
+    const md = `\`\`\`ts
+const config = { slippage: 10 };
+\`\`\``;
+    const findings = checkOracleSlippage(mockSkill(md, "tips.md"));
+    expect(findings.find((f) => f.id.startsWith("W10-003"))).toBeDefined();
+  });
+});

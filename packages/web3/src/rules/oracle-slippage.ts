@@ -1,5 +1,11 @@
 import type { AgentSkill, SecurityFinding, SkillFile } from "@agentsec/shared";
-import { getEvidenceLine, getLineNumber, isInComment, shouldScanFile } from "../primitives/eth";
+import {
+  getEvidenceLine,
+  getLineNumber,
+  isInComment,
+  isInProse,
+  shouldScanFile,
+} from "../primitives/eth";
 
 /**
  * Rule: AST-W10 — Slippage / Oracle Manipulation by Agent Loop.
@@ -23,8 +29,19 @@ import { getEvidenceLine, getLineNumber, isInComment, shouldScanFile } from "../
  */
 
 const QUOTE_RE = /\b(?:getReserves|slot0|getAmountsOut|quoteExactInputSingle)\s*\(/g;
-const SWAP_RE =
-  /\b(?:swapExactTokens(?:For(?:Tokens|ETH)(?:SupportingFeeOnTransferTokens)?)?|swapExactETH(?:ForTokens(?:SupportingFeeOnTransferTokens)?)?|exactInput(?:Single)?|exactOutput(?:Single)?|swap)\s*\(/g;
+/**
+ * Specific router/pool swap entrypoints. These names are unambiguous code
+ * patterns; matches in any context (code or prose) indicate a swap call.
+ */
+const SWAP_SPECIFIC_RE =
+  /\b(?:swapExactTokens(?:For(?:Tokens|ETH)(?:SupportingFeeOnTransferTokens)?)?|swapExactETH(?:ForTokens(?:SupportingFeeOnTransferTokens)?)?|exactInput(?:Single)?|exactOutput(?:Single)?)\s*\(/g;
+/**
+ * Generic `swap(` — matches function-call-shaped tokens but also matches
+ * English prose like "execute a swap (state-changing)". Callers must
+ * suppress these matches in markdown narrative via {@link isInProse} and
+ * confirm the surrounding source looks like code, not documentation.
+ */
+const SWAP_GENERIC_RE = /\bswap\s*\(/g;
 const SWAP_KEYWORDS_RE = /\b(?:swapExactTokens|swapExactETH|exactInput|exactOutput|swap\s*\()/;
 const MIN_OUT_RE = /\b(?:minAmountOut|amountOutMin|minOut|amountOutMinimum)\b/;
 const SLIPPAGE_LITERAL_RE =
@@ -50,6 +67,25 @@ interface PreparedFinding {
   file?: string;
   line?: number;
   evidence?: string;
+}
+
+/**
+ * Heuristic: do the parenthesised contents look like a real function-call
+ * argument list rather than English prose? Strong signals: addresses, hex
+ * literals, identifiers separated by commas, struct literals, named args
+ * (`paramName:`), or numeric base-units. Used to gate the generic
+ * `swap(` matcher against false positives like "swap (state-changing)".
+ */
+function looksLikeCallArgs(argText: string): boolean {
+  const inner = argText.replace(/^\(|\)$/g, "").trim();
+  if (inner.length === 0) return true;
+  if (/0x[a-fA-F0-9]{6,}/.test(inner)) return true;
+  if (/[,;]/.test(inner)) return true;
+  if (/\d{6,}/.test(inner)) return true;
+  if (/[{}\[\]]/.test(inner)) return true;
+  if (/[A-Za-z_$][\w$]*\s*:/.test(inner)) return true;
+  if (/[A-Za-z_$][\w$]*\s*\(/.test(inner)) return true;
+  return false;
 }
 
 /**
@@ -86,59 +122,91 @@ function getSetIntervalBodies(content: string): { start: number; end: number }[]
   return bodies;
 }
 
-function scanCodeFile(file: SkillFile): PreparedFinding[] {
-  const findings: PreparedFinding[] = [];
+function checkQuoteThenSwap(file: SkillFile, findings: PreparedFinding[]): void {
   const content = file.content;
-
-  // W10-001: quote-then-swap atomic in same trust domain.
+  const path = file.relativePath;
   QUOTE_RE.lastIndex = 0;
   let qMatch: RegExpExecArray | null;
   // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
   while ((qMatch = QUOTE_RE.exec(content)) !== null) {
     if (isInComment(content, qMatch.index)) continue;
+    if (isInProse(path, content, qMatch.index)) continue;
     const window = content.slice(qMatch.index, qMatch.index + 500);
-    if (SWAP_KEYWORDS_RE.test(window)) {
-      findings.push({
-        id: "W10-001",
-        title: "Quote-then-swap atomic in same trust domain",
-        description:
-          "An on-chain spot price is read (getReserves / slot0 / getAmountsOut / quoteExactInputSingle) and immediately consumed by a swap call. An attacker can sandwich the agent's transaction or front-run the read so that the swap executes against a manipulated price.",
-        severity: "high",
-        remediation:
-          "Source prices from a TWAP, Chainlink, Pyth, or RedStone feed and corroborate against an off-chain quote. Never derive `minAmountOut` from the same spot read used for the trade.",
-        file: file.relativePath,
-        line: getLineNumber(content, qMatch.index),
-        evidence: getEvidenceLine(content, qMatch.index),
-      });
-    }
+    if (!SWAP_KEYWORDS_RE.test(window)) continue;
+    findings.push({
+      id: "W10-001",
+      title: "Quote-then-swap atomic in same trust domain",
+      description:
+        "An on-chain spot price is read (getReserves / slot0 / getAmountsOut / quoteExactInputSingle) and immediately consumed by a swap call. An attacker can sandwich the agent's transaction or front-run the read so that the swap executes against a manipulated price.",
+      severity: "high",
+      remediation:
+        "Source prices from a TWAP, Chainlink, Pyth, or RedStone feed and corroborate against an off-chain quote. Never derive `minAmountOut` from the same spot read used for the trade.",
+      file: path,
+      line: getLineNumber(content, qMatch.index),
+      evidence: getEvidenceLine(content, qMatch.index),
+    });
   }
+}
 
-  // W10-002: swap call without a min-out parameter visible in the args.
-  SWAP_RE.lastIndex = 0;
+/**
+ * W10-002: swap call without a min-out parameter visible in the args.
+ *
+ * Specific router entrypoints (swapExactTokensForTokens, exactInputSingle,
+ * etc.) are unambiguous and stay critical. The bare `swap(` token is too
+ * permissive — it false-positives on prose like "execute a swap (state)" —
+ * so generic matches are gated on (a) not being in markdown narrative and
+ * (b) the args looking like a function-call argument list. When only the
+ * generic form matches we emit a high finding rather than critical.
+ */
+function checkSwapMinOut(file: SkillFile, findings: PreparedFinding[]): void {
+  const content = file.content;
+  const path = file.relativePath;
+  const reportSwap = (matchIdx: number, severity: "critical" | "high") => {
+    if (isInComment(content, matchIdx)) return;
+    if (isInProse(path, content, matchIdx)) return;
+    const openIdx = content.indexOf("(", matchIdx);
+    if (openIdx === -1) return;
+    const closeIdx = findMatchingParen(content, openIdx);
+    if (closeIdx === -1) return;
+    const argText = content.slice(openIdx, closeIdx + 1);
+    if (MIN_OUT_RE.test(argText)) return;
+    if (severity === "high" && !looksLikeCallArgs(argText)) return;
+    findings.push({
+      id: "W10-002",
+      title: "Swap call missing minimum-output guard",
+      description:
+        "A swap is executed without a `minAmountOut` / `amountOutMin` / `minOut` argument visible in the call. Without an explicit floor the trade will accept any output amount, exposing the agent to total loss against a manipulated pool.",
+      severity,
+      remediation:
+        "Always pass an explicit minimum output derived from a manipulation-resistant price source (TWAP, Chainlink, Pyth) and rejected if the on-chain quote diverges by more than the configured slippage budget.",
+      file: path,
+      line: getLineNumber(content, matchIdx),
+      evidence: getEvidenceLine(content, matchIdx),
+    });
+  };
+
+  SWAP_SPECIFIC_RE.lastIndex = 0;
   let sMatch: RegExpExecArray | null;
   // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
-  while ((sMatch = SWAP_RE.exec(content)) !== null) {
-    if (isInComment(content, sMatch.index)) continue;
-    const openIdx = content.indexOf("(", sMatch.index);
-    if (openIdx === -1) continue;
-    const closeIdx = findMatchingParen(content, openIdx);
-    if (closeIdx === -1) continue;
-    const argText = content.slice(openIdx, closeIdx + 1);
-    if (!MIN_OUT_RE.test(argText)) {
-      findings.push({
-        id: "W10-002",
-        title: "Swap call missing minimum-output guard",
-        description:
-          "A swap is executed without a `minAmountOut` / `amountOutMin` / `minOut` argument visible in the call. Without an explicit floor the trade will accept any output amount, exposing the agent to total loss against a manipulated pool.",
-        severity: "critical",
-        remediation:
-          "Always pass an explicit minimum output derived from a manipulation-resistant price source (TWAP, Chainlink, Pyth) and rejected if the on-chain quote diverges by more than the configured slippage budget.",
-        file: file.relativePath,
-        line: getLineNumber(content, sMatch.index),
-        evidence: getEvidenceLine(content, sMatch.index),
-      });
-    }
+  while ((sMatch = SWAP_SPECIFIC_RE.exec(content)) !== null) {
+    reportSwap(sMatch.index, "critical");
   }
+
+  SWAP_GENERIC_RE.lastIndex = 0;
+  let gMatch: RegExpExecArray | null;
+  // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
+  while ((gMatch = SWAP_GENERIC_RE.exec(content)) !== null) {
+    reportSwap(gMatch.index, "high");
+  }
+}
+
+function scanCodeFile(file: SkillFile): PreparedFinding[] {
+  const findings: PreparedFinding[] = [];
+  const content = file.content;
+  const path = file.relativePath;
+
+  checkQuoteThenSwap(file, findings);
+  checkSwapMinOut(file, findings);
 
   // W10-003 / W10-004: literal or model-supplied slippage values.
   SLIPPAGE_LITERAL_RE.lastIndex = 0;
@@ -146,6 +214,7 @@ function scanCodeFile(file: SkillFile): PreparedFinding[] {
   // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
   while ((lMatch = SLIPPAGE_LITERAL_RE.exec(content)) !== null) {
     if (isInComment(content, lMatch.index)) continue;
+    if (isInProse(path, content, lMatch.index)) continue;
     const raw = lMatch[1] ?? lMatch[2];
     const value = Number.parseFloat(raw);
     if (!Number.isFinite(value)) continue;
@@ -157,7 +226,7 @@ function scanCodeFile(file: SkillFile): PreparedFinding[] {
         severity: "high",
         remediation:
           "Tighten the slippage budget to <= 5% (typically 0.5–1%) and source the budget from policy, not skill source. Reject trades whose expected price deviates from a manipulation-resistant feed.",
-        file: file.relativePath,
+        file: path,
         line: getLineNumber(content, lMatch.index),
         evidence: getEvidenceLine(content, lMatch.index),
       });
@@ -169,6 +238,7 @@ function scanCodeFile(file: SkillFile): PreparedFinding[] {
   // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
   while ((vMatch = SLIPPAGE_VARIABLE_RE.exec(content)) !== null) {
     if (isInComment(content, vMatch.index)) continue;
+    if (isInProse(path, content, vMatch.index)) continue;
     const expr = vMatch[1];
     if (
       !/\b(?:response|completion|message|model|answer|llm|output|reply|choices|tool|args)\b/i.test(
@@ -184,7 +254,7 @@ function scanCodeFile(file: SkillFile): PreparedFinding[] {
       severity: "medium",
       remediation:
         "Treat slippage as a policy parameter. Read it from manifest config, validate it against a hard maximum, and never let the model directly populate it.",
-      file: file.relativePath,
+      file: path,
       line: getLineNumber(content, vMatch.index),
       evidence: getEvidenceLine(content, vMatch.index),
     });
@@ -196,6 +266,7 @@ function scanCodeFile(file: SkillFile): PreparedFinding[] {
   // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
   while ((dMatch = DEADLINE_RE.exec(content)) !== null) {
     if (isInComment(content, dMatch.index)) continue;
+    if (isInProse(path, content, dMatch.index)) continue;
     const offset = Number.parseInt(dMatch[1], 10);
     if (!Number.isFinite(offset) || offset <= 300) continue;
     findings.push({
@@ -205,7 +276,7 @@ function scanCodeFile(file: SkillFile): PreparedFinding[] {
       severity: "medium",
       remediation:
         "Use a deadline of at most 300 seconds (5 minutes) past the current block timestamp. For automated agents, prefer 60 seconds or one block.",
-      file: file.relativePath,
+      file: path,
       line: getLineNumber(content, dMatch.index),
       evidence: getEvidenceLine(content, dMatch.index),
     });
@@ -214,26 +285,31 @@ function scanCodeFile(file: SkillFile): PreparedFinding[] {
   // W10-006: swap inside a polling loop.
   const intervalBodies = getSetIntervalBodies(content);
   for (const body of intervalBodies) {
-    SWAP_RE.lastIndex = body.start;
-    let inner: RegExpExecArray | null;
-    // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
-    while ((inner = SWAP_RE.exec(content)) !== null) {
-      if (inner.index >= body.end) break;
-      if (isInComment(content, inner.index)) continue;
-      findings.push({
-        id: "W10-006",
-        title: "Swap executed inside polling loop",
-        description:
-          "A swap call appears inside a `setInterval` body. The agent's polling cadence is an exploitable side-channel: an attacker who learns the interval can pre-position liquidity and let the loop trade into the manipulated pool repeatedly.",
-        severity: "medium",
-        remediation:
-          "Trigger trades on signed external intents (TWAP crossings, off-chain quotes, oracle updates) instead of a fixed polling interval. Add jitter and rate limits if polling cannot be removed.",
-        file: file.relativePath,
-        line: getLineNumber(content, inner.index),
-        evidence: getEvidenceLine(content, inner.index),
-      });
-      // Only one finding per interval body.
-      break;
+    let recorded = false;
+    for (const re of [SWAP_SPECIFIC_RE, SWAP_GENERIC_RE]) {
+      if (recorded) break;
+      re.lastIndex = body.start;
+      let inner: RegExpExecArray | null;
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex iteration
+      while ((inner = re.exec(content)) !== null) {
+        if (inner.index >= body.end) break;
+        if (isInComment(content, inner.index)) continue;
+        if (isInProse(path, content, inner.index)) continue;
+        findings.push({
+          id: "W10-006",
+          title: "Swap executed inside polling loop",
+          description:
+            "A swap call appears inside a `setInterval` body. The agent's polling cadence is an exploitable side-channel: an attacker who learns the interval can pre-position liquidity and let the loop trade into the manipulated pool repeatedly.",
+          severity: "medium",
+          remediation:
+            "Trigger trades on signed external intents (TWAP crossings, off-chain quotes, oracle updates) instead of a fixed polling interval. Add jitter and rate limits if polling cannot be removed.",
+          file: path,
+          line: getLineNumber(content, inner.index),
+          evidence: getEvidenceLine(content, inner.index),
+        });
+        recorded = true;
+        break;
+      }
     }
   }
 
