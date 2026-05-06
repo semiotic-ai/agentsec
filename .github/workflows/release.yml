@@ -78,6 +78,10 @@ jobs:
   clawhub:
     name: Publish skill to ClawHub
     needs: release
+    # Non-blocking until the legacy markeljan/agentsec v0.1.5 skill listing
+    # is yanked from clawhub.ai — the new `package publish` flow rejects
+    # any name that collides with an existing skill slug globally.
+    continue-on-error: true
     permissions:
       contents: read
       id-token: write
