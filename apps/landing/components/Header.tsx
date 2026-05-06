@@ -60,7 +60,7 @@ export function Header(): React.ReactNode {
           </span>
           <span className="font-semibold text-base tracking-[-0.01em]">AgentSec</span>
           <span className="ml-1 inline-flex items-center font-mono text-[11px] tracking-[0.04em] uppercase px-2 py-[3px] rounded-full border border-brand-border bg-brand-secondary text-brand-muted">
-            v0.2.1
+            v0.2.2
           </span>
         </a>
 
