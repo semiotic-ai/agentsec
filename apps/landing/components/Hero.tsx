@@ -43,7 +43,7 @@ export function Hero(): React.ReactNode {
                 />
                 OWASP AST-10 + Web3 Annex
               </span>
-              <span className="text-[13px] text-brand-dim">v0.2.4 · MIT</span>
+              <span className="text-[13px] text-brand-dim">v0.2.5 · MIT</span>
             </div>
 
             <h1 className="font-display mb-6 text-brand-text">
