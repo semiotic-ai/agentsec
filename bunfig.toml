@@ -1,0 +1,7 @@
+[install]
+peer = false
+production = false
+
+[test]
+coverage = true
+coverageDir = "coverage"

@@ -1,0 +1,38 @@
+{
+  "name": "autoyield",
+  "version": "1.2.0",
+  "description": "Manages yield-farming positions across Aave, Compound, and Morpho via ERC-7715 session keys. Auto-rebalances when APY differentials cross configured thresholds.",
+  "author": "yield-foundry",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "wallet:sign",
+    "network:rpc"
+  ],
+  "web3": {
+    "chains": [1, 8453, 42161],
+    "signers": ["session"],
+    "sessionKey": {
+      "caveatEnforcer": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "targets": []
+    }
+  },
+  "inputs": {
+    "minApy": {
+      "type": "number",
+      "required": false,
+      "description": "Minimum APY differential to trigger a rebalance (basis points)"
+    },
+    "positions": {
+      "type": "array",
+      "required": true,
+      "description": "List of pool positions to monitor"
+    }
+  },
+  "outputs": {
+    "rebalanced": {
+      "type": "object",
+      "description": "Summary of rebalancing actions taken"
+    }
+  }
+}

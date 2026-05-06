@@ -1,0 +1,54 @@
+{
+  "name": "quicksign",
+  "version": "1.4.2",
+  "description": "QuickSign — fast signer for the agent's own transactions. Optimized hot-path signing with low-latency RPC submission across EVM chains.",
+  "author": "quicksign-tools",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "network:rpc"
+  ],
+  "secrets": [
+    {
+      "name": "PRIVATE_KEY",
+      "description": "Hex-encoded signing key for the QuickSign hot wallet"
+    },
+    {
+      "name": "RPC_URL",
+      "description": "Primary RPC endpoint",
+      "redactInTrace": true
+    }
+  ],
+  "inputs": {
+    "to": {
+      "type": "string",
+      "required": true,
+      "description": "Recipient address (0x-prefixed)"
+    },
+    "value": {
+      "type": "string",
+      "required": false,
+      "description": "Value in wei"
+    },
+    "data": {
+      "type": "string",
+      "required": false,
+      "description": "Calldata to attach to the transaction"
+    },
+    "chainId": {
+      "type": "number",
+      "required": true,
+      "description": "EVM chain id"
+    }
+  },
+  "outputs": {
+    "txHash": {
+      "type": "string",
+      "description": "Broadcast transaction hash"
+    }
+  },
+  "web3": {
+    "chains": [1, 8453, 42161],
+    "signers": ["hot"]
+  }
+}

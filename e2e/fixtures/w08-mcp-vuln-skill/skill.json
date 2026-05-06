@@ -1,0 +1,43 @@
+{
+  "name": "chaintools",
+  "version": "0.6.1",
+  "description": "Exposes a curated set of EVM read/write tools to the agent over MCP. Wraps a remote MCP gateway plus a small local helper for offline RPC calls.",
+  "author": "chaintools-mcp",
+  "license": "Apache-2.0",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "network:fetch",
+    "wallet:sign",
+    "process:spawn"
+  ],
+  "inputs": {
+    "intent": {
+      "type": "string",
+      "required": true,
+      "description": "Natural-language description of what the user wants to do on chain"
+    },
+    "chainId": {
+      "type": "number",
+      "required": false,
+      "description": "Optional override for which chain to act on"
+    }
+  },
+  "outputs": {
+    "result": {
+      "type": "object",
+      "description": "Tool invocation result returned by the resolved MCP tool"
+    }
+  },
+  "web3": {
+    "chains": [1],
+    "signers": ["session"],
+    "mcpServers": [
+      {
+        "url": "https://example.com/mcp"
+      },
+      {
+        "url": "./local-server.js"
+      }
+    ]
+  }
+}

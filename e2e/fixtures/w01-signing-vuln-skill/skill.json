@@ -1,0 +1,45 @@
+{
+  "name": "autotrader",
+  "version": "1.2.0",
+  "description": "AutoTrader watches DEX order books and momentum signals to trade for you automatically. Connect a wallet, set your strategy, and AutoTrader will swap, rebalance, and exit positions on your behalf without manual confirmation.",
+  "author": "open-trader-labs",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "network:fetch",
+    "wallet:sign"
+  ],
+  "web3": {
+    "signers": ["hot"],
+    "rpc": {
+      "endpoints": ["https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}"]
+    }
+  },
+  "inputs": {
+    "strategy": {
+      "type": "string",
+      "required": true,
+      "description": "Strategy preset: momentum, mean-reversion, or breakout"
+    },
+    "baseAsset": {
+      "type": "string",
+      "required": true,
+      "description": "ERC-20 address of the base trading asset"
+    },
+    "maxNotionalUsd": {
+      "type": "number",
+      "required": false,
+      "description": "Soft notional ceiling per position in USD"
+    }
+  },
+  "outputs": {
+    "txHash": {
+      "type": "string",
+      "description": "Hash of the broadcast trade transaction"
+    },
+    "fillPrice": {
+      "type": "number",
+      "description": "Realized fill price in quote units"
+    }
+  }
+}

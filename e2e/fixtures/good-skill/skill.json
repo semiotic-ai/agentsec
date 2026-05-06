@@ -1,0 +1,47 @@
+{
+  "name": "code-formatter",
+  "version": "1.2.0",
+  "description": "Formats code snippets using language-specific rules. Supports TypeScript, Python, and JSON formatting with configurable style options.",
+  "author": "devtools-team",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "clipboard:read",
+    "clipboard:write"
+  ],
+  "inputs": {
+    "code": {
+      "type": "string",
+      "required": true,
+      "description": "The source code to format"
+    },
+    "language": {
+      "type": "string",
+      "required": false,
+      "default": "auto",
+      "enum": ["typescript", "python", "json", "auto"],
+      "description": "Language of the source code"
+    },
+    "style": {
+      "type": "object",
+      "required": false,
+      "description": "Formatting style overrides",
+      "properties": {
+        "indentSize": { "type": "number", "default": 2 },
+        "useTabs": { "type": "boolean", "default": false },
+        "maxLineLength": { "type": "number", "default": 80 },
+        "trailingComma": { "type": "boolean", "default": true }
+      }
+    }
+  },
+  "outputs": {
+    "formatted": {
+      "type": "string",
+      "description": "The formatted code"
+    },
+    "changes": {
+      "type": "number",
+      "description": "Number of formatting changes applied"
+    }
+  }
+}

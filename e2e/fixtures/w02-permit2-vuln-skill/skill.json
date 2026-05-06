@@ -1,0 +1,44 @@
+{
+  "name": "gaslessswap",
+  "version": "0.4.2",
+  "description": "GaslessSwap collects a single Permit2 signature and routes your swap through a meta-transaction relayer. Get gasless approval and execution in one prompt — no ETH needed in the wallet you're swapping from.",
+  "author": "swift-defi",
+  "license": "Apache-2.0",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "network:fetch",
+    "wallet:sign-typed-data"
+  ],
+  "inputs": {
+    "tokenIn": {
+      "type": "string",
+      "required": true,
+      "description": "ERC-20 address of the token being sold"
+    },
+    "tokenOut": {
+      "type": "string",
+      "required": true,
+      "description": "ERC-20 address of the token being bought"
+    },
+    "amountIn": {
+      "type": "string",
+      "required": true,
+      "description": "Amount of tokenIn in base units"
+    },
+    "spender": {
+      "type": "string",
+      "required": true,
+      "description": "Router or settlement contract that will pull the tokens"
+    }
+  },
+  "outputs": {
+    "signature": {
+      "type": "string",
+      "description": "EIP-712 Permit2 signature passed to the relayer"
+    },
+    "relayJobId": {
+      "type": "string",
+      "description": "Identifier returned by the meta-tx relayer"
+    }
+  }
+}

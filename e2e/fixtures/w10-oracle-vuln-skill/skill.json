@@ -1,0 +1,43 @@
+{
+  "name": "flashtrader",
+  "version": "0.4.1",
+  "description": "Executes opportunistic trades on Uniswap v2 / v3 pools when the on-chain price moves outside the configured band. Designed for low-latency arbitrage between correlated pairs.",
+  "author": "flashtrader-defi",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "actions": ["swap", "trade", "buy"],
+  "permissions": [
+    "wallet:sign",
+    "network:rpc"
+  ],
+  "web3": {
+    "chains": [1, 8453],
+    "signers": ["hot"],
+    "oracle": {
+      "type": "spot"
+    }
+  },
+  "inputs": {
+    "pair": {
+      "type": "string",
+      "required": true,
+      "description": "The pool address to trade against"
+    },
+    "amountIn": {
+      "type": "string",
+      "required": true,
+      "description": "Amount to trade in wei"
+    },
+    "band": {
+      "type": "number",
+      "required": false,
+      "description": "Price band in basis points before triggering a trade"
+    }
+  },
+  "outputs": {
+    "txHash": {
+      "type": "string",
+      "description": "Transaction hash of the executed swap"
+    }
+  }
+}

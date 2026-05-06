@@ -1,0 +1,41 @@
+# Lumefile -- Declarative VM configuration for AgentSec e2e testing
+#
+# This file documents the VM specification used by setup.sh and e2e/setup.ts.
+# Lume does not natively consume a "Lumefile" -- the values here are read by
+# our tooling and passed to the Lume CLI / HTTP API.
+#
+# Reference: https://cua.ai/docs/lume/reference/cli-reference
+
+# VM identity
+name: agentsec-vm
+os: macos
+
+# Resource allocation
+cpu: 4
+memory: 8GB
+disk_size: 50GB
+display: 1024x768
+
+# Setup automation
+# Uses the built-in "tahoe" preset to run through the macOS Setup Assistant
+# automatically, creating user "lume" with password "lume" and enabling SSH.
+unattended: tahoe
+
+# SSH credentials (set by unattended setup)
+ssh_user: lume
+ssh_password: lume
+
+# Runtime options
+headless: true           # Run without VNC display (--no-display)
+
+# Shared directory (mounted at /Volumes/My Shared Files inside VM)
+# shared_dir: ./e2e/fixtures
+
+# Lume API
+api_url: http://localhost:7777
+
+# Pre-built image (alternative to creating from IPSW)
+# Uncomment to pull a pre-built image instead of creating from scratch:
+# image: macos-sequoia-vanilla:latest
+# registry: ghcr.io
+# organization: trycua

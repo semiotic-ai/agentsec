@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true
+  },
+  "include": [
+    "packages/shared/src",
+    "packages/scanner/src",
+    "packages/metrics/src",
+    "packages/policy/src",
+    "packages/openclaw/src",
+    "packages/reporter/src"
+  ],
+  "exclude": ["node_modules", "dist", "apps"]
+}

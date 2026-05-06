@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Allowlist of vendor-verified EIP-7702 delegation target implementations. Used by AST-W03 to flag SetCodeAuthorization entries pointing at unknown delegate code.",
+  "version": "2026.05.01",
+  "delegates": [
+    {
+      "name": "MetaMask Smart Account v1",
+      "address": "0x63c0c19a282a1B52b07dD5a65b58948A07DAE32B",
+      "vendor": "MetaMask"
+    },
+    {
+      "name": "Safe7702 Module",
+      "address": "0xc807e230f55d3f44A52b65A5BC1b50A0bF863a76",
+      "vendor": "Safe"
+    },
+    {
+      "name": "Biconomy Nexus 7702",
+      "address": "0x000000004F43C49e93C970E84001853a70923B03",
+      "vendor": "Biconomy"
+    },
+    {
+      "name": "ZeroDev Kernel 7702",
+      "address": "0xd6CEDDe84be40893d153Be9d467CD6aD37875b28",
+      "vendor": "ZeroDev"
+    },
+    {
+      "name": "Coinbase Smart Wallet 7702",
+      "address": "0xba6cb27ad8e6502b2b1cFcEB44C1bbb0AcE3a169",
+      "vendor": "Coinbase"
+    },
+    {
+      "name": "Alchemy Light Account 7702",
+      "address": "0x8E8e658E22B12ada97B402fF0b044D6A325013C7",
+      "vendor": "Alchemy"
+    },
+    {
+      "name": "Pimlico Sender Adapter",
+      "address": "0xb0c0a3aE013D6E5DC52F32F4f3019D44A9bA48A1",
+      "vendor": "Pimlico"
+    }
+  ]
+}

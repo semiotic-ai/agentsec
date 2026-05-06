@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Allowlist of canonical bridge / cross-chain message bus endpoints (canonical contract addresses). Used by AST-W07 to validate bridge target addresses and provider declarations.",
+  "version": "2026.05.01",
+  "providers": [
+    {
+      "name": "LayerZero v2 Endpoint",
+      "address": "0x1a44076050125825900e736c501f859c50fE728c",
+      "provider": "layerzero"
+    },
+    {
+      "name": "Chainlink CCIP Router (mainnet)",
+      "address": "0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D",
+      "provider": "ccip"
+    },
+    {
+      "name": "Wormhole Core Bridge (mainnet)",
+      "address": "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B",
+      "provider": "wormhole"
+    },
+    {
+      "name": "Hyperlane Mailbox (mainnet)",
+      "address": "0xc005dc82818d67AF737725bD4bf75435d065D239",
+      "provider": "hyperlane"
+    },
+    {
+      "name": "Axelar Gateway (mainnet)",
+      "address": "0x4F4495243837681061C4743b74B3eEdf548D56A5",
+      "provider": "axelar"
+    },
+    {
+      "name": "LayerZero v2 Endpoint (Base)",
+      "address": "0x1a44076050125825900e736c501f859c50fE728c",
+      "provider": "layerzero",
+      "chainId": 8453
+    },
+    {
+      "name": "LayerZero v2 Endpoint (Arbitrum)",
+      "address": "0x1a44076050125825900e736c501f859c50fE728c",
+      "provider": "layerzero",
+      "chainId": 42161
+    },
+    {
+      "name": "Across SpokePool (mainnet)",
+      "address": "0x5c7BCd6E7De5423a257D81B442095A1a6ced35C5",
+      "provider": "across",
+      "chainId": 1
+    },
+    {
+      "name": "Stargate Composer (mainnet)",
+      "address": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
+      "provider": "stargate",
+      "chainId": 1
+    },
+    {
+      "name": "Synapse Bridge Router (mainnet)",
+      "address": "0x6571d6be3d8460CF5F7d6711Cd9961860029D85F",
+      "provider": "synapse",
+      "chainId": 1
+    },
+    {
+      "name": "Connext Diamond (mainnet)",
+      "address": "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6",
+      "provider": "connext",
+      "chainId": 1
+    }
+  ]
+}

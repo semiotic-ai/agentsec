@@ -1,0 +1,34 @@
+{
+  "name": "template-renderer",
+  "version": "0.8.3",
+  "description": "Renders dynamic templates with variable interpolation. Supports custom template syntax and expression evaluation for flexible content generation.",
+  "author": "quickship-labs",
+  "license": "Apache-2.0",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "clipboard:read"
+  ],
+  "inputs": {
+    "template": {
+      "type": "string",
+      "required": true,
+      "description": "The template string with {{ variable }} placeholders"
+    },
+    "variables": {
+      "type": "object",
+      "required": false,
+      "description": "Key-value pairs to substitute into the template"
+    },
+    "helpers": {
+      "type": "object",
+      "required": false,
+      "description": "Custom helper functions as string expressions"
+    }
+  },
+  "outputs": {
+    "rendered": {
+      "type": "string",
+      "description": "The rendered template output"
+    }
+  }
+}

@@ -1,0 +1,293 @@
+name: AgentSec Security Scan
+
+on:
+  # Run on pull requests
+  pull_request:
+    paths:
+      - 'skills/**'
+      - 'packages/**'
+      - '.github/workflows/agentsec.yml'
+  # Run on pushes to main
+  push:
+    branches:
+      - main
+    paths:
+      - 'skills/**'
+      - 'packages/**'
+  # Allow manual trigger
+  workflow_dispatch:
+  # Run on schedule (daily at 2 AM UTC)
+  schedule:
+    - cron: '0 2 * * *'
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  security-events: write
+
+jobs:
+  agentsec:
+    name: Scan Agent Skills
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup Node.js with bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      # Install dependencies
+      - name: Install dependencies
+        run: bun install
+
+      # Run AgentSec scan
+      - name: Scan skills with AgentSec
+        id: audit
+        run: |
+          bun run --filter @agentsec/cli -- audit \
+            --output-dir ./audit-reports \
+            --format json \
+            --format sarif \
+            --format html \
+            --log-level info \
+            ./skills
+        continue-on-error: true
+
+      # Upload SARIF report to GitHub Security tab
+      - name: Upload SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ./audit-reports/agentsec-report.sarif
+          category: agentsec
+          wait-for-processing: true
+
+      # Comment on PR with results
+      - name: Comment PR with audit results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Read the JSON report
+            const reportPath = './audit-reports/agentsec-report.json';
+            if (!fs.existsSync(reportPath)) {
+              console.log('No audit report found');
+              return;
+            }
+
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            const summary = report.summary || {};
+
+            // Format the comment
+            let comment = '## AgentSec Results\n\n';
+
+            if (summary.totalFindings === 0) {
+              comment += '✅ **No security findings detected**\n\n';
+            } else {
+              const critical = summary.byeSeverity?.critical || 0;
+              const high = summary.bySeverity?.high || 0;
+              const medium = summary.bySeverity?.medium || 0;
+              const low = summary.bySeverity?.low || 0;
+
+              comment += `**Findings Summary:**\n`;
+              if (critical > 0) comment += `- 🔴 Critical: ${critical}\n`;
+              if (high > 0) comment += `- 🟠 High: ${high}\n`;
+              if (medium > 0) comment += `- 🟡 Medium: ${medium}\n`;
+              if (low > 0) comment += `- 🟢 Low: ${low}\n`;
+              comment += '\n';
+            }
+
+            if (summary.complianceScore !== undefined) {
+              comment += `**Compliance Score:** ${summary.complianceScore}/100\n\n`;
+            }
+
+            if (summary.certificationStatus) {
+              comment += `**Certification:** ${summary.certificationStatus}\n\n`;
+            }
+
+            comment += '[View detailed report](./audit-reports/agentsec-report.html)';
+
+            // Post the comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      # Archive reports
+      - name: Archive audit reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: agentsec-reports
+          path: audit-reports/
+          retention-days: 30
+
+      # Fail the workflow on critical findings (optional)
+      - name: Check for critical findings
+        if: always()
+        run: |
+          if grep -q '"severity": "critical"' ./audit-reports/agentsec-report.json; then
+            echo "❌ Critical security findings detected"
+            exit 1
+          else
+            echo "✅ No critical findings"
+            exit 0
+          fi
+
+      # Send Slack notification on failure (optional)
+      - name: Notify Slack on critical findings
+        if: failure() && env.SLACK_WEBHOOK != ''
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: `🔴 AgentSec detected critical findings in ${process.env.GITHUB_REPOSITORY}`,
+              attachments: [{
+                color: 'danger',
+                text: `Branch: ${process.env.GITHUB_REF}\nCommit: ${process.env.GITHUB_SHA.substring(0, 7)}\nCheck: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+              }]
+            }
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Optional: Report results to Datadog
+  report-to-datadog:
+    name: Report results to Datadog
+    runs-on: ubuntu-latest
+    if: always() && secrets.DATADOG_API_KEY != ''
+    needs: agentsec
+
+    steps:
+      - name: Download reports
+        uses: actions/download-artifact@v3
+        with:
+          name: agentsec-reports
+
+      - name: Send metrics to Datadog
+        uses: DataDog/datadog-ci@v0.12.0
+        with:
+          api-key: ${{ secrets.DATADOG_API_KEY }}
+          datadog-site: datadoghq.com
+          public-static-url-prefix: 'https://agentsec.sh/'
+          validate: true
+        env:
+          DATADOG_SITE: datadoghq.com
+
+  # Optional: Create JIRA tickets for high-severity findings
+  create-jira-tickets:
+    name: Create JIRA tickets for findings
+    runs-on: ubuntu-latest
+    if: always() && secrets.JIRA_API_TOKEN != ''
+    needs: agentsec
+
+    steps:
+      - name: Download reports
+        uses: actions/download-artifact@v3
+        with:
+          name: agentsec-reports
+
+      - name: Create JIRA tickets
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            const report = JSON.parse(fs.readFileSync('agentsec-report.json', 'utf8'));
+            const findings = report.findings || [];
+
+            // Filter high and critical findings
+            const criticalFindings = findings.filter(f =>
+              f.severity === 'critical' || f.severity === 'high'
+            );
+
+            if (criticalFindings.length === 0) {
+              console.log('No critical findings to report');
+              return;
+            }
+
+            console.log(`Creating ${criticalFindings.length} JIRA tickets`);
+
+            // This would integrate with JIRA API
+            // Example pseudocode:
+            // for (const finding of criticalFindings) {
+            //   const ticket = await jira.create({
+            //     project: 'SEC',
+            //     summary: `agentsec: ${finding.title}`,
+            //     description: `Security finding from agentsec\n\n${finding.description}`,
+            //     severity: finding.severity,
+            //     labels: ['agentsec', 'automated']
+            //   });
+            //   console.log(`Created ticket: ${ticket.key}`);
+            // }
+
+      # Checkout repository if needed for JIRA integration
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  # Optional: Generate trend report
+  generate-trend:
+    name: Generate trend analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    needs: agentsec
+
+    steps:
+      - name: Download reports
+        uses: actions/download-artifact@v3
+        with:
+          name: agentsec-reports
+
+      - name: Analyze trends
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('agentsec-report.json', 'utf8'));
+
+            console.log('📊 Daily Trend Analysis');
+            console.log('=======================\n');
+
+            const summary = report.summary || {};
+            console.log(`Total Skills: ${summary.totalSkillsScanned}`);
+            console.log(`Total Findings: ${summary.totalFindings}`);
+            console.log(`Compliance Score: ${summary.complianceScore}/100\n`);
+
+            // In a real scenario, this would store historical data
+            // and generate trend analysis
+
+# Environment-specific configurations:
+# For production scanning:
+#   - Set AGENTSEC_POLICY_MAXSEVERITY=critical
+#   - Set AGENTSEC_POLICY_FAILONSEVERITY=true
+#
+# For development scanning:
+#   - Set AGENTSEC_POLICY_MAXSEVERITY=medium
+#   - Set AGENTSEC_SCANNING_LEVEL=2
+#
+# Required secrets:
+#   - SLACK_WEBHOOK_URL (optional): Slack notifications
+#   - DATADOG_API_KEY (optional): Datadog metrics
+#   - JIRA_API_TOKEN (optional): JIRA integration
+#   - GITHUB_TOKEN: Automatically available
+
+# Example: Running AgentSec with custom config:
+# bun run --filter @agentsec/cli -- audit \
+#   --config agentsec.config.ts \
+#   --output-dir ./audit-reports \
+#   --format sarif \
+#   ./skills

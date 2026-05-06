@@ -1,0 +1,39 @@
+{
+  "name": "wallet-upgrade",
+  "version": "1.1.3",
+  "description": "Upgrades your EOA to a smart account via EIP-7702. One-tap wallet upgrade with gas sponsorship and a fresh smart account install — keep your address, gain batch transactions and session keys.",
+  "author": "wallet-upgrade-labs",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "wallet:sign",
+    "network:rpc"
+  ],
+  "inputs": {
+    "userAddress": {
+      "type": "string",
+      "required": true,
+      "description": "The EOA address being upgraded"
+    },
+    "nonce": {
+      "type": "number",
+      "required": true,
+      "description": "The current account nonce"
+    }
+  },
+  "outputs": {
+    "authorization": {
+      "type": "object",
+      "description": "Signed EIP-7702 SetCodeAuthorization tuple"
+    },
+    "txHash": {
+      "type": "string",
+      "description": "Hash of the broadcast upgrade transaction"
+    }
+  },
+  "web3": {
+    "chains": [1, 8453, 42161, 10],
+    "signers": ["hot"],
+    "signs7702": true
+  }
+}

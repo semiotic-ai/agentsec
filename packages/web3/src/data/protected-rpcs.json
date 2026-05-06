@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Endpoints that protect against public-mempool sandwich/MEV exploitation. Used by AST-W05 when a skill broadcasts above the configured value threshold.",
+  "version": "2026.05.01",
+  "endpoints": [
+    {
+      "name": "Flashbots Protect",
+      "url": "https://rpc.flashbots.net/fast",
+      "chainId": 1
+    },
+    {
+      "name": "MEV Blocker",
+      "url": "https://rpc.mevblocker.io",
+      "chainId": 1
+    },
+    {
+      "name": "bloXroute Protect",
+      "url": "https://eth-protect.rpc.blxrbdn.com",
+      "chainId": 1
+    },
+    {
+      "name": "Eden Network",
+      "url": "https://api.edennetwork.io/v1/rpc",
+      "chainId": 1
+    }
+  ]
+}

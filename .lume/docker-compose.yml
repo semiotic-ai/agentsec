@@ -1,0 +1,82 @@
+# docker-compose.yml - Lumier macOS VM for agentsec
+#
+# Lumier wraps Lume in a Docker container, providing browser-based VNC access
+# to macOS VMs. The Docker container runs noVNC; the actual VM runs natively
+# on the host Mac via Apple's Virtualization Framework.
+#
+# Prerequisites:
+#   - Apple Silicon Mac
+#   - Docker Desktop installed
+#   - Lume installed and running on the host (port 7777)
+#     Install: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/trycua/cua/main/libs/lume/scripts/install.sh)"
+#     Verify:  curl http://localhost:7777/lume/vms
+#
+# Usage:
+#   mkdir -p storage shared
+#   docker-compose up -d
+#   open http://localhost:8006            # VNC access to main VM
+#   open http://localhost:8007            # VNC access to test VM (if using multi-vm profile)
+#   docker-compose down
+#
+# Profiles:
+#   docker-compose up -d                  # Main audit VM only
+#   docker-compose --profile test up -d   # Include the test VM
+
+version: '3.8'
+
+services:
+  # --------------------------------------------------------------------------
+  # Primary audit VM - the main environment for CUA agent testing
+  # --------------------------------------------------------------------------
+  audit-vm:
+    image: trycua/lumier:latest
+    container_name: agentsec-vm
+    restart: unless-stopped
+    ports:
+      # noVNC web access: http://localhost:8006
+      - '8006:8006'
+    volumes:
+      # Persistent VM storage (survives container restarts)
+      - ./storage/audit-vm:/storage
+      # Shared folder with host -- appears at /Volumes/My Shared Files in VM
+      - ./shared:/shared
+      # Mount test fixtures into the shared folder
+      - ../test/fixtures:/shared/test-fixtures:ro
+      # Mount the install script for lifecycle hooks
+      - ./install-openclaw.sh:/shared/lifecycle/install-openclaw.sh:ro
+    environment:
+      - VM_NAME=agentsec-vm
+      - VERSION=ghcr.io/trycua/macos-sequoia-cua:latest
+      - CPU_CORES=4
+      - RAM_SIZE=8192
+      # Host paths for Lumier's file sharing
+      - HOST_STORAGE_PATH=${PWD}/storage/audit-vm
+      - HOST_SHARED_PATH=${PWD}/shared
+    stop_signal: SIGINT
+    stop_grace_period: 2m
+
+  # --------------------------------------------------------------------------
+  # Secondary test VM - a clean environment for comparison testing
+  # Activate with: docker-compose --profile test up -d
+  # --------------------------------------------------------------------------
+  test-vm:
+    image: trycua/lumier:latest
+    container_name: agentsec-test-vm
+    restart: unless-stopped
+    profiles:
+      - test
+    ports:
+      # noVNC web access: http://localhost:8007
+      - '8007:8006'
+    volumes:
+      - ./storage/test-vm:/storage
+      - ./shared:/shared:ro
+    environment:
+      - VM_NAME=agentsec-test-vm
+      - VERSION=ghcr.io/trycua/macos-sequoia-cua:latest
+      - CPU_CORES=2
+      - RAM_SIZE=4096
+      - HOST_STORAGE_PATH=${PWD}/storage/test-vm
+      - HOST_SHARED_PATH=${PWD}/shared
+    stop_signal: SIGINT
+    stop_grace_period: 2m

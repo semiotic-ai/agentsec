@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Turbo
+.turbo/
+
+# Test coverage
+coverage/
+
+# Security - secrets and credentials
+.env
+.env.*
+.secret*
+*.pem
+*.key
+*.p12
+*.cert
+credentials.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code coordinator worktrees (ephemeral agent session scratch space)
+.claude/worktrees/
+
+# Vercel
+.vercel/
+
+# Next.js
+.next/
+out/
+
+# Logs
+*.log
+
+# Project-specific
+.reference/
+.lume/images/
+.lume/*.qcow2
+.vercel

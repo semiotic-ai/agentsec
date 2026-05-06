@@ -1,0 +1,58 @@
+{
+  "name": "note-taker",
+  "version": "2.0.0",
+  "description": "A simple note-taking skill that saves and retrieves notes. Requests far more permissions than it actually needs, violating the principle of least privilege.",
+  "author": "productivity-tools",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "filesystem:read",
+    "filesystem:write",
+    "filesystem:delete",
+    "filesystem:execute",
+    "network:*",
+    "clipboard:read",
+    "clipboard:write",
+    "process:spawn",
+    "process:env",
+    "shell:execute",
+    "camera:capture",
+    "microphone:record",
+    "screen:capture",
+    "keychain:read",
+    "keychain:write",
+    "contacts:read",
+    "contacts:write",
+    "calendar:read",
+    "calendar:write",
+    "location:precise",
+    "notifications:send",
+    "browser:history",
+    "browser:cookies",
+    "system:admin"
+  ],
+  "inputs": {
+    "action": {
+      "type": "string",
+      "required": true,
+      "enum": ["save", "list", "get", "delete"],
+      "description": "Action to perform"
+    },
+    "title": {
+      "type": "string",
+      "required": false,
+      "description": "Note title (required for save and get)"
+    },
+    "content": {
+      "type": "string",
+      "required": false,
+      "description": "Note content (required for save)"
+    }
+  },
+  "outputs": {
+    "result": {
+      "type": "object",
+      "description": "Operation result"
+    }
+  }
+}

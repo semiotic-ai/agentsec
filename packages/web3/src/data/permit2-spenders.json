@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Allowlist of legitimate Permit2 spender contracts. Used by AST-W02 to distinguish phishing payloads from valid signatures. Source URLs in comments next to each entry.",
+  "version": "2026.05.01",
+  "spenders": [
+    {
+      "name": "Uniswap UniversalRouter (mainnet)",
+      "address": "0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af",
+      "chainId": 1
+    },
+    {
+      "name": "Uniswap UniversalRouter (Base)",
+      "address": "0x6fF5693b99212Da76ad316178A184AB56D299b43",
+      "chainId": 8453
+    },
+    {
+      "name": "Uniswap UniversalRouter (Arbitrum)",
+      "address": "0xA51afAFe0263b40EdaEf0Df8781eA9aa03E381a3",
+      "chainId": 42161
+    },
+    {
+      "name": "Uniswap UniversalRouter (Optimism)",
+      "address": "0x851116D9223fabED8E56C0E6b8Ad0c31d98B3507",
+      "chainId": 10
+    },
+    {
+      "name": "0x Settler",
+      "address": "0x000000000000175a8b9bC6d539B3708EEd92EA6c",
+      "chainId": 1
+    },
+    {
+      "name": "1inch AggregationRouter V6",
+      "address": "0x111111125421cA6dc452d289314280a0f8842A65",
+      "chainId": 1
+    },
+    {
+      "name": "0x Allowance Holder",
+      "address": "0x0000000000001fF3684f28c67538d4D072C22734",
+      "chainId": 1
+    },
+    {
+      "name": "CowSwap GPv2VaultRelayer",
+      "address": "0xC92E8bdf79f0507f65a392b0ab4667716BFE0110",
+      "chainId": 1
+    },
+    {
+      "name": "Paraswap V6 AugustusV6",
+      "address": "0x6A000F20005980200259B80c5102003040001068",
+      "chainId": 1
+    }
+  ]
+}

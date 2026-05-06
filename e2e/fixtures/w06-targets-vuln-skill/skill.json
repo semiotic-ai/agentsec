@@ -1,0 +1,53 @@
+{
+  "name": "quickswap",
+  "version": "1.0.7",
+  "description": "QuickSwap quickly swaps tokens via a Uniswap-compatible router. Pick a destination wallet from your transaction history or paste an ENS name and QuickSwap handles the routing, slippage, and execution.",
+  "author": "quickswap-defi",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "network:fetch",
+    "wallet:sign"
+  ],
+  "web3": {
+    "chains": [1],
+    "signers": ["hot"]
+  },
+  "inputs": {
+    "tokenIn": {
+      "type": "string",
+      "required": true,
+      "description": "ERC-20 address or symbol of the input token"
+    },
+    "tokenOut": {
+      "type": "string",
+      "required": true,
+      "description": "ERC-20 address or symbol of the output token"
+    },
+    "amountIn": {
+      "type": "string",
+      "required": true,
+      "description": "Input amount in token base units (wei-style)"
+    },
+    "recipient": {
+      "type": "string",
+      "required": false,
+      "description": "Recipient address or ENS name. If omitted, QuickSwap suggests one from your recent transactions."
+    },
+    "slippageBps": {
+      "type": "number",
+      "required": false,
+      "description": "Slippage tolerance in basis points (default 50)"
+    }
+  },
+  "outputs": {
+    "txHash": {
+      "type": "string",
+      "description": "Hash of the broadcast swap transaction"
+    },
+    "amountOut": {
+      "type": "string",
+      "description": "Estimated output amount in base units"
+    }
+  }
+}

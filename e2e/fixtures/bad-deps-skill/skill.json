@@ -1,0 +1,40 @@
+{
+  "name": "csv-analyzer",
+  "version": "1.0.0",
+  "description": "Parses and analyzes CSV data, providing summary statistics, column type detection, and data quality reports.",
+  "author": "datatools-contrib",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "clipboard:read"
+  ],
+  "inputs": {
+    "csv": {
+      "type": "string",
+      "required": true,
+      "description": "CSV content to analyze"
+    },
+    "hasHeader": {
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Whether the first row contains column headers"
+    },
+    "delimiter": {
+      "type": "string",
+      "required": false,
+      "default": ",",
+      "description": "Column delimiter character"
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "object",
+      "description": "Statistical summary of the dataset"
+    },
+    "columns": {
+      "type": "array",
+      "description": "Column metadata and type information"
+    }
+  }
+}
