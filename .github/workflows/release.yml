@@ -78,5 +78,42 @@ jobs:
     uses: openclaw/clawhub/.github/workflows/package-publish.yml@main
     with:
       dry_run: ${{ inputs.dry-run || false }}
+      # On tag push, inputs.version is empty and the reusable workflow derives the
+      # version from the tag / SKILL.md. On workflow_dispatch we forward the dispatch
+      # input so dry-runs and manual previews work.
+      version: ${{ inputs.version }}
     secrets:
       clawhub_token: ${{ secrets.CLAWHUB_API_TOKEN }}
+
+  skillssh:
+    name: Publish skill to skills.sh
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Verify skill is discoverable
+        run: |
+          set -euo pipefail
+          output=$(npx -y skills@latest add semiotic-ai/agentsec --list 2>&1)
+          echo "$output"
+          echo "$output" | grep -qw agentsec \
+            || (echo "::error::Skill 'agentsec' not discoverable in semiotic-ai/agentsec" && exit 1)
+
+      - name: Install skill via skills CLI (registers/refreshes skills.sh listing)
+        if: ${{ !inputs.dry-run }}
+        run: |
+          set -euo pipefail
+          npx -y skills@latest add semiotic-ai/agentsec \
+            --skill agentsec \
+            --agent claude-code \
+            --global \
+            --copy \
+            --yes

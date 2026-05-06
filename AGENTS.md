@@ -130,12 +130,13 @@ What the bump script touches:
 
 If you add a new place where the version needs to appear, add an entry to `STAMPS` in `scripts/version-stamps.ts` and the bump + check scripts pick it up automatically.
 
-After bumping: review the diff, commit, then push a `vX.Y.Z` tag. The release workflow runs two jobs in sequence:
+After bumping: review the diff, commit, then push a `vX.Y.Z` tag. The release workflow runs three jobs:
 
 1. `release` — builds, tests, runs `check:versions`, then publishes the CLI to npm.
-2. `clawhub` — calls the reusable workflow `openclaw/clawhub/.github/workflows/package-publish.yml@main`, which reads the SKILL.md frontmatter at the tagged commit and publishes the skill to [ClawHub](https://clawhub.ai/semiotic-ai/agentsec). Authenticates via the `CLAWHUB_API_TOKEN` repo secret (mapped to the reusable workflow's `clawhub_token` input).
+2. `clawhub` (after `release`) — calls the reusable workflow `openclaw/clawhub/.github/workflows/package-publish.yml@main`, which reads the SKILL.md frontmatter at the tagged commit and publishes the skill to [ClawHub](https://clawhub.ai/semiotic-ai/agentsec). Authenticates via the `CLAWHUB_API_TOKEN` repo secret (mapped to the reusable workflow's `clawhub_token` input).
+3. `skillssh` (after `release`, parallel with `clawhub`) — verifies the skill is discoverable via `npx skills add semiotic-ai/agentsec --list`, then runs an actual `skills add` install. The install hits the upstream telemetry endpoint at `add-skill.vercel.sh/t`, which is what registers/refreshes the listing on [skills.sh/semiotic-ai/agentsec/agentsec](https://skills.sh/semiotic-ai/agentsec/agentsec). There is no skills.sh publish API — install events are the publish mechanism. The CI install is tagged `ci=1` upstream so it does not inflate install-count metrics; the listing itself still appears.
 
-So one `git push --tags` is the only manual step — npm and ClawHub both pick up the new version automatically. `workflow_dispatch` with `dry-run: true` previews both publishes without mutating either registry.
+So one `git push --tags` is the only manual step — npm, ClawHub, and skills.sh all pick up the new version automatically. `workflow_dispatch` with `dry-run: true` previews npm and ClawHub publishes without mutating either registry, and skips the skills.sh install step (the discoverability check still runs).
 
 ## Common Tasks
 
