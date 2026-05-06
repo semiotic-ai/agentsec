@@ -147,14 +147,11 @@ After each release, run from your local checkout (one-time `clawhub login` first
 # One-time, then cached:
 bunx clawhub@latest login
 
-# After every tag push:
-bunx clawhub@latest publish skills/agentsec \
-  --slug agentsec \
-  --owner markeljan \
-  --version "$(jq -r .version packages/cli/package.json)"
+# After every tag push (reads version from packages/cli/package.json):
+bun run publish:clawhub
 ```
 
-The legacy publish path requires a folder containing `SKILL.md` and **no** plugin markers (`openclaw.plugin.json`, `package.json`, `.codex-plugin/`, `.claude-plugin/`, `.cursor-plugin/`); pointing at `skills/agentsec/` (which has only `SKILL.md`) satisfies that. The repo-root [openclaw.plugin.json](openclaw.plugin.json) only matters for the new `package publish` flow we're not using; it's left in place in case ClawHub fixes the slug situation and we switch back.
+The `publish:clawhub` script wraps `bunx clawhub@latest publish skills/agentsec --slug agentsec --owner markeljan --version <package.json version>`. The legacy publish path requires a folder containing `SKILL.md` and **no** plugin markers (`openclaw.plugin.json`, `package.json`, `.codex-plugin/`, `.claude-plugin/`, `.cursor-plugin/`); pointing at `skills/agentsec/` (which has only `SKILL.md`) satisfies that. The repo-root [openclaw.plugin.json](openclaw.plugin.json) only matters for the new `package publish` flow we're not using; it's left in place in case ClawHub fixes the slug situation and we switch back.
 
 ## Common Tasks
 
