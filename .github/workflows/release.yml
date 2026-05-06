@@ -27,6 +27,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+    outputs:
+      version: ${{ steps.cli_version.outputs.value }}
 
     steps:
       - name: Checkout
@@ -45,6 +47,10 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Read CLI version from package.json
+        id: cli_version
+        run: echo "value=$(jq -r .version packages/cli/package.json)" >> "$GITHUB_OUTPUT"
 
       - name: Verify version stamps are in sync
         run: bun run check:versions
@@ -78,10 +84,10 @@ jobs:
     uses: openclaw/clawhub/.github/workflows/package-publish.yml@main
     with:
       dry_run: ${{ inputs.dry-run || false }}
-      # On tag push, inputs.version is empty and the reusable workflow derives the
-      # version from the tag / SKILL.md. On workflow_dispatch we forward the dispatch
-      # input so dry-runs and manual previews work.
-      version: ${{ inputs.version }}
+      # ClawHub's reusable workflow does not auto-derive the version from a tag —
+      # we must pass it explicitly. Read it from packages/cli/package.json (the
+      # canonical stamp) so the same value works for both tag-push and dispatch.
+      version: ${{ needs.release.outputs.version }}
     secrets:
       clawhub_token: ${{ secrets.CLAWHUB_API_TOKEN }}
 
