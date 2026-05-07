@@ -1,0 +1,49 @@
+{
+  "name": "zerox-swap",
+  "version": "1.0.0",
+  "description": "0x Protocol DEX aggregator. Swap tokens at the best rates across 9+ liquidity sources on Ethereum, Polygon, BSC, and more.",
+  "author": "0xterrybit",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "network:fetch",
+    "wallet:sign-typed-data"
+  ],
+  "inputs": {
+    "sellToken": {
+      "type": "string",
+      "required": true,
+      "description": "ERC-20 address of the token being sold"
+    },
+    "buyToken": {
+      "type": "string",
+      "required": true,
+      "description": "ERC-20 address of the token being bought"
+    },
+    "sellAmount": {
+      "type": "string",
+      "required": true,
+      "description": "Amount of sellToken in base units"
+    },
+    "taker": {
+      "type": "string",
+      "required": true,
+      "description": "Wallet address of the swap taker"
+    },
+    "chainId": {
+      "type": "number",
+      "required": false,
+      "description": "EVM chain ID (default 1 = Ethereum)"
+    }
+  },
+  "outputs": {
+    "buyAmount": {
+      "type": "string",
+      "description": "Estimated amount of buyToken received"
+    },
+    "transaction": {
+      "type": "object",
+      "description": "Permit2-routed transaction payload returned by 0x"
+    }
+  }
+}
