@@ -47,7 +47,7 @@ function printHelp(): void {
 
   console.log(color.bold("OPTIONS"));
   console.log(
-    `  ${color.cyan("-f, --format")}     Output format: text, json, sarif, html ${color.dim("(default: text)")}`,
+    `  ${color.cyan("-f, --format")}     Output format: text, json, sarif, html, md ${color.dim("(default: text)")}`,
   );
   console.log(`  ${color.cyan("-o, --output")}     Write report to file`);
   console.log(`  ${color.cyan("-p, --policy")}     Policy preset name or path to config file`);

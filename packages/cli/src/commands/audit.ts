@@ -378,6 +378,10 @@ async function writeReport(report: AuditReport, config: AuditConfig): Promise<vo
       json: reporter.formatJson,
       sarif: reporter.formatSarif,
       html: reporter.formatHtml,
+      md:
+        report.skills.length >= 2 && reporter.formatComparisonMd
+          ? reporter.formatComparisonMd
+          : reporter.formatMd,
     };
     const formatFn = formatFns[config.format];
     if (formatFn) {
@@ -476,8 +480,9 @@ function printCompactSummary(
       .map((r) => ({
         skill: r.skill.name,
         critical: r.securityFindings.filter((f) => f.severity === "critical").length,
-        topRule: (r.securityFindings.find((f) => f.severity === "critical")?.owaspId ?? "")
-          .toString(),
+        topRule: (
+          r.securityFindings.find((f) => f.severity === "critical")?.owaspId ?? ""
+        ).toString(),
       }))
       .filter((r) => r.critical > 0)
       .sort((a, b) => b.critical - a.critical)
@@ -923,7 +928,7 @@ export async function runAudit(config: AuditConfig): Promise<number> {
         console.log(JSON.stringify(report, null, 2));
       }
     }
-  } else if (config.format === "sarif" || config.format === "html") {
+  } else if (config.format === "sarif" || config.format === "html" || config.format === "md") {
     // Delegate to reporter package
     if (!config.output) {
       info(`Use --output to save ${config.format.toUpperCase()} reports to a file`);

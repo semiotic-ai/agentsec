@@ -117,7 +117,7 @@ export async function loadConfigFile(
 // CLI flag parsing
 // ---------------------------------------------------------------------------
 
-const VALID_FORMATS = new Set(["text", "json", "sarif", "html"]);
+const VALID_FORMATS = new Set(["text", "json", "sarif", "html", "md"]);
 const VALID_PLATFORMS = new Set(["openclaw", "claude", "codex"]);
 const VALID_COMMANDS = new Set(["audit", "scan", "report", "policy", "version", "help"]);
 const VALID_PROFILES = new Set<AuditProfile>(["default", "web3", "strict"]);
@@ -129,7 +129,9 @@ const VALID_PROFILES = new Set<AuditProfile>(["default", "web3", "strict"]);
  */
 function warnUnknownFlagValue(flag: string, value: string, valid: Iterable<string>): void {
   const list = Array.from(valid).join(", ");
-  process.stderr.write(`agentsec: unknown ${flag} '${value}' — falling back to default. Valid: ${list}\n`);
+  process.stderr.write(
+    `agentsec: unknown ${flag} '${value}' — falling back to default. Valid: ${list}\n`,
+  );
 }
 
 /** Flags that consume the next arg as a value. Returns the number of args consumed (0 or 1). */

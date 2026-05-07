@@ -159,10 +159,7 @@ const banner = (): string => {
 
 // ── Section renderers ──────────────────────────────────────────────────── //
 
-const renderSummary = (
-  summary: AuditSummary,
-  results: SkillAuditResult[] = [],
-): string => {
+const renderSummary = (summary: AuditSummary, results: SkillAuditResult[] = []): string => {
   const lines: string[] = [];
 
   lines.push(heading("Audit Summary"));

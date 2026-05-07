@@ -14,6 +14,7 @@
  */
 
 import type { AuditReport, SkillFile } from "@agentsec/shared";
+import { buildComparison, type ComparisonView } from "./comparison-json.js";
 
 const HEX_PREFIXED_RE = /0x[a-fA-F0-9]{64}\b/g;
 const HEX_BARE_RE = /\b[a-fA-F0-9]{64}\b/g;
@@ -33,13 +34,21 @@ const redactFile = (f: SkillFile): SkillFile => ({
   content: redactContent(f.content),
 });
 
+interface JsonReportOutput extends AuditReport {
+  /** Pre-computed side-by-side matrix view. Only present when ≥2 skills. */
+  comparison?: ComparisonView;
+}
+
 export const formatJson = (report: AuditReport): string => {
-  const sanitized: AuditReport = {
+  const sanitized: JsonReportOutput = {
     ...report,
     skills: report.skills.map((r) => ({
       ...r,
       skill: { ...r.skill, files: r.skill.files.map(redactFile) },
     })),
   };
+  if (report.skills.length >= 2) {
+    sanitized.comparison = buildComparison(report);
+  }
   return JSON.stringify(sanitized, null, 2);
 };
