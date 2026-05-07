@@ -17,6 +17,7 @@ import type { AgentSkill, SecurityFinding } from "@agentsec/shared";
 
 import { checkAuditSink } from "./rules/audit-sink";
 import { checkBridge } from "./rules/bridge";
+import { checkConfirmationSkip } from "./rules/confirmation-skip";
 import { checkContractTargets } from "./rules/contract-targets";
 import { checkEip7702 } from "./rules/eip7702";
 import { checkKeyMaterial } from "./rules/key-material";
@@ -33,6 +34,7 @@ export { detectWeb3, type Web3Detection } from "./detect";
 export {
   checkAuditSink,
   checkBridge,
+  checkConfirmationSkip,
   checkContractTargets,
   checkEip7702,
   checkKeyMaterial,
@@ -171,5 +173,14 @@ export const WEB3_RULES: Web3RuleDefinition[] = [
     owaspId: "AST-W12",
     owaspLink: ANNEX_LINK,
     run: checkAuditSink,
+  },
+  {
+    name: "web3-no-user-confirmation",
+    category: "web3-no-audit-killswitch",
+    description:
+      "Detects skills that explicitly bypass user confirmation for state-changing transactions: `*-fast` name suffix, `--auto-approve` / `--no-confirm` / `--yes` flags, prose like 'skip confirmation' or 'broadcast immediately' (sub-rule of AST-W12)",
+    owaspId: "AST-W12",
+    owaspLink: ANNEX_LINK,
+    run: checkConfirmationSkip,
   },
 ];
