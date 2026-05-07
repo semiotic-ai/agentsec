@@ -137,6 +137,7 @@ describe("runAudit zero-arg auto-discover", () => {
       platformExplicit: false,
       path: null,
       verbose: false,
+      profile: "default",
     };
 
     // Capture the JSON report printed to stdout so we can inspect discovered skills.

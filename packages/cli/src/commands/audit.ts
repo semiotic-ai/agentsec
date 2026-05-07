@@ -748,6 +748,27 @@ async function auditOneSkill(
 }
 
 /**
+ * Pre-scan detection pass: when running with the default profile and any skill
+ * exhibits web3 signals, promote the run to apply the AST-10 Web3 Annex to
+ * every skill. Returns the effective config (unchanged when no promotion).
+ */
+function maybeAutoPromoteProfile(
+  skills: AgentSkill[],
+  config: AuditConfig,
+  ctx: ScanContext,
+  isQuiet: boolean,
+): AuditConfig {
+  if (config.profile !== "default") return config;
+  if (!ctx.detectFn || ctx.web3Scanner === null) return config;
+
+  const anyWeb3 = skills.some((s) => ctx.detectFn?.(s).isWeb3);
+  if (!anyWeb3) return config;
+
+  if (!isQuiet) info("Auto-promoted to web3 profile due to web3-detected skills");
+  return { ...config, profile: "web3" };
+}
+
+/**
  * Scan all skills with appropriate per-skill spinners, progress bar, and
  * platform-grouped subheadings in zero-arg auto-discover mode.
  */
@@ -755,6 +776,7 @@ async function runScanStep(
   skills: AgentSkill[],
   config: AuditConfig,
   policyConfig: PolicyConfig | null,
+  ctx: ScanContext,
   isQuiet: boolean,
 ): Promise<{ results: SkillAuditResult[]; blockedCount: number }> {
   const results: SkillAuditResult[] = [];
@@ -765,7 +787,6 @@ async function runScanStep(
     : new Map<AgentPlatform | null, AgentSkill[]>([[null, skills]]);
   const showPlatformHeaders = autoDiscover && groups.size > 1;
   let scanned = 0;
-  const ctx = await buildScanContext();
 
   for (const [platform, platformSkills] of groups) {
     if (showPlatformHeaders && !isQuiet) {
@@ -853,22 +874,35 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     return 0;
   }
 
-  // 2. Load policy if specified
-  const policyConfig = await loadPolicy(config.policy);
+  // 2. Load policy unless skipped (the legacy `scan` command behavior).
+  const policyConfig = config.skipPolicy ? null : await loadPolicy(config.policy);
   if (!isQuiet) {
-    if (config.policy && policyConfig) {
+    if (config.policy && !config.skipPolicy && policyConfig) {
       success(`Loaded policy: ${color.bold(policyConfig.name)}`);
-    } else if (config.policy) {
+    } else if (config.policy && !config.skipPolicy) {
       warn(`Could not load policy: ${config.policy}`);
     }
   }
 
-  // 3. Scan each skill, grouped by platform in zero-arg auto-discover mode
+  // 3. Auto-promote profile when web3 signals are present so the annex applies
+  // to every skill in the run (cross-skill consistency without requiring users
+  // to remember `--profile web3`). Explicit `--profile web3|strict` paths are
+  // unaffected.
+  const ctx = await buildScanContext();
+  const effectiveConfig = maybeAutoPromoteProfile(skills, config, ctx, isQuiet);
+
+  // 4. Scan each skill, grouped by platform in zero-arg auto-discover mode
   if (!isQuiet) heading("Scanning Skills");
 
-  const { results, blockedCount } = await runScanStep(skills, config, policyConfig, isQuiet);
+  const { results, blockedCount } = await runScanStep(
+    skills,
+    effectiveConfig,
+    policyConfig,
+    ctx,
+    isQuiet,
+  );
 
-  // 4. Build summary
+  // 5. Build summary
   const summary: AuditSummary = {
     totalSkills: results.length,
     averageScore: Math.round(results.reduce((sum, r) => sum + r.score.overall, 0) / results.length),
@@ -892,7 +926,7 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     certifiedSkills: results.filter((r) => r.score.grade === "A" || r.score.grade === "B").length,
   };
 
-  // 5. Build report
+  // 6. Build report
   const report: AuditReport = {
     id: crypto.randomUUID(),
     timestamp: new Date().toISOString(),
@@ -901,7 +935,7 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     summary,
   };
 
-  // 6. Print results (text format to stdout)
+  // 7. Print results (text format to stdout)
   const web3Count = results.filter((r) => r.web3?.detected).length;
   if (config.format === "text") {
     if (config.verbose) {
@@ -935,12 +969,17 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     }
   }
 
-  // 7. Write report file if requested
+  // 8. Write report file if requested.
+  // Single-file output (`-o foo.json`) preserves the old behavior. With no
+  // `-o`, default to a rich bundle in ./agentsec-report so first-time users
+  // get every format without flag-juggling. Opt out with `--no-reports`.
   if (config.output) {
     await writeReport(report, config);
+  } else if (config.format === "text" && !config.noReports && results.length > 0) {
+    await writeReportBundle(report, config.verbose);
   }
 
-  // 8. Final status — part of the text report, skipped entirely in quiet modes
+  // 9. Final status — part of the text report, skipped entirely in quiet modes
   if (blockedCount > 0) {
     if (!isQuiet) printBlockedStatus(blockedCount, config.verbose);
     return 1;
@@ -948,4 +987,61 @@ export async function runAudit(config: AuditConfig): Promise<number> {
   if (!isQuiet) printPassOrWarnStatus(summary, config.verbose);
 
   return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Rich-default bundle writer
+// ---------------------------------------------------------------------------
+
+const BUNDLE_DIR = "agentsec-report";
+
+/**
+ * Write `report.{html,json,sarif,md,txt}` into ./agentsec-report. The `md`
+ * format is conditional — Unit 7 may or may not have landed in the
+ * @agentsec/reporter package. When unavailable we silently skip it.
+ */
+async function writeReportBundle(report: AuditReport, verbose: boolean): Promise<void> {
+  let reporter: typeof import("@agentsec/reporter") | null = null;
+  try {
+    reporter = await import("@agentsec/reporter");
+  } catch {
+    // Reporter unavailable — fall back to JSON only.
+    await Bun.write(`${BUNDLE_DIR}/report.json`, JSON.stringify(report, null, 2));
+    info(`Reports written to ./${BUNDLE_DIR}/`);
+    return;
+  }
+
+  // Defensive: `formatMarkdown` is added by a sibling unit and may not exist.
+  const formatMarkdown = (reporter as unknown as Record<string, (r: AuditReport) => string>)
+    .formatMarkdown;
+  // `report.txt` is an ANSI-colored terminal report; strip codes for a plain
+  // file (most editors won't render the escape sequences).
+  const stripAnsiText = (r: AuditReport): string => reporter.stripAnsi(reporter.formatText(r));
+  const renderers: { ext: string; fn?: (r: AuditReport) => string }[] = [
+    { ext: "html", fn: reporter.formatHtml },
+    { ext: "json", fn: reporter.formatJson },
+    { ext: "sarif", fn: reporter.formatSarif },
+    { ext: "txt", fn: stripAnsiText },
+    { ext: "md", fn: formatMarkdown },
+  ];
+
+  const written: string[] = [];
+  await Promise.all(
+    renderers.map(async ({ ext, fn }) => {
+      if (typeof fn !== "function") return;
+      try {
+        const out = fn(report);
+        await Bun.write(`${BUNDLE_DIR}/report.${ext}`, out);
+        written.push(`report.${ext}`);
+      } catch {
+        // Skip a renderer that throws — don't let one bad format kill the
+        // bundle. (Verbose mode would surface this; otherwise stay quiet.)
+        if (verbose) warn(`Could not generate report.${ext}`);
+      }
+    }),
+  );
+
+  if (written.length > 0) {
+    info(`Reports written to ./${BUNDLE_DIR}/ (${written.join(", ")})`);
+  }
 }

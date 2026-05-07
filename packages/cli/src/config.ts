@@ -26,11 +26,17 @@ export interface CliFlags {
   help: boolean;
   version: boolean;
   /**
-   * Rule profile selection. `default` runs the base AST10 rules. `web3` adds
-   * the AST-10 Web3 Annex (`@agentsec/web3`). `strict` adds the annex with
-   * tighter severities. Documented in docs/plans/ast10-web3-annex-strategy.md.
+   * Rule profile selection. `default` runs the base AST10 rules and auto-
+   * promotes to the AST-10 Web3 Annex when web3 signals are detected.
+   * `web3` forces the annex on every skill (cross-team CI consistency).
+   * `strict` forces the annex with tighter severities. Documented in
+   * docs/plans/ast10-web3-annex-strategy.md.
    */
   profile: AuditProfile;
+  /** Skip policy loading + evaluation (the old `scan` command behavior). */
+  skipPolicy: boolean;
+  /** Skip writing the auto-bundle to ./agentsec-report when text mode runs without -o. */
+  noReports: boolean;
   /** Positional args after the command */
   args: string[];
 }
@@ -59,6 +65,10 @@ export interface AuditConfig {
   verbose: boolean;
   /** Rule profile — controls which annex rule packs are loaded. */
   profile: AuditProfile;
+  /** Skip policy loading + evaluation (legacy `scan` semantics). */
+  skipPolicy?: boolean;
+  /** Skip writing the rich-default report bundle to ./agentsec-report. */
+  noReports?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -119,6 +129,8 @@ export async function loadConfigFile(
 
 const VALID_FORMATS = new Set(["text", "json", "sarif", "html", "md"]);
 const VALID_PLATFORMS = new Set(["openclaw", "claude", "codex"]);
+// `scan` is intentionally still parsed as a command so we can route it to
+// `audit --no-policy` with a deprecation warning instead of erroring out.
 const VALID_COMMANDS = new Set(["audit", "scan", "report", "policy", "version", "help"]);
 const VALID_PROFILES = new Set<AuditProfile>(["default", "web3", "strict"]);
 
@@ -189,6 +201,12 @@ function applyBooleanFlag(flags: CliFlags, arg: string): boolean {
     case "--no-color":
       flags.noColor = true;
       return true;
+    case "--no-policy":
+      flags.skipPolicy = true;
+      return true;
+    case "--no-reports":
+      flags.noReports = true;
+      return true;
     case "--help":
     case "-h":
       flags.help = true;
@@ -219,6 +237,8 @@ export function parseFlags(argv: string[]): CliFlags {
     help: false,
     version: false,
     profile: "default",
+    skipPolicy: false,
+    noReports: false,
     args: [],
   };
 
@@ -276,5 +296,7 @@ export async function resolveConfig(flags: CliFlags): Promise<AuditConfig> {
     path: flags.path ?? fileConfig.path ?? null,
     verbose: flags.verbose || fileConfig.verbose || false,
     profile: flags.profile !== "default" ? flags.profile : (fileConfig.profile ?? "default"),
+    skipPolicy: flags.skipPolicy,
+    noReports: flags.noReports,
   };
 }
