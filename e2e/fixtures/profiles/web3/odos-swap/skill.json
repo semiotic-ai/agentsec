@@ -1,0 +1,9 @@
+{
+  "name": "odos-swap",
+  "version": "0.1.0",
+  "description": "Execute a token swap on Odos end-to-end (quote → assemble → simulate → confirm with user → broadcast). State-changing — costs gas. Use when the user explicitly asks to swap, sell, buy, or trade tokens. ALWAYS confirm with the user before broadcasting. Supports the Permit2 path to skip the separate approve() transaction.",
+  "author": "odos-xyz",
+  "license": "UNKNOWN",
+  "engine": "openclaw@^0.9.0",
+  "permissions": ["network:fetch", "wallet:sign-typed-data", "shell:exec"]
+}
