@@ -22,6 +22,7 @@ import { checkContractTargets } from "./rules/contract-targets";
 import { checkEip7702 } from "./rules/eip7702";
 import { checkKeyMaterial } from "./rules/key-material";
 import { checkMcpChainTools } from "./rules/mcp-chain-tools";
+import { checkMetadataCompleteness } from "./rules/metadata-completeness";
 import { checkOracleSlippage } from "./rules/oracle-slippage";
 import { checkPermit2 } from "./rules/permit2";
 import { checkRpc } from "./rules/rpc";
@@ -39,6 +40,7 @@ export {
   checkEip7702,
   checkKeyMaterial,
   checkMcpChainTools,
+  checkMetadataCompleteness,
   checkOracleSlippage,
   checkPermit2,
   checkRpc,
@@ -182,5 +184,14 @@ export const WEB3_RULES: Web3RuleDefinition[] = [
     owaspId: "AST-W12",
     owaspLink: ANNEX_LINK,
     run: checkConfirmationSkip,
+  },
+  {
+    name: "web3-metadata-completeness",
+    category: "web3-metadata-completeness",
+    description:
+      "Web3-specific tightening of AST04: flags web3 skills whose manifest is missing license, permissions, metadata.openclaw, or web3.policy.allowedContracts",
+    owaspId: "AST04",
+    owaspLink: ANNEX_LINK,
+    run: checkMetadataCompleteness,
   },
 ];
