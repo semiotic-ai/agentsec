@@ -61,6 +61,23 @@ const PERMIT_MENTION_RE = /\b(?:permit|gasless\s+approval)\b/i;
 
 const MANIFEST_FILE_RE = /(?:^|\/)(?:SKILL\.md|skill\.md|manifest\.json|claw\.json)$/i;
 
+/**
+ * Tokens that signal an address literal sits in a fee-recipient / affiliate
+ * position. Matched within a small line-window around the address. The list
+ * is intentionally narrow — generic words like "to" or "address" appear in
+ * non-fee contexts (router targets, vaults), so we restrict to tokens that
+ * unambiguously imply someone other than the user receives a cut.
+ */
+const FEE_TOKENS_RE =
+  /\b(?:fee|feeBps|feeRecipient|swapFeeRecipient|swapFeeBps|affiliate|referrer|partner|takerFee|protocolFee|skimRecipient|treasury)\b/i;
+const ADDRESS_LITERAL_RE = /\b0x[a-fA-F0-9]{40}\b/g;
+const FEE_CONTEXT_LINES = 3;
+/** Recognized burn / null sinks. Hardcoded fees to these are not a skim. */
+const FEE_NULL_SINKS = new Set<string>([
+  "0x0000000000000000000000000000000000000000",
+  "0x000000000000000000000000000000000000dead",
+]);
+
 function findAllMatches(content: string, regex: RegExp): RegExpExecArray[] {
   const matches: RegExpExecArray[] = [];
   const flags = regex.flags.includes("g") ? regex.flags : `${regex.flags}g`;
@@ -275,6 +292,82 @@ function checkManifestPermitWithoutAllowlist(
   });
 }
 
+/**
+ * Detects "documented zero" fee disclaimers like `feeBps = 0` or
+ * `SWAP_FEE_BPS=0`. Suppresses the common pattern where a skill ships a
+ * configurable fee but defaults to no skim — the address literal is still
+ * present (often an EOA address used elsewhere) but its fee charge is
+ * genuinely zero.
+ */
+const ZERO_FEE_DISCLAIMER_RE =
+  /\b(?:fee|feeBps|swapFeeBps|takerFee|protocolFee)\w*\s*[:=]\s*['"]?0['"]?(?![\w.])/i;
+
+function detectFeeSkim(
+  skill: AgentSkill,
+  findings: SecurityFinding[],
+  counter: { n: number },
+): void {
+  const allowlistArray = skill.manifest.web3?.policy?.allowedContracts ?? [];
+  const allowlist = new Set<string>(allowlistArray.map((a) => a.toLowerCase()));
+
+  for (const file of skill.files) {
+    if (!shouldScanFile(file.relativePath)) continue;
+    const lines = file.content.split("\n");
+    let cursor = 0;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const lineMatches = [...line.matchAll(ADDRESS_LITERAL_RE)];
+      if (lineMatches.length === 0) {
+        cursor += line.length + 1;
+        continue;
+      }
+
+      const windowStart = Math.max(0, i - FEE_CONTEXT_LINES);
+      const windowEnd = Math.min(lines.length, i + FEE_CONTEXT_LINES + 1);
+      const context = lines.slice(windowStart, windowEnd).join("\n");
+      if (!FEE_TOKENS_RE.test(context)) {
+        cursor += line.length + 1;
+        continue;
+      }
+
+      // "fee = 0" disclaimer anywhere in the context window suppresses the
+      // address — the literal is benign because no skim is being captured.
+      if (ZERO_FEE_DISCLAIMER_RE.test(context)) {
+        cursor += line.length + 1;
+        continue;
+      }
+
+      for (const m of lineMatches) {
+        const addr = m[0].toLowerCase();
+        if (FEE_NULL_SINKS.has(addr)) continue;
+        if (allowlist.has(addr)) continue;
+        // Permit2 itself is the verifying contract, not a fee recipient.
+        if (addr === PERMIT2_ADDRESS_LOWER) continue;
+        const absIndex = cursor + (m.index ?? 0);
+        if (isInComment(file.content, absIndex)) continue;
+
+        counter.n++;
+        findings.push({
+          id: `W02-005-${counter.n}`,
+          rule: "web3-permit-capture",
+          severity: "critical",
+          category: "web3-permit-capture",
+          title: "Hardcoded fee recipient in Permit2/swap typed-data",
+          description:
+            "An address literal appears within a fee/affiliate/referrer context but is not declared in `web3.policy.allowedContracts`. Skills that bake a hardcoded fee recipient + bps into Permit2 typed-data silently capture a cut of every signature for a third party. Users blind-sign the EIP-712 message expecting a swap and authorize a skim they never see.",
+          file: file.relativePath,
+          line: i + 1,
+          evidence: line.trim(),
+          remediation:
+            "Either remove the fee recipient entirely or add it to `web3.policy.allowedContracts` in SKILL.md so the runtime can attest the skim is intentional. Surface the recipient and fee bps to the user before signing — never embed them silently in EIP-712 typed-data.",
+        });
+      }
+
+      cursor += line.length + 1;
+    }
+  }
+}
+
 export function checkPermit2(skill: AgentSkill): SecurityFinding[] {
   const findings: SecurityFinding[] = [];
   const counter = { n: 0 };
@@ -288,6 +381,7 @@ export function checkPermit2(skill: AgentSkill): SecurityFinding[] {
   }
 
   checkManifestPermitWithoutAllowlist(skill, findings, counter);
+  detectFeeSkim(skill, findings, counter);
 
   return findings;
 }

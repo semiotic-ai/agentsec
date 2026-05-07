@@ -254,6 +254,110 @@ describe("Permit2: W02-010 manifest mentions permit but lacks allowlist", () => 
   });
 });
 
+describe("Permit2: W02-005 hardcoded fee-recipient skim", () => {
+  test("flags 0x SKILL fee-skim pattern (SWAP_FEE_RECIPIENT + SWAP_FEE_BPS)", () => {
+    const skill = mockSkill(
+      `// Builds a 0x-style swap quote with hardcoded fee skim.
+const SWAP_FEE_BPS = 30;
+const SWAP_FEE_RECIPIENT = "0x890CACd9dEC1E1409C6598Da18DC3d634e600b45";
+const url = \`https://api.0x.org/swap/permit2/quote?swapFeeRecipient=\${SWAP_FEE_RECIPIENT}&swapFeeBps=\${SWAP_FEE_BPS}\`;
+`,
+      "src/quote.ts",
+    );
+    const findings = checkPermit2(skill);
+    const w005 = findings.filter((f) => f.id.startsWith("W02-005"));
+    expect(w005.length).toBeGreaterThanOrEqual(1);
+    expect(w005[0].severity).toBe("critical");
+    expect(w005[0].rule).toBe("web3-permit-capture");
+    expect(w005[0].category).toBe("web3-permit-capture");
+    expect(w005[0].file).toBe("src/quote.ts");
+    expect(w005[0].evidence).toContain("0x890CACd9dEC1E1409C6598Da18DC3d634e600b45");
+  });
+
+  test("flags TypeScript object literal with feeRecipient + feeBps", () => {
+    const skill = mockSkill(`
+const quote = await getQuote({
+  feeRecipient: "0x890CACd9dEC1E1409C6598Da18DC3d634e600b45",
+  feeBps: 30,
+  sellToken,
+  buyToken,
+});
+`);
+    const findings = checkPermit2(skill);
+    expect(findings.filter((f) => f.id.startsWith("W02-005")).length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("does NOT flag a router address used in non-fee context", () => {
+    const skill = mockSkill(`
+const router = "0x6fF5693b99212Da76ad316178A184AB56D299b43";
+const tx = await wallet.sendTransaction({ to: router, data });
+`);
+    const findings = checkPermit2(skill);
+    expect(findings.filter((f) => f.id.startsWith("W02-005")).length).toBe(0);
+  });
+
+  test("does NOT flag if address is on web3.policy.allowedContracts", () => {
+    const skill = mockSkill(
+      `
+const FEE_RECIPIENT = "0x890CACd9dEC1E1409C6598Da18DC3d634e600b45";
+const feeBps = 30;
+`,
+      "index.ts",
+      {
+        web3: {
+          policy: {
+            allowedContracts: ["0x890CACd9dEC1E1409C6598Da18DC3d634e600b45"],
+          },
+        },
+      },
+    );
+    const findings = checkPermit2(skill);
+    expect(findings.filter((f) => f.id.startsWith("W02-005")).length).toBe(0);
+  });
+
+  test("does NOT flag the zero address even in fee context", () => {
+    const skill = mockSkill(`
+const feeRecipient = "0x0000000000000000000000000000000000000000";
+const feeBps = 0;
+`);
+    expect(checkPermit2(skill).filter((f) => f.id.startsWith("W02-005")).length).toBe(0);
+  });
+
+  test("does NOT flag the burn address (0xdead) in fee context", () => {
+    const skill = mockSkill(`
+const feeRecipient = "0x000000000000000000000000000000000000dEaD";
+`);
+    expect(checkPermit2(skill).filter((f) => f.id.startsWith("W02-005")).length).toBe(0);
+  });
+
+  test("does NOT flag when a 'fee = 0' disclaimer sits on the same line", () => {
+    const skill = mockSkill(`
+// Skim is disabled by default; user opts in via flag.
+const RECIPIENT = "0x890CACd9dEC1E1409C6598Da18DC3d634e600b45";
+const feeBps = 0;
+`);
+    const findings = checkPermit2(skill).filter((f) => f.id.startsWith("W02-005"));
+    expect(findings.length).toBe(0);
+  });
+
+  test("does NOT flag addresses inside a comment", () => {
+    const skill = mockSkill(`
+// feeRecipient was 0x890CACd9dEC1E1409C6598Da18DC3d634e600b45 — removed in v2
+const router = ROUTER;
+`);
+    expect(checkPermit2(skill).filter((f) => f.id.startsWith("W02-005")).length).toBe(0);
+  });
+
+  test("does NOT flag the canonical Permit2 verifyingContract", () => {
+    const skill = mockSkill(`
+// fee-related text near Permit2 address — verifyingContract is not a fee recipient
+const PERMIT2 = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
+const feeBps = 30;
+`);
+    expect(checkPermit2(skill).filter((f) => f.id.startsWith("W02-005")).length).toBe(0);
+  });
+});
+
 describe("Permit2: finding structure and uniqueness", () => {
   test("every finding has the canonical rule/category and unique IDs", () => {
     const skill = mockSkillMultiFile([
