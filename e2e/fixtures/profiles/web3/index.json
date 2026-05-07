@@ -1,0 +1,12 @@
+{
+  "profile": "web3",
+  "description": "Real-world DEX-aggregator agent skills for cross-comparison auditing.",
+  "skills": [
+    { "name": "odos-swap", "path": "odos-swap", "role": "reference" },
+    { "name": "oneinch-swap", "path": "1inch-swap", "role": "competitor" },
+    { "name": "kyberswap-swap-execute", "path": "kyberswap-swap", "role": "competitor" },
+    { "name": "zerox-swap", "path": "0x-swap", "role": "competitor" },
+    { "name": "cowswap-intent", "path": "cowswap-swap", "role": "competitor" }
+  ],
+  "expectedRules": ["AST-W01", "AST-W02", "AST-W04", "AST-W05", "AST-W06", "AST-W11", "AST-W12"]
+}
