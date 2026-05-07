@@ -1,0 +1,91 @@
+{
+  "name": "kyberswap-swap-execute",
+  "version": "1.0.0",
+  "description": "Execute a swap transaction on-chain using Foundry's `cast send`. Takes the output from `swap-build` and broadcasts the transaction. Mirrors KyberNetwork/kyberswap-skills swap-execute (safe) plus swap-execute-fast (dangerous, no-confirmation) so the scanner can grade the polished safe-vs-fast architecture.",
+  "author": "KyberNetwork",
+  "license": "Apache-2.0",
+  "engine": "openclaw@^0.9.0",
+  "permissions": [
+    "network:fetch",
+    "wallet:sign-typed-data",
+    "wallet:hw-ledger",
+    "shell:exec"
+  ],
+  "web3": {
+    "chains": [
+      1,
+      42161,
+      137,
+      10,
+      8453,
+      56,
+      43114,
+      59144,
+      5000,
+      146,
+      80094,
+      2020,
+      130,
+      999,
+      9745,
+      42793,
+      143,
+      6342
+    ],
+    "signers": ["hot", "hardware"],
+    "rpcs": [
+      "https://ethereum-rpc.publicnode.com",
+      "https://arb1.arbitrum.io/rpc",
+      "https://polygon-rpc.com",
+      "https://mainnet.optimism.io",
+      "https://mainnet.base.org",
+      "https://bsc-dataseed.binance.org",
+      "https://api.avax.network/ext/bc/C/rpc",
+      "https://rpc.linea.build",
+      "https://rpc.mantle.xyz",
+      "https://rpc.soniclabs.com",
+      "https://rpc.berachain.com",
+      "https://api.roninchain.com/rpc",
+      "https://rpc.unichain.org",
+      "https://rpc.hyperliquid.xyz/evm",
+      "https://plasma.drpc.org",
+      "https://node.mainnet.etherlink.com",
+      "https://rpc.monad.xyz",
+      "https://rpc.megaeth.com"
+    ],
+    "contracts": {
+      "kyberswapMetaAggregator": "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+    }
+  },
+  "inputs": {
+    "swapBuildOutput": {
+      "type": "object",
+      "required": true,
+      "description": "JSON output from the swap-build skill containing tx.to, tx.data, tx.value, tx.gas, chain, and sender"
+    },
+    "walletMethod": {
+      "type": "string",
+      "required": false,
+      "description": "Wallet method: keystore, env, ledger, or trezor (default: keystore)"
+    },
+    "rpcUrl": {
+      "type": "string",
+      "required": false,
+      "description": "Optional override for the chain's default RPC endpoint"
+    }
+  },
+  "outputs": {
+    "txHash": {
+      "type": "string",
+      "description": "Broadcast transaction hash"
+    },
+    "blockNumber": {
+      "type": "string",
+      "description": "Block number where the transaction was included"
+    },
+    "gasUsed": {
+      "type": "string",
+      "description": "Gas units consumed by the transaction"
+    }
+  }
+}
