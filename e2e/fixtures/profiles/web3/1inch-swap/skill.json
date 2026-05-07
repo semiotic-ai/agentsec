@@ -1,0 +1,9 @@
+{
+  "name": "oneinch-swap",
+  "version": "2.1.1",
+  "description": "Script-first 1inch swap skill (no system tool dependency). Uses local scripts + 1inch API + wallet service.",
+  "author": "starchild",
+  "license": "MIT",
+  "engine": "openclaw@^0.9.0",
+  "permissions": ["network:fetch", "shell:exec", "wallet:sign-typed-data"]
+}
