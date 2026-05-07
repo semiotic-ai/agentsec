@@ -6,6 +6,12 @@
   "license": "Apache-2.0",
   "engine": "openclaw@^0.9.0",
   "permissions": ["network:read", "wallet:sign-scoped"],
+  "metadata": {
+    "openclaw": {
+      "tags": ["web3", "trading", "session-key"],
+      "namespace": "scoped-finance"
+    }
+  },
   "web3": {
     "chains": [8453],
     "signers": ["session"],

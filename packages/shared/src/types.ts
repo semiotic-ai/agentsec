@@ -188,7 +188,8 @@ export type OWASPCategory =
   | "web3-session-key-erosion"
   | "web3-oracle-manipulation"
   | "web3-key-material-leak"
-  | "web3-no-audit-killswitch";
+  | "web3-no-audit-killswitch"
+  | "web3-metadata-completeness";
 
 export interface QualityMetrics {
   codeComplexity: number;
