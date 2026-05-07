@@ -162,9 +162,7 @@ export function detectWeb3(skill: AgentSkill): Web3Detection {
   if (hasRpc) signals.push("references a Web3 RPC method");
   if (hasSol) signals.push("contains a Solidity (.sol) file");
   if (hasVeryStrongProtocol)
-    signals.push(
-      "references a Web3 protocol or standard (ERC-N/EIP-N/Permit2/etc.)",
-    );
+    signals.push("references a Web3 protocol or standard (ERC-N/EIP-N/Permit2/etc.)");
   if (hasWeakProtocol)
     signals.push("mentions generic Web3 prose (Solidity, EVM, smart contract, etc.)");
   if (hasAddress) signals.push("contains an Ethereum address");
