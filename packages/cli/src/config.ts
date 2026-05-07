@@ -131,7 +131,7 @@ const VALID_FORMATS = new Set(["text", "json", "sarif", "html", "md"]);
 const VALID_PLATFORMS = new Set(["openclaw", "claude", "codex"]);
 // `scan` is intentionally still parsed as a command so we can route it to
 // `audit --no-policy` with a deprecation warning instead of erroring out.
-const VALID_COMMANDS = new Set(["audit", "scan", "report", "policy", "version", "help"]);
+const VALID_COMMANDS = new Set(["audit", "scan", "skill", "report", "policy", "version", "help"]);
 const VALID_PROFILES = new Set<AuditProfile>(["default", "web3", "strict"]);
 
 /**

@@ -20,6 +20,7 @@ import { AUDIT_VERSION } from "@agentsec/shared";
 import { runAudit } from "./commands/audit";
 import { runPolicy } from "./commands/policy";
 import { runReport } from "./commands/report";
+import { runSkill } from "./commands/skill";
 import { parseFlags, resolveConfig } from "./config";
 import { color, error, info, printBanner } from "./ui";
 
@@ -36,6 +37,9 @@ function printHelp(): void {
 
   console.log(color.bold("COMMANDS"));
   console.log(`  ${color.cyan("audit")}     Run a full security audit ${color.dim("(default)")}`);
+  console.log(
+    `  ${color.cyan("skill")}     Fuzzy-match one skill by name/folder and audit it verbosely`,
+  );
   console.log(`  ${color.cyan("report")}    Generate a report from saved audit JSON`);
   console.log(`  ${color.cyan("policy")}    Manage and inspect policy presets`);
   console.log(`  ${color.cyan("version")}   Print version`);
@@ -89,6 +93,12 @@ function printHelp(): void {
   console.log(`  ${color.dim("# Generate an HTML report from a previous JSON audit")}`);
   console.log(`  agentsec report audit.json --format html --output report.html`);
   console.log();
+  console.log(
+    `  ${color.dim("# Drill into one skill by partial / fuzzy name (verbose by default)")}`,
+  );
+  console.log(`  agentsec skill w01-signing`);
+  console.log(`  agentsec skill odos       ${color.dim("# matches odos-swap, odos-skill, etc.")}`);
+  console.log();
   console.log(`  ${color.dim("AST-10 Web3 Annex (12 chain rules) auto-applies to web3 skills.")}`);
   console.log(`  ${color.dim("See https://github.com/markeljan/agentsec for full docs.")}`);
   console.log();
@@ -129,6 +139,11 @@ async function main(): Promise<void> {
     case "audit":
       printBanner(AUDIT_VERSION);
       exitCode = await runAudit(config);
+      break;
+
+    case "skill":
+      printBanner(AUDIT_VERSION);
+      exitCode = await runSkill(config, flags.args);
       break;
 
     case "report":

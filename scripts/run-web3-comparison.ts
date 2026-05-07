@@ -407,8 +407,10 @@ tbody tr:hover { background: var(--bg-hover); }
 
   const matrix = (() => {
     if (view.rules.length === 0 || view.skills.length === 0) return "";
-    const headers = ["<th>Rule</th>", ...view.skills.map((s) => `<th>${escapeHtml(s.label)}</th>`)]
-      .join("");
+    const headers = [
+      "<th>Rule</th>",
+      ...view.skills.map((s) => `<th>${escapeHtml(s.label)}</th>`),
+    ].join("");
     const rows = view.rules
       .map((col) => {
         const cellTds = view.skills
@@ -480,9 +482,7 @@ function renderCsv(view: ComparisonView): string {
   for (const s of view.skills) {
     for (const [ruleId, cell] of Object.entries(s.cells)) {
       if (cell.count === 0) continue;
-      rows.push(
-        [csvField(s.label), csvField(ruleId), cell.severity, String(cell.count)].join(","),
-      );
+      rows.push([csvField(s.label), csvField(ruleId), cell.severity, String(cell.count)].join(","));
     }
   }
   return `${rows.join("\n")}\n`;
