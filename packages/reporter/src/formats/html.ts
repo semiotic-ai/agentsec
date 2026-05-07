@@ -16,6 +16,7 @@ import type {
   Severity,
   SkillAuditResult,
 } from "@agentsec/shared";
+import { formatComparisonHtml } from "./comparison-html.js";
 
 // ── Helpers ─────────────────────────────────────────────────────────────── //
 
@@ -878,6 +879,7 @@ export const formatHtml = (report: AuditReport): string => {
 
     ${renderGauge(report.summary.averageScore)}
     ${renderDashboard(report.summary)}
+    ${formatComparisonHtml(report)}
     ${renderSkillTable(report.skills)}
     ${renderFindings(report.skills)}
     ${renderQualityMetrics(report.skills)}

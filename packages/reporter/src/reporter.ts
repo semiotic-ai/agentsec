@@ -6,8 +6,10 @@
  */
 
 import type { AuditReport, OutputFormat } from "@agentsec/shared";
+import { formatComparisonMd } from "./formats/comparison-md.js";
 import { formatHtml } from "./formats/html.js";
 import { formatJson } from "./formats/json.js";
+import { formatMd } from "./formats/md.js";
 import { formatSarif } from "./formats/sarif.js";
 import { formatText } from "./formats/text.js";
 
@@ -29,6 +31,10 @@ export class ReportGenerator {
         return formatSarif(report);
       case "html":
         return formatHtml(report);
+      case "md":
+        // ≥2 skills → comparison matrix view; single skill → plain per-skill MD.
+        // `formatComparisonMd` already handles this fallback internally.
+        return report.skills.length >= 2 ? formatComparisonMd(report) : formatMd(report);
       default: {
         const _exhaustive: never = format;
         throw new Error(`Unsupported output format: ${String(_exhaustive)}`);

@@ -252,7 +252,7 @@ export interface PolicyCondition {
 }
 
 /** CLI output format */
-export type OutputFormat = "text" | "json" | "sarif" | "html";
+export type OutputFormat = "text" | "json" | "sarif" | "html" | "md";
 
 /** Scanner plugin interface */
 export interface ScannerPlugin {
