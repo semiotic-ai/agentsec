@@ -1,0 +1,10 @@
+skill,rule_id,severity,count
+Odos,AST-W01,critical,3
+Odos,AST-W07,high,1
+Odos,AST-W12,high,4
+Odos,AST05,medium,1
+Odos,AST-W05,low,1
+1inch,AST-W01,critical,3
+1inch,AST-W12,high,4
+1inch,AST05,medium,1
+1inch,AST-W05,low,1

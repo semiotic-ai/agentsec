@@ -1,0 +1,104 @@
+{
+  "generatedAt": "2026-05-07T15:04:50.843Z",
+  "profileDir": "<override>",
+  "reference": "Odos",
+  "skills": [
+    {
+      "dir": "odos-swap",
+      "label": "Odos",
+      "role": "reference",
+      "score": 30,
+      "grade": "F",
+      "totalFindings": 10,
+      "cells": {
+        "AST-W01": {
+          "severity": "critical",
+          "count": 3
+        },
+        "AST-W07": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST-W12": {
+          "severity": "high",
+          "count": 4
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W05": {
+          "severity": "low",
+          "count": 1
+        }
+      }
+    },
+    {
+      "dir": "1inch-swap",
+      "label": "1inch",
+      "role": "competitor",
+      "score": 30,
+      "grade": "F",
+      "totalFindings": 9,
+      "cells": {
+        "AST-W01": {
+          "severity": "critical",
+          "count": 3
+        },
+        "AST-W12": {
+          "severity": "high",
+          "count": 4
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W05": {
+          "severity": "low",
+          "count": 1
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "ruleId": "AST-W01",
+      "owaspId": "AST-W01",
+      "worstSeverity": "critical"
+    },
+    {
+      "ruleId": "AST-W05",
+      "owaspId": "AST-W05",
+      "worstSeverity": "low"
+    },
+    {
+      "ruleId": "AST-W07",
+      "owaspId": "AST-W07",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST-W12",
+      "owaspId": "AST-W12",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST05",
+      "owaspId": "AST05",
+      "worstSeverity": "medium"
+    }
+  ],
+  "missing": [
+    "kyberswap-swap",
+    "0x-swap",
+    "cowswap-swap"
+  ],
+  "best": {
+    "label": "Odos",
+    "score": 30
+  },
+  "worst": {
+    "label": "Odos",
+    "score": 30
+  },
+  "averageScore": 30
+}

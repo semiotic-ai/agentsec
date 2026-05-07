@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web3 Router Comparison — agentsec</title>
+  <style>
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #1c2333;
+  --bg-card: #1c2333;
+  --bg-hover: #252d3a;
+  --border: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --teal: #00d2b4;
+  --green: #3fb950;
+  --green-bg: rgba(63, 185, 80, 0.15);
+  --yellow: #d29922;
+  --yellow-bg: rgba(210, 153, 34, 0.18);
+  --orange: #db6d28;
+  --orange-bg: rgba(219, 109, 40, 0.2);
+  --red: #f85149;
+  --red-bg: rgba(248, 81, 73, 0.2);
+  --blue: #58a6ff;
+  --blue-bg: rgba(88, 166, 255, 0.15);
+  --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; min-height: 100vh; }
+.container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+h1 { font-size: 1.8rem; color: var(--teal); margin-bottom: 4px; }
+.subtitle { color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.card .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.card .value { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 600; margin-top: 4px; }
+.card.best .value { color: var(--green); }
+.card.worst .value { color: var(--red); }
+.card.avg .value { color: var(--teal); }
+.section { margin-bottom: 32px; }
+.section h2 { font-size: 1.2rem; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.matrix-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+thead th { position: sticky; top: 0; background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; }
+tbody tr:hover { background: var(--bg-hover); }
+.rule-id { font-family: var(--font-mono); color: var(--text-secondary); }
+.cell-content { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.78rem; }
+.cell-empty { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.78rem; }
+.role-badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.role-reference { background: var(--blue-bg); color: var(--blue); }
+.role-competitor { background: var(--bg-tertiary); color: var(--text-secondary); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; color: var(--text-secondary); font-size: 0.8rem; }
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
+.muted { color: var(--text-muted); }
+.warning { background: var(--yellow-bg); border: 1px solid var(--yellow); color: var(--yellow); padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Web3 Router Comparison</h1>
+    <div class="subtitle">Reference skill: <strong>Odos</strong>. Competitors audited with <code>--profile web3</code>.</div>
+    <div class="muted" style="margin-bottom:24px;font-size:0.85rem">Generated 2026-05-07T15:04:50.843Z from <code>&lt;override&gt;</code></div>
+    
+    <div class="warning">Missing fixtures: <code>kyberswap-swap</code>, <code>0x-swap</code>, <code>cowswap-swap</code>. Re-run after they merge to refresh this report.</div>
+    <div class="cards"><div class="card best"><div class="label">Best</div><div class="value">Odos</div><div class="muted">score 30</div></div><div class="card worst"><div class="label">Worst</div><div class="value">Odos</div><div class="muted">score 30</div></div><div class="card avg"><div class="label">Average score</div><div class="value">30</div></div><div class="card"><div class="label">Skills audited</div><div class="value">2</div></div></div>
+    
+<div class="section">
+  <h2>Summary</h2>
+  <div class="matrix-wrap">
+    <table>
+      <thead><tr><th>Skill</th><th>Role</th><th>Score</th><th>Grade</th><th>Findings</th></tr></thead>
+      <tbody><tr><td>Odos</td><td><span class="role-badge role-reference">reference</span></td><td>30</td><td>F</td><td>10</td></tr><tr><td>1inch</td><td><span class="role-badge role-competitor">competitor</span></td><td>30</td><td>F</td><td>9</td></tr></tbody>
+    </table>
+  </div>
+</div>
+    
+<div class="section">
+  <h2>Rule matrix</h2>
+  <div class="matrix-wrap">
+    <table>
+      <thead><tr><th>Rule</th><th>Odos</th><th>1inch</th></tr></thead>
+      <tbody><tr><td><span class="rule-id">AST-W01</span></td><td><span class="cell-content" style="color:var(--red);background:var(--red-bg)">🔴 critical<span class="muted">×3</span></span></td><td><span class="cell-content" style="color:var(--red);background:var(--red-bg)">🔴 critical<span class="muted">×3</span></span></td></tr><tr><td><span class="rule-id">AST-W05</span></td><td><span class="cell-content" style="color:var(--green);background:var(--green-bg)">🟢 low<span class="muted">×1</span></span></td><td><span class="cell-content" style="color:var(--green);background:var(--green-bg)">🟢 low<span class="muted">×1</span></span></td></tr><tr><td><span class="rule-id">AST-W07</span></td><td><span class="cell-content" style="color:var(--orange);background:var(--orange-bg)">🟠 high<span class="muted">×1</span></span></td><td><span class="cell-empty">·</span></td></tr><tr><td><span class="rule-id">AST-W12</span></td><td><span class="cell-content" style="color:var(--orange);background:var(--orange-bg)">🟠 high<span class="muted">×4</span></span></td><td><span class="cell-content" style="color:var(--orange);background:var(--orange-bg)">🟠 high<span class="muted">×4</span></span></td></tr><tr><td><span class="rule-id">AST05</span></td><td><span class="cell-content" style="color:var(--yellow);background:var(--yellow-bg)">🟡 medium<span class="muted">×1</span></span></td><td><span class="cell-content" style="color:var(--yellow);background:var(--yellow-bg)">🟡 medium<span class="muted">×1</span></span></td></tr></tbody>
+    </table>
+  </div>
+  <div class="legend">
+    <span style="color:var(--red)">🔴 critical</span><span style="color:var(--orange)">🟠 high</span><span style="color:var(--yellow)">🟡 medium</span><span style="color:var(--green)">🟢 low</span><span style="color:var(--blue)">⚪ info</span>
+    <span class="muted">· no finding</span>
+  </div>
+</div>
+  </div>
+</body>
+</html>

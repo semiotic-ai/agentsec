@@ -17,6 +17,7 @@
     "clean": "turbo clean",
     "bump": "bun run scripts/bump-version.ts",
     "check:versions": "bun run scripts/check-versions.ts",
+    "compare:web3": "bun run scripts/run-web3-comparison.ts",
     "publish:clawhub": "bunx clawhub@latest publish skills/agentsec --slug agentsec --owner markeljan --version $(jq -r .version packages/cli/package.json)"
   },
   "devDependencies": {
