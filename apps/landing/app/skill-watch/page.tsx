@@ -8,7 +8,8 @@ import { SkillWatchTable } from "./SkillWatchTable";
 import type { SkillWatchEntity } from "./types";
 
 const DATA_URL = "https://frames.ag/api/datasets/v1/microchipgnu/skill-watch/entities?limit=500";
-const DATASET_URL = "https://frames.ag/microchipgnu/skill-watch";
+const DATASET_URL = "https://skill-watch.data.frames.ag";
+const FRAMES_LOGO_SRC = "/assets/frames-logo.svg";
 
 export const revalidate = 3600;
 
@@ -247,11 +248,14 @@ function SkillWatchHero({
               href={DATASET_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-brand-teal hover:underline"
+              className="inline-flex items-center gap-2 text-brand-teal hover:opacity-80 transition-opacity align-middle"
             >
-              microchipgnu/skill-watch
-            </a>{" "}
-            dataset on frames.ag.
+              <span className="font-mono">skill-watch</span>
+              <span className="text-brand-muted">on</span>
+              {/* biome-ignore lint/performance/noImgElement: small inline brand mark, not a hero image */}
+              <img src={FRAMES_LOGO_SRC} alt="Frames" className="h-[1.1em] w-auto inline-block" />
+            </a>
+            .
           </p>
         </div>
       </div>
@@ -570,7 +574,10 @@ function SourceCTA(): React.ReactNode {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-transparent border border-brand-border text-brand-text text-sm font-medium px-5 py-3 rounded-lg hover:bg-brand-card hover:border-brand-border-strong transition-colors"
           >
-            View dataset on frames.ag →
+            View dataset on{" "}
+            {/* biome-ignore lint/performance/noImgElement: small inline brand mark, not a hero image */}
+            <img src={FRAMES_LOGO_SRC} alt="Frames" className="h-[18px] w-auto" />
+            <span aria-hidden="true">→</span>
           </a>
         </div>
       </div>
