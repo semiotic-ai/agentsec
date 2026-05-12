@@ -439,11 +439,20 @@ function SkillCard({ entity }: { entity: SkillWatchEntity }): React.ReactNode {
         </span>
       </div>
 
-      {description && (
-        <div className="px-5 pt-4 pb-3 text-[13px] leading-[1.55] text-brand-muted line-clamp-2">
-          {description}
-        </div>
-      )}
+      <div className="px-5 pt-4 pb-3 min-h-[88px]">
+        {description ? (
+          <p
+            className="text-[13px] leading-[1.55] text-brand-muted line-clamp-3"
+            title={description}
+          >
+            {description}
+          </p>
+        ) : (
+          <p className="text-[13px] leading-[1.55] text-brand-dim italic">
+            No description provided.
+          </p>
+        )}
+      </div>
 
       <div className="px-5 py-4 grid grid-cols-2 gap-x-4 gap-y-3">
         <ScoreLine label="overall" score={f.score_overall} />
