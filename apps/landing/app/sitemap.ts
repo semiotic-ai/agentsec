@@ -11,6 +11,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: new URL("/skill-watch", DEPLOYMENT_URL).toString(),
+      lastModified,
+      changeFrequency: "hourly",
+      priority: 0.8,
+    },
+    {
       url: new URL("/examples", DEPLOYMENT_URL).toString(),
       lastModified,
       changeFrequency: "monthly",
