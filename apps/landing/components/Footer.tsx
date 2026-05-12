@@ -12,7 +12,7 @@ const COLS: readonly FooterCol[] = [
       { label: "Features", href: "/#formats" },
       { label: "OWASP AST-10", href: "/#commandments" },
       { label: "Policies", href: "/#policy" },
-      { label: "Examples", href: "/examples" },
+      { label: "Skill Watch", href: "/skill-watch" },
     ],
   },
   {
@@ -20,7 +20,7 @@ const COLS: readonly FooterCol[] = [
     items: [
       { label: "Quick start", href: "/#install" },
       { label: "skill.md", href: "/skill.md" },
-      { label: "Examples", href: "/examples" },
+      { label: "Skill Watch", href: "/skill-watch" },
       {
         label: "GitHub",
         href: "https://github.com/semiotic-ai/agentsec",

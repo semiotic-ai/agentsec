@@ -14,7 +14,7 @@ const NAV_LINKS: readonly NavLink[] = [
   { href: "/#commandments", label: "Commandments" },
   { href: "/#formats", label: "Outputs" },
   { href: "/#policy", label: "Policies" },
-  { href: "/examples", label: "Examples" },
+  { href: "/skill-watch", label: "Skill Watch" },
 ];
 
 const GITHUB_URL = "https://github.com/semiotic-ai/agentsec";
