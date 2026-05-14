@@ -178,8 +178,8 @@ async function calculateMetrics(skill: AgentSkill): Promise<QualityMetrics> {
     // Use MetricsAnalyzer class which is the actual API
     const MetricsAnalyzer = metrics.MetricsAnalyzer ?? metrics.default?.MetricsAnalyzer;
     if (typeof MetricsAnalyzer === "function") {
-      const analyzer = new MetricsAnalyzer();
-      return await analyzer.analyze(skill);
+      const analyzer = new MetricsAnalyzer(skill);
+      return analyzer.analyze();
     }
   } catch {
     // Package not yet built
