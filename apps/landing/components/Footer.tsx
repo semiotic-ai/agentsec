@@ -9,6 +9,7 @@ const COLS: readonly FooterCol[] = [
   {
     title: "Product",
     items: [
+      { label: "Contact", href: "/#enterprise" },
       { label: "Features", href: "/#formats" },
       { label: "OWASP AST-10", href: "/#commandments" },
       { label: "Policies", href: "/#policy" },
@@ -52,11 +53,7 @@ const COLS: readonly FooterCol[] = [
         href: "https://clawhub.ai/markeljan/agentsec",
         external: true,
       },
-      {
-        label: "Contact",
-        href: "https://github.com/semiotic-ai/agentsec",
-        external: true,
-      },
+      { label: "Contact security", href: "/#enterprise" },
     ],
   },
 ];

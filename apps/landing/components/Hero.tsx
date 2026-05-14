@@ -64,16 +64,29 @@ export function Hero(): React.ReactNode {
 
             <div className="flex flex-wrap gap-3 mt-6">
               <a
+                href="#enterprise"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-brand-teal text-brand-dark text-sm font-semibold shadow-brand-teal hover:bg-brand-teal-dim hover:-translate-y-[1px] hover:shadow-brand-teal-strong transition-all duration-200"
+              >
+                Get in touch
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+              <a
                 href="#commandments"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-brand-border bg-transparent text-brand-text text-sm font-medium hover:bg-brand-card hover:border-brand-border-strong transition-colors"
               >
                 Read the Top 10 →
-              </a>
-              <a
-                href="#formats"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-brand-border bg-transparent text-brand-text text-sm font-medium hover:bg-brand-card hover:border-brand-border-strong transition-colors"
-              >
-                See an example report
               </a>
             </div>
 

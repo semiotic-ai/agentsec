@@ -1,4 +1,5 @@
 import { AnimatedTerminal } from "@/components/AnimatedTerminal";
+import { Enterprise } from "@/components/Enterprise";
 import { Footer } from "@/components/Footer";
 import { Formats } from "@/components/Formats";
 import { HashScroll } from "@/components/HashScroll";
@@ -28,6 +29,7 @@ export default function Home(): React.ReactNode {
         <Formats />
         <Policy />
         <Install />
+        <Enterprise />
       </main>
       <Footer />
     </>
