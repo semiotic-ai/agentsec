@@ -13,7 +13,7 @@ type NavLink = {
 const NAV_LINKS: readonly NavLink[] = [
   { href: "/#commandments", label: "Commandments" },
   { href: "/#formats", label: "Outputs" },
-  { href: "/#policy", label: "Policies" },
+  { href: "/#enterprise", label: "Contact" },
   { href: "/skill-watch", label: "Skill Watch" },
 ];
 
@@ -88,10 +88,10 @@ export function Header(): React.ReactNode {
             <span className="sr-only">GitHub</span>
           </a>
           <a
-            href="/#install"
+            href="/#enterprise"
             className="inline-flex items-center gap-2 bg-brand-teal text-brand-dark text-[13px] font-medium px-4 py-2 rounded-lg shadow-brand-teal hover:bg-brand-teal-dim hover:-translate-y-[1px] hover:shadow-brand-teal-strong transition-all duration-200"
           >
-            Install
+            Contact
           </a>
         </nav>
 
@@ -137,11 +137,20 @@ export function Header(): React.ReactNode {
             </li>
             <li>
               <Link
-                href="/#install"
+                href="/#enterprise"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center py-3 text-base text-brand-teal font-medium"
               >
-                Install →
+                Contact →
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/#install"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center py-3 text-base text-brand-muted hover:text-brand-text transition-colors"
+              >
+                Install (free CLI)
               </Link>
             </li>
           </ul>

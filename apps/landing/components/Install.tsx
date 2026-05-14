@@ -56,7 +56,7 @@ export function Install(): React.ReactNode {
         </h2>
         <p className="font-lead max-w-[520px] mx-auto mb-10">
           Start with <code className="font-mono text-brand-teal">npx agentsec</code>. No install, no
-          config, no flags — it runs.
+          config, no flags.
         </p>
 
         <div className="max-w-[560px] mx-auto bg-brand-secondary border border-brand-border rounded-xl overflow-hidden shadow-brand-2">
