@@ -11,6 +11,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { SkillManifest } from "@agentsec/shared";
+import { parse as parseYamlDoc } from "yaml";
 import {
   detectManifestFormat,
   MANIFEST_FILENAMES,
@@ -114,100 +115,18 @@ function parseJson(content: string): Record<string, unknown> | null {
 }
 
 /**
- * Minimal YAML parser for skill manifests.
+ * Parse YAML content into a plain object. Uses the standard `yaml` package
+ * so we get correct handling of nested objects, mixed scalar/object/array
+ * children, block scalars, anchors, and quoted strings — anything we used
+ * to mis-parse with the previous hand-rolled scanner.
  *
- * Handles the subset of YAML typically used in skill files:
- * simple key-value pairs, arrays (with dash syntax), and nested objects
- * (single level). This avoids pulling in a full YAML library dependency.
+ * Returns null for empty documents, non-object roots, or parse errors.
  */
-/** Strip surrounding quotes from a YAML value. */
-function unquote(value: string): string {
-  return value.replace(/^["']|["']$/g, "");
-}
-
-/** Coerce a raw YAML scalar string into the appropriate JS type. */
-function coerceScalar(raw: string): unknown {
-  const value = unquote(raw);
-  if (value === "true") return true;
-  if (value === "false") return false;
-  if (value === "null") return null;
-  if (/^-?\d+(\.\d+)?$/.test(value)) return Number(value);
-  return value;
-}
-
-interface YamlParserState {
-  result: Record<string, unknown>;
-  currentKey: string | null;
-  currentArray: string[] | null;
-  currentObject: Record<string, string> | null;
-}
-
-/** Flush any pending array or object into the result. */
-function flushPending(state: YamlParserState): void {
-  if (state.currentKey && state.currentArray) {
-    state.result[state.currentKey] = state.currentArray;
-    state.currentArray = null;
-  }
-  if (state.currentKey && state.currentObject) {
-    state.result[state.currentKey] = state.currentObject;
-    state.currentObject = null;
-  }
-}
-
 function parseYaml(content: string): Record<string, unknown> | null {
   try {
-    const state: YamlParserState = {
-      result: {},
-      currentKey: null,
-      currentArray: null,
-      currentObject: null,
-    };
-
-    for (const rawLine of content.split("\n")) {
-      const line = rawLine.replace(/\r$/, "");
-      if (line.trim() === "" || line.trim().startsWith("#")) continue;
-
-      const indent = line.length - line.trimStart().length;
-      const trimmed = line.trim();
-
-      // Array item (indented "- value")
-      if (trimmed.startsWith("- ") && indent > 0 && state.currentKey) {
-        if (!state.currentArray) state.currentArray = [];
-        state.currentArray.push(unquote(trimmed.slice(2).trim()));
-        continue;
-      }
-
-      // Nested object value (indented "key: value")
-      if (indent > 0 && state.currentKey && trimmed.includes(":")) {
-        if (state.currentArray) {
-          state.result[state.currentKey] = state.currentArray;
-          state.currentArray = null;
-        }
-        if (!state.currentObject) state.currentObject = {};
-        const colonIdx = trimmed.indexOf(":");
-        state.currentObject[trimmed.slice(0, colonIdx).trim()] = unquote(
-          trimmed.slice(colonIdx + 1).trim(),
-        );
-        continue;
-      }
-
-      // Flush before processing a new top-level key
-      flushPending(state);
-
-      // Top-level key: value
-      if (indent === 0 && trimmed.includes(":")) {
-        const colonIdx = trimmed.indexOf(":");
-        const key = trimmed.slice(0, colonIdx).trim();
-        const value = trimmed.slice(colonIdx + 1).trim();
-        state.currentKey = key;
-
-        if (value === "" || value === "|" || value === ">") continue;
-        state.result[key] = coerceScalar(value);
-      }
-    }
-
-    flushPending(state);
-    return Object.keys(state.result).length > 0 ? state.result : null;
+    const parsed = parseYamlDoc(content);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    return parsed as Record<string, unknown>;
   } catch {
     return null;
   }

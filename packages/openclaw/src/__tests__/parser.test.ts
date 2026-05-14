@@ -222,6 +222,78 @@ describe("normalizeManifest", () => {
     const manifest = normalizeManifest(raw, "skill-json");
     expect(manifest.entrypoint).toBe("src/index.ts");
   });
+
+  test("hoists metadata.openclaw.web3 into manifest.web3", () => {
+    const raw = {
+      name: "nested-web3",
+      version: "1.0.0",
+      metadata: {
+        openclaw: {
+          web3: {
+            chains: [1, 8453],
+            policy: { allowedContracts: { "1": ["0xabc"] } },
+          },
+        },
+      },
+    };
+    const manifest = normalizeManifest(raw, "skill-md");
+    expect(manifest.web3).toBeDefined();
+    expect(manifest.web3?.chains).toEqual([1, 8453]);
+    // Chain-keyed map gets flattened into a deduped string array
+    expect(manifest.web3?.policy?.allowedContracts).toEqual(["0xabc"]);
+  });
+
+  test("flattens chain-keyed allowedContracts into deduped array", () => {
+    const raw = {
+      name: "multi-chain",
+      version: "1.0.0",
+      web3: {
+        policy: {
+          allowedContracts: {
+            "1": ["0xabc", "0xdef"],
+            "8453": ["0xabc", "0xghi"],
+          },
+        },
+      },
+    };
+    const manifest = normalizeManifest(raw, "skill-md");
+    const allow = manifest.web3?.policy?.allowedContracts as string[];
+    expect(allow.sort()).toEqual(["0xabc", "0xdef", "0xghi"]);
+  });
+
+  test("preserves flat-array allowedContracts unchanged", () => {
+    const raw = {
+      name: "flat",
+      version: "1.0.0",
+      web3: { policy: { allowedContracts: ["0xtop"] } },
+    };
+    const manifest = normalizeManifest(raw, "skill-md");
+    expect(manifest.web3?.policy?.allowedContracts).toEqual(["0xtop"]);
+  });
+
+  test("top-level web3 wins over metadata.openclaw.web3", () => {
+    const raw = {
+      name: "both",
+      version: "1.0.0",
+      web3: { chains: [42161], policy: { allowedContracts: ["0xtop"] } },
+      metadata: {
+        openclaw: { web3: { chains: [1], policy: { allowedContracts: ["0xnested"] } } },
+      },
+    };
+    const manifest = normalizeManifest(raw, "skill-md");
+    expect(manifest.web3?.chains).toEqual([42161]);
+    expect(manifest.web3?.policy?.allowedContracts).toEqual(["0xtop"]);
+  });
+
+  test("metadata block survives normalization for AST04 checks", () => {
+    const raw = {
+      name: "meta-test",
+      version: "1.0.0",
+      metadata: { openclaw: { emoji: "🛡️" } },
+    };
+    const manifest = normalizeManifest(raw, "skill-md");
+    expect((manifest as Record<string, unknown>).metadata).toBeDefined();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -296,6 +368,72 @@ A bare markdown skill without YAML frontmatter.
     // Empty content has no heading to extract, so no manifest
     expect(result).toBeNull();
     await rm(tempDir, { recursive: true });
+  });
+
+  test("parses deeply-nested metadata.openclaw block", async () => {
+    const dir = await createTempSkill(`---
+name: odos-like
+version: 1.0.0
+license: MIT
+metadata:
+  openclaw:
+    emoji: "🔀"
+    homepage: https://docs.example.com
+    requires:
+      anyBins:
+        - cast
+        - curl
+        - jq
+    web3:
+      networks: [1, 8453, 42161]
+      protocol: dex-aggregator
+      policy:
+        allowedContracts:
+          1: ["0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559"]
+          8453: ["0x19cEeAd7105607Cd444F5ad10dd51356436095a1"]
+        permit2: "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        slippage:
+          defaultPercent: 0.5
+          maxPercent: 3.0
+---
+
+# odos-like
+`);
+    const result = await findAndParseManifest(dir);
+    expect(result).not.toBeNull();
+    const m = result?.manifest as Record<string, unknown>;
+    const metadata = m.metadata as Record<string, unknown>;
+    const openclaw = metadata.openclaw as Record<string, unknown>;
+    expect(openclaw.emoji).toBe("🔀");
+    expect(openclaw.homepage).toBe("https://docs.example.com");
+    const requires = openclaw.requires as Record<string, unknown>;
+    expect(requires.anyBins).toEqual(["cast", "curl", "jq"]);
+    const web3InMetadata = openclaw.web3 as Record<string, unknown>;
+    expect(web3InMetadata.protocol).toBe("dex-aggregator");
+    const policyInMetadata = web3InMetadata.policy as Record<string, unknown>;
+    const allowedInMetadata = policyInMetadata.allowedContracts as Record<string, unknown>;
+    expect(allowedInMetadata["1"]).toEqual(["0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559"]);
+    await rm(tempDir, { recursive: true });
+  });
+
+  test("hoists metadata.openclaw.web3 to top-level manifest.web3", async () => {
+    const dir = await createTempSkill(`---
+name: hoist-test
+version: 1.0.0
+metadata:
+  openclaw:
+    web3:
+      chains: [1, 137]
+      policy:
+        allowedContracts:
+          1: ["0xabc"]
+---
+`);
+    const result = await findAndParseManifest(dir);
+    expect(result).not.toBeNull();
+    expect(result?.manifest.web3).toBeDefined();
+    expect(result?.manifest.web3?.chains).toEqual([1, 137]);
+    expect(result?.manifest.web3?.policy?.allowedContracts).toBeDefined();
   });
 });
 

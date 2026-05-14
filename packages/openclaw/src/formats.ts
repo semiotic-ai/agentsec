@@ -5,7 +5,7 @@
  * file types, and normalizing skill metadata across different formats.
  */
 
-import type { SkillManifest } from "@agentsec/shared";
+import type { SkillManifest, Web3ManifestBlock } from "@agentsec/shared";
 
 /** Manifest source format as detected from filename. */
 export type ManifestFormat =
@@ -133,6 +133,7 @@ export function normalizeManifest(
 }
 
 function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
+  const hoisted = hoistOpenclawWeb3(raw);
   return {
     name: asString(raw.name, "unknown"),
     version: asString(raw.version, "0.0.0"),
@@ -143,6 +144,7 @@ function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
     dependencies: asStringRecord(raw.dependencies),
     entrypoint: asOptionalString(raw.entrypoint ?? raw.main ?? raw.entry),
     hooks: asStringRecord(raw.hooks),
+    ...(hoisted ? { web3: hoisted } : {}),
     ...extractExtras(raw, [
       "name",
       "version",
@@ -155,8 +157,96 @@ function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
       "main",
       "entry",
       "hooks",
+      ...(hoisted ? ["web3"] : []),
     ]),
   };
+}
+
+/**
+ * Resolve the canonical Web3 manifest block.
+ *
+ * Skills may declare web3 capability either at the top level
+ * (`web3: { ... }`) or nested under the OpenClaw metadata block
+ * (`metadata.openclaw.web3: { ... }`). The latter shape matches the
+ * recommendations in [docs/odos-skill-recommendations.md] and the
+ * agentsec-own SKILL.md convention.
+ *
+ * If both are present, the top-level block wins; otherwise the
+ * `metadata.openclaw.web3` block is hoisted so every downstream rule
+ * can read from one canonical path (`manifest.web3.*`).
+ *
+ * Returns undefined when neither location declares a web3 block.
+ */
+function hoistOpenclawWeb3(raw: Record<string, unknown>): Web3ManifestBlock | undefined {
+  const topLevel = isPlainObject(raw.web3) ? (raw.web3 as Record<string, unknown>) : undefined;
+  if (topLevel) return normalizeWeb3Block(topLevel);
+
+  const metadata = raw.metadata;
+  if (!isPlainObject(metadata)) return undefined;
+  const openclaw = (metadata as Record<string, unknown>).openclaw;
+  if (!isPlainObject(openclaw)) return undefined;
+  const nested = (openclaw as Record<string, unknown>).web3;
+  if (!isPlainObject(nested)) return undefined;
+  return normalizeWeb3Block(nested as Record<string, unknown>);
+}
+
+/**
+ * Normalize the shape of a web3 block before it reaches downstream rules.
+ *
+ * The recommendations doc and the Odos manifest declare
+ * `policy.allowedContracts` as a chain-keyed map
+ * (`{ 1: ["0x..."], 8453: ["0x..."] }`), but `Web3ManifestBlock`
+ * types it as a flat `string[]` and every consuming rule treats it
+ * as one. Flatten map-shaped allowlists into a deduped flat array
+ * here so each rule can read `manifest.web3.policy.allowedContracts`
+ * uniformly without crashing on `.map`/`.includes`.
+ */
+function normalizeWeb3Block(block: Record<string, unknown>): Web3ManifestBlock {
+  const policy = isPlainObject(block.policy)
+    ? (block.policy as Record<string, unknown>)
+    : undefined;
+  if (!policy) return block as Web3ManifestBlock;
+
+  const allowedContracts = flattenAddressMap(policy.allowedContracts);
+  const allowedSelectors = flattenAddressMap(policy.allowedSelectors);
+
+  return {
+    ...block,
+    policy: {
+      ...policy,
+      ...(allowedContracts ? { allowedContracts } : {}),
+      ...(allowedSelectors ? { allowedSelectors } : {}),
+    },
+  } as Web3ManifestBlock;
+}
+
+/**
+ * Flatten a value that may be either `string[]` or `Record<*, string[]>`
+ * into a deduped `string[]`. Returns undefined for unrecognized shapes
+ * so callers can omit the field entirely.
+ */
+function flattenAddressMap(value: unknown): string[] | undefined {
+  if (Array.isArray(value)) {
+    return value.filter((v): v is string => typeof v === "string");
+  }
+  if (isPlainObject(value)) {
+    const flat: string[] = [];
+    for (const entry of Object.values(value)) {
+      if (Array.isArray(entry)) {
+        for (const item of entry) {
+          if (typeof item === "string") flat.push(item);
+        }
+      } else if (typeof entry === "string") {
+        flat.push(entry);
+      }
+    }
+    return Array.from(new Set(flat));
+  }
+  return undefined;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
 function normalizeFromPackageJson(raw: Record<string, unknown>): SkillManifest {
