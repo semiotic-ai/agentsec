@@ -111,7 +111,7 @@ export function Footer(): React.ReactNode {
             © 2026 AgentSec · Built by Semiotic Labs · MIT licensed
           </span>
           <span className="text-[13px] font-mono text-brand-dim">
-            v0.3.0 · <span className="text-brand-green">● operational</span>
+            v0.3.1 · <span className="text-brand-green">● operational</span>
           </span>
         </div>
       </div>
