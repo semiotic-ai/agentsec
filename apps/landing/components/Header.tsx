@@ -19,7 +19,7 @@ const NAV_LINKS: readonly NavLink[] = [
 
 const GITHUB_URL = "https://github.com/semiotic-ai/agentsec";
 
-export function Header(): React.ReactNode {
+export function Header({ version }: { version: string }): React.ReactNode {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -60,7 +60,7 @@ export function Header(): React.ReactNode {
           </span>
           <span className="font-semibold text-base tracking-[-0.01em]">AgentSec</span>
           <span className="ml-1 inline-flex items-center font-mono text-[11px] tracking-[0.04em] uppercase px-2 py-[3px] rounded-full border border-brand-border bg-brand-secondary text-brand-muted">
-            v0.3.2
+            v{version}
           </span>
         </a>
 

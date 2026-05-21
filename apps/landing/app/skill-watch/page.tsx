@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { getAgentsecVersion } from "@/lib/version";
 import { SITE_NAME } from "../_brand/constants";
 import { OwaspBars } from "./OwaspBars";
 import { SkillWatchTable } from "./SkillWatchTable";
@@ -145,7 +146,7 @@ function slimEntity(e: SkillWatchEntity): SkillWatchEntity {
 }
 
 export default async function SkillWatchPage(): Promise<React.ReactNode> {
-  const skills = await fetchSkillWatch();
+  const [skills, version] = await Promise.all([fetchSkillWatch(), getAgentsecVersion()]);
   const agg = aggregate(skills);
   const slimSkills = skills.map(slimEntity);
 
@@ -157,7 +158,7 @@ export default async function SkillWatchPage(): Promise<React.ReactNode> {
       >
         Skip to main content
       </a>
-      <Header />
+      <Header version={version} />
       <main id="skill-watch-main">
         <SkillWatchHero count={agg.total} lastScan={agg.mostRecentScan} />
         {skills.length === 0 ? (

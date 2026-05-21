@@ -1,3 +1,4 @@
+import { getAgentsecVersion } from "@/lib/version";
 import { Logo } from "./Logo";
 
 type FooterCol = {
@@ -58,7 +59,8 @@ const COLS: readonly FooterCol[] = [
   },
 ];
 
-export function Footer(): React.ReactNode {
+export async function Footer(): Promise<React.ReactNode> {
+  const version = await getAgentsecVersion();
   return (
     <footer className="bg-brand-darker border-t border-brand-border pt-16 pb-8">
       <div className="max-w-[1200px] mx-auto px-6">
@@ -111,7 +113,7 @@ export function Footer(): React.ReactNode {
             © 2026 AgentSec · Built by Semiotic Labs · MIT licensed
           </span>
           <span className="text-[13px] font-mono text-brand-dim">
-            v0.3.2 · <span className="text-brand-green">● operational</span>
+            v{version} · <span className="text-brand-green">● operational</span>
           </span>
         </div>
       </div>

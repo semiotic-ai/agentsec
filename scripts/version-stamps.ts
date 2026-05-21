@@ -57,21 +57,6 @@ export const STAMPS: VersionStamp[] = [
     description: "Landing site mirror of SKILL.md (served at /skill.md, indexed by ClawHub)",
     pattern: "\nversion: {VERSION}\nlicense: MIT\nhomepage:",
   },
-  {
-    file: "apps/landing/components/Hero.tsx",
-    description: "Landing hero version chip",
-    pattern: "v{VERSION} · MIT",
-  },
-  {
-    file: "apps/landing/components/Header.tsx",
-    description: "Landing header version pill",
-    pattern: "            v{VERSION}\n          </span>",
-  },
-  {
-    file: "apps/landing/components/Footer.tsx",
-    description: "Landing footer version chip",
-    pattern: "v{VERSION} · <span",
-  },
 ];
 
 export function fillPattern(pattern: string, version: string): string {
