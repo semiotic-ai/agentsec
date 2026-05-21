@@ -168,7 +168,6 @@ function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
  * Skills may declare web3 capability either at the top level
  * (`web3: { ... }`) or nested under the OpenClaw metadata block
  * (`metadata.openclaw.web3: { ... }`). The latter shape matches the
- * recommendations in [docs/odos-skill-recommendations.md] and the
  * agentsec-own SKILL.md convention.
  *
  * If both are present, the top-level block wins; otherwise the

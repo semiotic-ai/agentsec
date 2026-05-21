@@ -218,7 +218,7 @@ bun test e2e/web3.test.ts
 
 ---
 
-## Limitations of v0.2.0
+## Current limitations
 
 - Static-analysis only. No runtime sidecar yet — agent-loop dynamic risks
   (W08 capability smuggling, W10 polling-cadence side-channels) are
