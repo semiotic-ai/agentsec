@@ -89,7 +89,8 @@ describe("AST04 (web3 tightening): metadata-completeness", () => {
     const skill = mockSkill({ permissions: [] });
     const findings = checkMetadataCompleteness(skill).filter((f) => f.id.startsWith("W04M-002"));
     expect(findings.length).toBe(1);
-    expect(findings[0].severity).toBe("medium");
+    // Manifest-hygiene gap, not exploitable on its own. Advisory severity.
+    expect(findings[0].severity).toBe("low");
   });
 
   test("fires missing-permissions when permissions is undefined", () => {

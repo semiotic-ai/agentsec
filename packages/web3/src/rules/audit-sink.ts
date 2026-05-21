@@ -109,7 +109,10 @@ export function checkAuditSink(skill: AgentSkill): SecurityFinding[] {
       findings.push({
         id: `W12-001-${counter}`,
         rule: RULE_NAME,
-        severity: "high",
+        // Governance / forensics hygiene, not an exploitable vulnerability —
+        // most skills today have no audit sink at all. Surface as advisory so
+        // it nudges authors without tanking the grade.
+        severity: "low",
         category: RULE_CATEGORY,
         title: "Manifest declares web3 capabilities without an audit sink",
         description:
@@ -125,7 +128,11 @@ export function checkAuditSink(skill: AgentSkill): SecurityFinding[] {
       findings.push({
         id: `W12-002-${counter}`,
         rule: RULE_NAME,
-        severity: "high",
+        // Operational nice-to-have — not every skill needs a dedicated
+        // on-chain pause contract. Bring it back to "high" via the
+        // autonomy-signal companion check (W12-020) when the body explicitly
+        // claims autonomous behavior.
+        severity: "low",
         category: RULE_CATEGORY,
         title: "Manifest declares web3 capabilities without a kill-switch contract",
         description:
@@ -141,7 +148,8 @@ export function checkAuditSink(skill: AgentSkill): SecurityFinding[] {
       findings.push({
         id: `W12-003-${counter}`,
         rule: RULE_NAME,
-        severity: "medium",
+        // Documentation gap — already low signal as a standalone finding.
+        severity: "low",
         category: RULE_CATEGORY,
         title: "Manifest declares web3 capabilities without an incident runbook",
         description:

@@ -351,12 +351,58 @@ function detectGitignore(files: SkillFile[]): { hasGitignore: boolean; score: nu
 }
 
 /**
+ * File extensions that count as executable source code (i.e. things you can
+ * unit-test, type-check, lint, and format). Markdown / YAML / JSON config
+ * files do not count — they have no testable behavior of their own.
+ *
+ * Used to gate the "treat code-quality signals as N/A" behavior in the
+ * maintenance scorer below.
+ */
+const SOURCE_EXTENSIONS = new Set([
+  "ts",
+  "tsx",
+  "js",
+  "jsx",
+  "mjs",
+  "cjs",
+  "py",
+  "rb",
+  "rs",
+  "go",
+  "java",
+  "kt",
+  "swift",
+  "c",
+  "cpp",
+  "h",
+  "hpp",
+]);
+
+function hasExecutableSource(files: SkillFile[]): boolean {
+  return files.some((f) => {
+    const ext = f.relativePath.split(".").pop()?.toLowerCase();
+    return ext !== undefined && SOURCE_EXTENSIONS.has(ext);
+  });
+}
+
+/**
  * Calculate maintenance health score for an agent skill.
- * Checks for test files, CI configuration, type definitions, license,
- * linter, formatter, and gitignore. Returns a score from 0 to 100.
+ *
+ * For skills that ship executable source code, this checks for test files,
+ * CI configuration, type definitions, license, linter, formatter, and
+ * gitignore. Returns a score from 0 to 100.
+ *
+ * For markdown-only skill packs (no `.ts`/`.js`/`.py`/etc files), the
+ * tests / CI / types / linter / formatter signals are treated as N/A
+ * (full credit) — penalizing a 6-file prose skill for not having a
+ * Jest suite or an ESLint config is noise, not signal. Such skills are
+ * graded on the dimensions that actually apply to them: license and
+ * gitignore presence, surfaced via the existing weights. This matches
+ * how human reviewers evaluate Claude / OpenClaw skill packs in practice.
  */
 export function scoreMaintenanceHealth(skill: AgentSkill): MaintenanceResult {
   const files = skill.files;
+  const hasSource = hasExecutableSource(files);
 
   const tests = detectTests(files);
   const ci = detectCI(files);
@@ -366,13 +412,23 @@ export function scoreMaintenanceHealth(skill: AgentSkill): MaintenanceResult {
   const formatter = detectFormatter(files);
   const gitignore = detectGitignore(files);
 
+  // For markdown-only skills, code-quality signals are N/A — give full
+  // credit so the score reflects what the skill is actually graded on
+  // (license, gitignore, manifest hygiene), not what it has no business
+  // having (Jest suites, tsconfig, biome).
+  const effectiveTests = hasSource ? tests.score : 1;
+  const effectiveCi = hasSource ? ci.score : 1;
+  const effectiveTypes = hasSource ? types.score : 1;
+  const effectiveLinter = hasSource ? linter.score : 1;
+  const effectiveFormatter = hasSource ? formatter.score : 1;
+
   const breakdown: MaintenanceBreakdown = {
-    tests: Math.round(tests.score * WEIGHTS.tests),
-    ci: Math.round(ci.score * WEIGHTS.ci),
-    types: Math.round(types.score * WEIGHTS.types),
+    tests: Math.round(effectiveTests * WEIGHTS.tests),
+    ci: Math.round(effectiveCi * WEIGHTS.ci),
+    types: Math.round(effectiveTypes * WEIGHTS.types),
     license: Math.round(license.score * WEIGHTS.license),
-    linter: Math.round(linter.score * WEIGHTS.linter),
-    formatter: Math.round(formatter.score * WEIGHTS.formatter),
+    linter: Math.round(effectiveLinter * WEIGHTS.linter),
+    formatter: Math.round(effectiveFormatter * WEIGHTS.formatter),
     gitignore: Math.round(gitignore.score * WEIGHTS.gitignore),
   };
 
