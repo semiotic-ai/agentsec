@@ -20,7 +20,7 @@ const SKILLS: readonly Skill[] = [
   { name: "note-taker", version: "2.0.0", score: 88, grade: "B" },
 ];
 
-export function Hero(): React.ReactNode {
+export function Hero({ version }: { version: string }): React.ReactNode {
   return (
     <section className="relative overflow-hidden pt-[140px] pb-20">
       <div className="bg-grid pointer-events-none absolute inset-0" aria-hidden="true" />
@@ -43,7 +43,7 @@ export function Hero(): React.ReactNode {
                 />
                 OWASP AST-10 + Web3 Annex
               </span>
-              <span className="text-[13px] text-brand-dim">v0.3.2 · MIT</span>
+              <span className="text-[13px] text-brand-dim">v{version} · MIT</span>
             </div>
 
             <h1 className="font-display mb-6 text-brand-text">

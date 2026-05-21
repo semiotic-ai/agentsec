@@ -9,8 +9,10 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { Install } from "@/components/Install";
 import { Policy } from "@/components/Policy";
 import { TenCommandments } from "@/components/TenCommandments";
+import { getAgentsecVersion } from "@/lib/version";
 
-export default function Home(): React.ReactNode {
+export default async function Home(): Promise<React.ReactNode> {
+  const version = await getAgentsecVersion();
   return (
     <>
       <a
@@ -19,10 +21,10 @@ export default function Home(): React.ReactNode {
       >
         Skip to main content
       </a>
-      <Header />
+      <Header version={version} />
       <HashScroll />
       <main id="main">
-        <Hero />
+        <Hero version={version} />
         <AnimatedTerminal />
         <HowItWorks />
         <TenCommandments />

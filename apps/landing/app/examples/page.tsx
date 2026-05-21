@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { getAgentsecVersion } from "@/lib/version";
 import { SITE_NAME } from "../_brand/constants";
 
 export const metadata: Metadata = {
@@ -190,7 +191,8 @@ const ICONS: Record<ArtifactIcon, React.ReactNode> = {
   ),
 };
 
-export default function ExamplesPage(): React.ReactNode {
+export default async function ExamplesPage(): Promise<React.ReactNode> {
+  const version = await getAgentsecVersion();
   return (
     <>
       <a
@@ -199,7 +201,7 @@ export default function ExamplesPage(): React.ReactNode {
       >
         Skip to main content
       </a>
-      <Header />
+      <Header version={version} />
       <main id="examples-main">
         <ExamplesHero />
         <ReportsSection />
