@@ -461,6 +461,7 @@ describe("Preset rules content", () => {
         hasTests: true,
         hasTypes: true,
         linesOfCode: 200,
+        hasSource: true,
       },
     });
     const violations = engine.evaluate(result);

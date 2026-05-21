@@ -394,6 +394,7 @@ describe("evaluateCondition: custom", () => {
         hasTests: true,
         hasTypes: true,
         linesOfCode: 200,
+        hasSource: true,
       },
     });
     const condition: PolicyCondition = {

@@ -138,16 +138,23 @@ async function scanSkillWithDetection(
   skill: AgentSkill,
   ctx: ScanContext,
   profile: AuditConfig["profile"],
+  profileSource: "explicit" | "auto-promoted" = "explicit",
 ): Promise<{ findings: SecurityFinding[]; web3?: Web3DetectionResult }> {
   let web3: Web3DetectionResult | undefined;
   let useWeb3Scanner = false;
 
   if (ctx.detectFn) {
     if (profile === "web3") {
+      const det = ctx.detectFn(skill);
+      const ownSignals = det.signals;
+      const wrapper =
+        profileSource === "auto-promoted"
+          ? "auto-promoted to web3 profile because another skill in this run was Web3"
+          : "applied because --profile web3 was set";
       web3 = {
         detected: true,
         confidence: "definite",
-        signals: ["forced by --profile web3"],
+        signals: ownSignals.length > 0 ? [...ownSignals, wrapper] : [wrapper],
       };
       useWeb3Scanner = ctx.web3Scanner !== null;
     } else {
@@ -308,27 +315,31 @@ function generateRecommendations(
     });
   }
 
-  // Quality recommendations
-  if (!metrics.hasTests) {
-    recs.push({
-      category: "quality",
-      priority: "medium",
-      title: "Add automated tests",
-      description:
-        "No test files were detected. Adding tests improves reliability and prevents regressions.",
-      effort: "medium",
-    });
-  }
+  // Quality recommendations. Skip the code-quality recs entirely for
+  // markdown-only / prompt-only skill packs — there's no code to test
+  // or type-check, so "add tests" / "add types" are noise, not signal.
+  if (metrics.hasSource) {
+    if (!metrics.hasTests) {
+      recs.push({
+        category: "quality",
+        priority: "medium",
+        title: "Add automated tests",
+        description:
+          "No test files were detected. Adding tests improves reliability and prevents regressions.",
+        effort: "medium",
+      });
+    }
 
-  if (!metrics.hasTypes) {
-    recs.push({
-      category: "quality",
-      priority: "low",
-      title: "Add type definitions",
-      description:
-        "No type definitions found. Type checking catches bugs early and improves developer experience.",
-      effort: "low",
-    });
+    if (!metrics.hasTypes) {
+      recs.push({
+        category: "quality",
+        priority: "low",
+        title: "Add type definitions",
+        description:
+          "No type definitions found. Type checking catches bugs early and improves developer experience.",
+        effort: "low",
+      });
+    }
   }
 
   if (!metrics.hasReadme) {
@@ -732,8 +743,14 @@ async function auditOneSkill(
   policyConfig: PolicyConfig | null,
   config: AuditConfig,
   ctx: ScanContext,
+  profileSource: "explicit" | "auto-promoted" = "explicit",
 ): Promise<SkillAuditResult> {
-  const { findings, web3 } = await scanSkillWithDetection(skill, ctx, config.profile);
+  const { findings, web3 } = await scanSkillWithDetection(
+    skill,
+    ctx,
+    config.profile,
+    profileSource,
+  );
   const qualityMetrics = await calculateMetrics(skill);
   const score = buildAuditScore(findings, qualityMetrics, qualityMetrics.maintenanceHealth);
   const result: SkillAuditResult = {
@@ -762,15 +779,15 @@ function maybeAutoPromoteProfile(
   config: AuditConfig,
   ctx: ScanContext,
   isQuiet: boolean,
-): AuditConfig {
-  if (config.profile !== "default") return config;
-  if (!ctx.detectFn || ctx.web3Scanner === null) return config;
+): { config: AuditConfig; autoPromoted: boolean } {
+  if (config.profile !== "default") return { config, autoPromoted: false };
+  if (!ctx.detectFn || ctx.web3Scanner === null) return { config, autoPromoted: false };
 
   const anyWeb3 = skills.some((s) => ctx.detectFn?.(s).isWeb3);
-  if (!anyWeb3) return config;
+  if (!anyWeb3) return { config, autoPromoted: false };
 
   if (!isQuiet) info("Auto-promoted to web3 profile due to web3-detected skills");
-  return { ...config, profile: "web3" };
+  return { config: { ...config, profile: "web3" }, autoPromoted: true };
 }
 
 /**
@@ -783,6 +800,7 @@ async function runScanStep(
   policyConfig: PolicyConfig | null,
   ctx: ScanContext,
   isQuiet: boolean,
+  autoPromoted: boolean = false,
 ): Promise<{ results: SkillAuditResult[]; blockedCount: number }> {
   const results: SkillAuditResult[] = [];
   let blockedCount = 0;
@@ -809,7 +827,8 @@ async function runScanStep(
         : createSpinner(`Scanning ${color.bold(skill.name)} (${scanned}/${skills.length})...`);
       scanSpinner.start();
 
-      const result = await auditOneSkill(skill, policyConfig, config, ctx);
+      const profileSource = autoPromoted ? "auto-promoted" : "explicit";
+      const result = await auditOneSkill(skill, policyConfig, config, ctx, profileSource);
       const isBlocked = result.policyViolations.some((v) => v.action === "block");
       if (isBlocked) blockedCount++;
 
@@ -894,7 +913,12 @@ export async function runAudit(config: AuditConfig): Promise<number> {
   // to remember `--profile web3`). Explicit `--profile web3|strict` paths are
   // unaffected.
   const ctx = await buildScanContext();
-  const effectiveConfig = maybeAutoPromoteProfile(skills, config, ctx, isQuiet);
+  const { config: effectiveConfig, autoPromoted } = maybeAutoPromoteProfile(
+    skills,
+    config,
+    ctx,
+    isQuiet,
+  );
 
   // 4. Scan each skill, grouped by platform in zero-arg auto-discover mode
   if (!isQuiet) heading("Scanning Skills");
@@ -905,6 +929,7 @@ export async function runAudit(config: AuditConfig): Promise<number> {
     policyConfig,
     ctx,
     isQuiet,
+    autoPromoted,
   );
 
   // 5. Build summary

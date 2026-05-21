@@ -50,12 +50,12 @@ export const STAMPS: VersionStamp[] = [
   {
     file: SKILL_MIRROR.source,
     description: "GitHub-canonical SKILL.md frontmatter",
-    pattern: "\nversion: {VERSION}\nhomepage:",
+    pattern: "\nversion: {VERSION}\nlicense: MIT\nhomepage:",
   },
   {
     file: SKILL_MIRROR.mirror,
     description: "Landing site mirror of SKILL.md (served at /skill.md, indexed by ClawHub)",
-    pattern: "\nversion: {VERSION}\nhomepage:",
+    pattern: "\nversion: {VERSION}\nlicense: MIT\nhomepage:",
   },
   {
     file: "apps/landing/components/Hero.tsx",

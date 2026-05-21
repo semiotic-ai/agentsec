@@ -203,6 +203,14 @@ export interface QualityMetrics {
   hasTests: boolean;
   hasTypes: boolean;
   linesOfCode: number;
+  /**
+   * Whether the skill ships executable source code (`.ts`/`.js`/`.py`/etc.).
+   * `false` for prompt-only / markdown-only skill packs (e.g. an Anthropic-
+   * style skill that is just a `SKILL.md`). Used by the quality scorer to
+   * treat tests / types / test-coverage signals as N/A rather than missing,
+   * mirroring the existing maintenance-scorer behavior.
+   */
+  hasSource: boolean;
 }
 
 export interface PolicyViolation {

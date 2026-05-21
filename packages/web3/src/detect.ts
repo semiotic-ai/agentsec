@@ -70,6 +70,50 @@ const ONCHAIN_LANG_RE =
 
 const SOLIDITY_FILE_RE = /\.sol$/i;
 
+/**
+ * Description-level signals that a skill is itself a security / audit /
+ * meta tool — one that *describes* Web3 patterns rather than performing
+ * them. Used to suppress prose-based promotion: a skill whose SKILL.md
+ * documents detection signals (`personal_sign`, `Permit2`, …) should not
+ * be flagged as a Web3 skill on that basis alone. Code-level signals
+ * (lib imports, `.sol` files, RPC calls in source) still promote.
+ */
+const META_TOOL_DESCRIPTION_RE =
+  /\b(?:audit(?:ing|or|s)?|owasp|vulnerabilit(?:y|ies)|security\s+(?:scan|audit|review|tool|scanner|review)|skill\s+(?:audit|scan|review|scanner)|cve\b|sarif|policy\s+(?:engine|preset)|static\s+anal(?:ysis|yzer))\b/i;
+
+/** Markdown / documentation file extensions. */
+const MARKDOWN_RE = /\.(md|mdx)$/i;
+
+/** Source-code extensions that count as real Web3 surface when present. */
+const SOURCE_CODE_EXTS = new Set(["ts", "tsx", "js", "jsx", "mjs", "cjs", "py", "go", "rs", "sol"]);
+
+function hasExecutableSource(skill: AgentSkill): boolean {
+  return skill.files.some((f) => {
+    const ext = f.relativePath.split(".").pop()?.toLowerCase();
+    return ext !== undefined && SOURCE_CODE_EXTS.has(ext);
+  });
+}
+
+/**
+ * Whether the skill is identifiable as a security / audit / meta tool.
+ * Either an explicit opt-out via `metadata.agentsec.profile: "meta"` or
+ * a description that matches the audit-tool keyword set.
+ *
+ * Meta tools that ALSO ship executable source code are *not* exempted:
+ * actual `.ts`/`.js`/`.sol` code is treated as real Web3 surface, and a
+ * tool that audits its own chain interactions still needs the annex.
+ */
+function isMetaSecurityTool(skill: AgentSkill): boolean {
+  const metadata = skill.manifest.metadata as Record<string, unknown> | undefined;
+  const agentsecMeta = metadata?.agentsec as Record<string, unknown> | undefined;
+  if (agentsecMeta && agentsecMeta.profile === "meta") return true;
+
+  if (hasExecutableSource(skill)) return false;
+
+  const description = skill.manifest.description ?? "";
+  return META_TOOL_DESCRIPTION_RE.test(description);
+}
+
 const RPC_PATTERNS = [
   SEND_TX_RE,
   SIGN_TX_RE,
@@ -128,6 +172,14 @@ function ethAddressReferenced(content: string): boolean {
  * The two-signal floor for code-content matches stops a single "Solidity"
  * mention in a CV-style description from triggering all 12 annex rules. A
  * lib import or `.sol` file is high-precision enough to stand alone.
+ *
+ * Meta-tool exemption: skills identified as security / audit tooling
+ * (via `metadata.agentsec.profile: "meta"` or an audit-keyword description
+ * on a markdown-only skill) have their `.md`/`.mdx` files excluded from
+ * the signal pass. Such skills document Web3 patterns as detection
+ * targets; firing the annex on their own docs is a false positive. Code
+ * files (`.ts`, `.js`, `.sol`, …) still count — a meta tool that itself
+ * touches chain still needs the annex.
  */
 export function detectWeb3(skill: AgentSkill): Web3Detection {
   const signals: string[] = [];
@@ -136,6 +188,8 @@ export function detectWeb3(skill: AgentSkill): Web3Detection {
     signals.push("manifest declares `web3` block");
     return { isWeb3: true, confidence: "definite", signals };
   }
+
+  const metaTool = isMetaSecurityTool(skill);
 
   let hasLib = false;
   let hasRpc = false;
@@ -149,6 +203,11 @@ export function detectWeb3(skill: AgentSkill): Web3Detection {
       hasSol = true;
     }
     if (!shouldScanFile(file.relativePath)) continue;
+    // Meta / security-tooling skills (e.g. agentsec itself) document Web3
+    // patterns in their SKILL.md/README as detection signals, not as
+    // invocations. Skip markdown files for those skills so the prose
+    // doesn't pump up the confidence; real code (.ts/.js/.sol) still counts.
+    if (metaTool && MARKDOWN_RE.test(file.relativePath)) continue;
     if (!hasLib && libImportReferenced(file.content)) hasLib = true;
     if (!hasRpc && rpcReferenced(file.content)) hasRpc = true;
     if (!hasVeryStrongProtocol && veryStrongProtocolReferenced(file.content))
@@ -156,6 +215,12 @@ export function detectWeb3(skill: AgentSkill): Web3Detection {
     if (!hasWeakProtocol && weakProtocolReferenced(file.content)) hasWeakProtocol = true;
     if (!hasAddress && ethAddressReferenced(file.content)) hasAddress = true;
     if (hasLib && hasRpc && hasSol && hasVeryStrongProtocol && hasWeakProtocol && hasAddress) break;
+  }
+
+  if (metaTool && !hasLib && !hasRpc && !hasSol && !hasVeryStrongProtocol) {
+    signals.push(
+      "skill is security / audit tooling — markdown references documented as detection signals, not invocations",
+    );
   }
 
   if (hasLib) signals.push("imports a Web3 client library (ethers/viem/web3/wagmi/…)");

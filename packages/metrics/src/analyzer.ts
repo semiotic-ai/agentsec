@@ -53,6 +53,7 @@ export class MetricsAnalyzer {
       hasTests: detailed.hasTests,
       hasTypes: detailed.hasTypes,
       linesOfCode: detailed.linesOfCode,
+      hasSource: detailed.hasSource,
     };
   }
 
@@ -65,6 +66,7 @@ export class MetricsAnalyzer {
     const dependencyResult = this.analyzeDependencies();
     const maintenanceResult = this.analyzeMaintenance();
     const linesOfCode = this.countLines();
+    const hasSource = this.hasExecutableSource();
 
     return {
       codeComplexity: complexityResult.score,
@@ -78,11 +80,44 @@ export class MetricsAnalyzer {
       hasTests: maintenanceResult.hasTests,
       hasTypes: maintenanceResult.hasTypes,
       linesOfCode,
+      hasSource,
       complexityDetails: complexityResult,
       documentationDetails: documentationResult,
       dependencyDetails: dependencyResult,
       maintenanceDetails: maintenanceResult,
     };
+  }
+
+  /**
+   * Whether the skill ships executable source code (TypeScript, JavaScript,
+   * Python, Go, Rust, Solidity, …). Markdown / YAML / JSON-config-only
+   * skill packs return false and have code-quality signals treated as N/A.
+   */
+  hasExecutableSource(): boolean {
+    const sourceExts = new Set([
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "mjs",
+      "cjs",
+      "py",
+      "rb",
+      "rs",
+      "go",
+      "java",
+      "kt",
+      "swift",
+      "c",
+      "cpp",
+      "h",
+      "hpp",
+      "sol",
+    ]);
+    return this.skill.files.some((f) => {
+      const ext = f.relativePath.split(".").pop()?.toLowerCase();
+      return ext !== undefined && sourceExts.has(ext);
+    });
   }
 
   /**

@@ -309,6 +309,85 @@ describe("detectWeb3: protocol / standard references (SKILL.md-style skills)", (
   });
 });
 
+describe("detectWeb3: meta-tool exemption (security / audit skills)", () => {
+  test("audit-tool description with SKILL.md mentioning personal_sign → NOT detected", () => {
+    const skill = mockSkill({
+      manifest: {
+        description:
+          "Audit AI agent skills for security vulnerabilities against the OWASP Agentic Skills Top 10.",
+      },
+      files: [
+        {
+          name: "SKILL.md",
+          content:
+            "References Web3 RPC methods like `personal_sign`, `signTypedData`, `eth_sendTransaction` as detection signals.",
+        },
+      ],
+    });
+    const det = detectWeb3(skill);
+    expect(det.isWeb3).toBe(false);
+    expect(det.signals.some((s) => s.includes("security / audit tooling"))).toBe(true);
+  });
+
+  test("audit-tool description with SKILL.md mentioning Permit2 → NOT detected", () => {
+    const skill = mockSkill({
+      manifest: {
+        description: "Security scanner for skills — flags Permit2 / EIP-7702 / Uniswap patterns.",
+      },
+      files: [
+        {
+          name: "SKILL.md",
+          content: "Detects Permit2 signatures and EIP-7702 delegations as part of AST-W02/W03.",
+        },
+      ],
+    });
+    expect(detectWeb3(skill).isWeb3).toBe(false);
+  });
+
+  test("explicit metadata.agentsec.profile = 'meta' opts out even without audit description", () => {
+    const skill = mockSkill({
+      manifest: {
+        description: "A library of Permit2 patterns.",
+        metadata: { agentsec: { profile: "meta" } },
+      },
+      files: [{ name: "SKILL.md", content: "Permit2 signature builders for UniversalRouter." }],
+    });
+    expect(detectWeb3(skill).isWeb3).toBe(false);
+  });
+
+  test("audit-tool description WITH actual source code (.ts import viem) → still detected", () => {
+    const skill = mockSkill({
+      manifest: { description: "Auditing tool for OWASP compliance." },
+      files: [
+        { name: "SKILL.md", content: "Documents Permit2 detection." },
+        { name: "scanner.ts", content: 'import { createPublicClient } from "viem";' },
+      ],
+    });
+    const det = detectWeb3(skill);
+    expect(det.isWeb3).toBe(true);
+    expect(det.signals.some((s) => s.includes("Web3 client library"))).toBe(true);
+  });
+
+  test("audit-tool description but ships a .sol contract → still detected", () => {
+    const skill = mockSkill({
+      manifest: { description: "Static-analysis tool for vulnerability scanning." },
+      files: [
+        { name: "SKILL.md", content: "Audits Solidity contracts." },
+        { name: "ref.sol", content: "pragma solidity ^0.8.0; contract X {}" },
+      ],
+    });
+    expect(detectWeb3(skill).isWeb3).toBe(true);
+  });
+
+  test("non-meta description with SKILL.md mentioning Permit2 → still detected (existing behavior)", () => {
+    const skill = mockSkill({
+      manifest: { description: "Helps trade tokens on Uniswap." },
+      files: [{ name: "SKILL.md", content: "Builds a Permit2 signature for UniversalRouter." }],
+    });
+    expect(detectWeb3(skill).isWeb3).toBe(true);
+  });
+});
+
 describe("detectWeb3: Ethereum address references", () => {
   test("SKILL.md mentioning a contract address detects", () => {
     const skill = mockSkill({

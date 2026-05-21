@@ -6,8 +6,14 @@ description: >
   before running them, gating CI/CD on skill safety, or generating audit
   reports (text, JSON, SARIF, HTML) for stakeholders.
 version: 0.3.1
+license: MIT
 homepage: https://agentsec.sh
+author: semiotic-ai
+permissions:
+  - filesystem:read
 metadata:
+  agentsec:
+    profile: meta
   openclaw:
     emoji: "🛡️"
     homepage: https://agentsec.sh

@@ -36,6 +36,7 @@ function makeMetrics(overrides: Partial<QualityMetrics> = {}): QualityMetrics {
     hasTests: true,
     hasTypes: true,
     linesOfCode: 500,
+    hasSource: true,
     ...overrides,
   };
 }

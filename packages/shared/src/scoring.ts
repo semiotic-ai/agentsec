@@ -16,14 +16,22 @@ export function calculateQualityScore(metrics: QualityMetrics): number {
   // Documentation
   score += metrics.documentationScore * 10;
 
-  // Has tests
-  if (metrics.hasTests) score += 5;
-  if (metrics.testCoverage !== null) {
-    score += (metrics.testCoverage / 100) * 10;
+  // Tests / types / coverage. For markdown-only skill packs these signals
+  // are N/A: there is no executable code to test, type-check, or measure
+  // coverage against. Give full credit so prompt-only skills (Anthropic-
+  // style SKILL.md packs) aren't capped below a code skill's ceiling.
+  // Mirrors the existing N/A handling in `scoreMaintenanceHealth`.
+  if (!metrics.hasSource) {
+    score += 5; // tests N/A
+    score += 10; // coverage N/A
+    score += 5; // types N/A
+  } else {
+    if (metrics.hasTests) score += 5;
+    if (metrics.testCoverage !== null) {
+      score += (metrics.testCoverage / 100) * 10;
+    }
+    if (metrics.hasTypes) score += 5;
   }
-
-  // Has types
-  if (metrics.hasTypes) score += 5;
 
   // Has readme/license
   if (metrics.hasReadme) score += 3;

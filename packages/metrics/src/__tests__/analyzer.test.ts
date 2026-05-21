@@ -52,6 +52,7 @@ describe("MetricsAnalyzer.analyze()", () => {
     expect(metrics).toHaveProperty("hasTests");
     expect(metrics).toHaveProperty("hasTypes");
     expect(metrics).toHaveProperty("linesOfCode");
+    expect(metrics).toHaveProperty("hasSource");
   });
 
   test("testCoverage is null (requires runtime analysis)", () => {

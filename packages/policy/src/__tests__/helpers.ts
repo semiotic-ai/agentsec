@@ -40,6 +40,7 @@ export function makeAuditResult(overrides: Partial<SkillAuditResult> = {}): Skil
       hasTests: true,
       hasTypes: true,
       linesOfCode: 200,
+      hasSource: true,
     },
     policyViolations: [],
     recommendations: [],

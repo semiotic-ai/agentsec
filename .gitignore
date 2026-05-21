@@ -49,3 +49,4 @@ out/
 .lume/*.qcow2
 .vercel
 .agentsec-tmp/
+agentsec-report/

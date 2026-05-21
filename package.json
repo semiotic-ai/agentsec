@@ -13,6 +13,7 @@
     "format": "bunx biome check --write .",
     "check": "tsc --project tsconfig.check.json",
     "audit": "bun packages/cli/src/cli.ts audit",
+    "audit:self": "bun packages/cli/src/cli.ts audit --path ./skills/agentsec",
     "demo": "bun packages/cli/src/cli.ts audit --path ./e2e/fixtures",
     "clean": "turbo clean",
     "bump": "bun run scripts/bump-version.ts",

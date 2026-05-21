@@ -35,16 +35,21 @@ const README_EXCELLENT_LENGTH = 1000;
 
 /**
  * Score README quality based on presence, length, and content signals.
+ *
+ * Prefers `README.md` / `README` when present; falls back to `SKILL.md`
+ * (which is the canonical user-facing description for OpenClaw / Claude /
+ * Anthropic-style markdown skills, and serves the same role as a README).
  */
 function scoreReadme(files: SkillFile[]): {
   hasReadme: boolean;
   readmeLength: number;
   score: number;
 } {
-  const readme = files.find(
-    (f) =>
-      f.relativePath.toLowerCase() === "readme.md" || f.relativePath.toLowerCase() === "readme",
-  );
+  const readme =
+    files.find(
+      (f) =>
+        f.relativePath.toLowerCase() === "readme.md" || f.relativePath.toLowerCase() === "readme",
+    ) ?? files.find((f) => f.relativePath.toLowerCase() === "skill.md");
 
   if (!readme) {
     return { hasReadme: false, readmeLength: 0, score: 0 };
