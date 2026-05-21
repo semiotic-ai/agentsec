@@ -67,7 +67,11 @@ export function checkMetadataCompleteness(skill: AgentSkill): SecurityFinding[] 
     findings.push({
       id: `W04M-002-${counter}`,
       rule: RULE_NAME,
-      severity: "medium",
+      // Manifest-hygiene gap, not an exploitable vulnerability — the runtime
+      // can still enforce least-privilege via other channels. Surface as
+      // advisory so authors are nudged toward declaring permissions without
+      // tanking otherwise-clean skills.
+      severity: "low",
       category: RULE_CATEGORY,
       title: "Web3 skill manifest declares no permissions",
       description:

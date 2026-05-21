@@ -175,7 +175,12 @@ async function calculateMetrics(skill: AgentSkill): Promise<QualityMetrics> {
   try {
     const metrics = await import("@agentsec/metrics");
 
-    // Use MetricsAnalyzer class which is the actual API
+    // MetricsAnalyzer takes the skill in its constructor; analyze() is
+    // zero-arg. Calling `new MetricsAnalyzer()` then `.analyze(skill)`
+    // throws on `this.skill.files` and silently falls through to the
+    // default block below — which is how every audit ended up reporting
+    // hasReadme=false / hasLicense=false / maintenanceHealth=50 regardless
+    // of what the skill actually shipped.
     const MetricsAnalyzer = metrics.MetricsAnalyzer ?? metrics.default?.MetricsAnalyzer;
     if (typeof MetricsAnalyzer === "function") {
       const analyzer = new MetricsAnalyzer(skill);

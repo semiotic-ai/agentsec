@@ -235,18 +235,40 @@ function analyzeDocstrings(files: SkillFile[]): {
 
 /**
  * Calculate an overall documentation quality score for a skill.
- * Analyzes README presence/quality, inline comments ratio, and JSDoc/docstring coverage.
- * Returns a score between 0 and 1.
+ *
+ * Analyzes README presence/quality, inline comments ratio, and
+ * JSDoc/docstring coverage. Returns a score between 0 and 1.
+ *
+ * For markdown-only skill packs (no `.ts`/`.js`/`.py`/etc files), the
+ * inline-comment and docstring components are N/A — there's no source
+ * code to document. In that case the README weight absorbs the full
+ * documentation score, so a strong README earns the full 1.0 instead
+ * of being capped at 0.35 by absent code-doc signals.
  */
 export function scoreDocumentation(files: SkillFile[]): DocumentationResult {
   const readmeResult = scoreReadme(files);
   const commentResult = analyzeComments(files);
   const docstringResult = analyzeDocstrings(files);
 
-  const weightedScore =
-    readmeResult.score * WEIGHTS.readme +
-    commentResult.score * WEIGHTS.comments +
-    docstringResult.score * WEIGHTS.docstrings;
+  const hasSource = files.some((f) => {
+    const lang = f.language.toLowerCase();
+    return (
+      lang === "javascript" ||
+      lang === "typescript" ||
+      lang === "js" ||
+      lang === "ts" ||
+      lang === "jsx" ||
+      lang === "tsx" ||
+      lang === "python" ||
+      lang === "py"
+    );
+  });
+
+  const weightedScore = hasSource
+    ? readmeResult.score * WEIGHTS.readme +
+      commentResult.score * WEIGHTS.comments +
+      docstringResult.score * WEIGHTS.docstrings
+    : readmeResult.score; // README absorbs full weight for prose-only skills
 
   return {
     score: Math.round(weightedScore * 100) / 100,

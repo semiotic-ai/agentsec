@@ -55,7 +55,9 @@ describe("AST-W12: audit-sink", () => {
     const findings = checkAuditSink(skill);
     const audit = findings.filter((f) => f.id.startsWith("W12-001"));
     expect(audit.length).toBe(1);
-    expect(audit[0].severity).toBe("high");
+    // Governance-hygiene finding — surfaced as advisory so it doesn't tank
+    // the grade of an otherwise-clean skill. See rule comment for rationale.
+    expect(audit[0].severity).toBe("low");
     expect(audit[0].rule).toBe("web3-no-audit-killswitch");
     expect(audit[0].category).toBe("web3-no-audit-killswitch");
   });
@@ -84,7 +86,9 @@ describe("AST-W12: audit-sink", () => {
     });
     const findings = checkAuditSink(skill).filter((f) => f.id.startsWith("W12-002"));
     expect(findings.length).toBe(1);
-    expect(findings[0].severity).toBe("high");
+    // Operational nice-to-have — advisory by default; W12-020 escalates when
+    // the body claims autonomy.
+    expect(findings[0].severity).toBe("low");
   });
 
   test("flags W12-003 when incident.runbook is missing", () => {
@@ -97,7 +101,8 @@ describe("AST-W12: audit-sink", () => {
     });
     const findings = checkAuditSink(skill).filter((f) => f.id.startsWith("W12-003"));
     expect(findings.length).toBe(1);
-    expect(findings[0].severity).toBe("medium");
+    // Documentation gap — advisory only.
+    expect(findings[0].severity).toBe("low");
   });
 
   test("does not flag any manifest finding when web3 block is fully populated", () => {
