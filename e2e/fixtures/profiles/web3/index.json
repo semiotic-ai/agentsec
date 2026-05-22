@@ -1,12 +1,18 @@
 {
   "profile": "web3",
-  "description": "Real-world DEX-aggregator agent skills for cross-comparison auditing.",
+  "description": "Real-world DEX-aggregator and router agent skills for cross-comparison auditing. Reference + 10 competitors sourced from public registries (GitHub, skills.sh, ClawHub).",
   "skills": [
     { "name": "odos-swap", "path": "odos-swap", "role": "reference" },
     { "name": "oneinch-swap", "path": "1inch-swap", "role": "competitor" },
     { "name": "kyberswap-swap-execute", "path": "kyberswap-swap", "role": "competitor" },
     { "name": "zerox-swap", "path": "0x-swap", "role": "competitor" },
-    { "name": "cowswap-intent", "path": "cowswap-swap", "role": "competitor" }
+    { "name": "cowswap-intent", "path": "cowswap-swap", "role": "competitor" },
+    { "name": "uniswap-swap", "path": "uniswap-swap", "role": "competitor" },
+    { "name": "pancakeswap-swap", "path": "pancakeswap-swap", "role": "competitor" },
+    { "name": "lifi-swap", "path": "lifi-swap", "role": "competitor" },
+    { "name": "across-swap", "path": "across-swap", "role": "competitor" },
+    { "name": "sushiswap-swap", "path": "sushiswap-swap", "role": "competitor" },
+    { "name": "debridge-swap", "path": "debridge-swap", "role": "competitor" }
   ],
   "expectedRules": ["AST-W01", "AST-W02", "AST-W04", "AST-W05", "AST-W06", "AST-W11", "AST-W12"]
 }
