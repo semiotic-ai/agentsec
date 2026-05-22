@@ -258,6 +258,8 @@ export function checkStorage(skill: AgentSkill): SecurityFinding[] {
         if (isInComment(file.content, match.index)) continue;
         // Skip obvious test/example values
         if (isExampleValue(file.content, match.index)) continue;
+        // Skip ERC-20 / on-chain contract addresses (public identifiers, not secrets)
+        if (isEvmAddressContext(file.content, match.index)) continue;
 
         counter++;
         findings.push({
@@ -346,6 +348,25 @@ function checkGitignoreForSecrets(skill: AgentSkill, findings: SecurityFinding[]
       remediation: `Add the following patterns to .gitignore: ${missingExclusions.join(", ")}`,
     });
   }
+}
+
+/**
+ * Detects when a hardcoded-secret match is actually a public on-chain
+ * identifier (ERC-20 contract address, router, recipient, etc.) rather than
+ * an authentication credential. Variables like `fromToken`, `toToken`,
+ * `tokenAddress`, or `SELL_TOKEN` paired with a 40-char `0x` value are
+ * standard Web3 patterns, not leaked secrets.
+ */
+const EVM_ADDRESS_VALUE = /["']0x[0-9a-fA-F]{40}["']/;
+const CONTRACT_ADDRESS_HINT = /token|addr|address|contract/i;
+
+function isEvmAddressContext(content: string, index: number): boolean {
+  const line = getEvidenceLine(content, index);
+  if (!EVM_ADDRESS_VALUE.test(line)) return false;
+  // Match the identifier portion (before `=` or `:`), not the whole line —
+  // a comment trailing the value could otherwise spoof the hint check.
+  const assignment = line.split(/[=:]/, 1)[0] ?? line;
+  return CONTRACT_ADDRESS_HINT.test(assignment);
 }
 
 function isExampleValue(content: string, index: number): boolean {

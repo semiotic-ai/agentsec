@@ -119,6 +119,30 @@ const auth_token = "a1b2c3d4e5f6g7h8i9j0klmnopqrstuv";
     expect(tokenFindings[0].severity).toBe("critical");
   });
 
+  test("does not flag ERC-20 contract addresses as auth tokens", () => {
+    const skill = mockSkill(
+      `fromToken="0x4200000000000000000000000000000000000006"   # WETH on Base
+toToken="0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"     # USDC on Base
+SELL_TOKEN="0x4200000000000000000000000000000000000006"
+BUY_TOKEN="0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+tokenAddress: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+`,
+      "swap.sh",
+    );
+    const findings = checkStorage(skill);
+    const tokenFindings = findings.filter((f) => f.id.startsWith("STOR-004"));
+    expect(tokenFindings.length).toBe(0);
+  });
+
+  test("still flags JWT-style tokens even when var name contains 'token'", () => {
+    const skill = mockSkill(`
+const auth_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcd1234";
+`);
+    const findings = checkStorage(skill);
+    const tokenFindings = findings.filter((f) => f.id.startsWith("STOR-004"));
+    expect(tokenFindings.length).toBeGreaterThanOrEqual(1);
+  });
+
   test("detects hardcoded private key PEM header", () => {
     const skill = mockSkill(`
 const key = "-----BEGIN RSA PRIVATE KEY-----\\nMIIE...";
