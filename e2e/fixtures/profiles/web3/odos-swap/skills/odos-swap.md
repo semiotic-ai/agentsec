@@ -1,0 +1,163 @@
+---
+name: odos-swap
+description: Execute a token swap on Odos end-to-end (quote → assemble → simulate → confirm with user → broadcast). State-changing — costs gas. Use when the user explicitly asks to swap, sell, buy, or trade tokens. ALWAYS confirm with the user before broadcasting. Supports the Permit2 path to skip the separate approve() transaction.
+---
+
+# odos-swap — execute a swap (state-changing)
+
+## When to use
+
+User has explicitly asked to perform a swap and you've confirmed the inputs
+(chain, from-token, to-token, amount). If they only asked for a quote, use
+`odos-quote.md` instead.
+
+## Required environment
+
+```bash
+export RPC_URL=https://...      # chain RPC
+
+# Preferred signer: encrypted Foundry keystore
+export ODOS_KEYSTORE="$HOME/.foundry/keystores/agent"
+export ODOS_KEYSTORE_PASSWORD_FILE="$HOME/.foundry/keystore.pw"
+SIGNER_ARGS=(--keystore "$ODOS_KEYSTORE" --password-file "$ODOS_KEYSTORE_PASSWORD_FILE")
+
+# Acceptable: read the key from a password manager for one command. Do not
+# export it as PRIVATE_KEY where every child process inherits it.
+# SIGNER_ARGS=(--private-key "$(op read 'op://Private/agent-signer/private key')")
+
+# If you really must, this last-resort fallback is supported but discouraged:
+# export PRIVATE_KEY=0x...       # the signer; inherited by child processes
+# SIGNER_ARGS=(--private-key "$PRIVATE_KEY")
+```
+
+The signer's address is what receives the output unless `receiver` is set.
+
+## Procedure
+
+### Step 1 — Quote
+
+```bash
+chainId=8453
+fromToken="0x4200000000000000000000000000000000000006"   # WETH on Base
+toToken="0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"     # USDC on Base
+amount="1000000000000000"                                  # 0.001 WETH
+slippage="0.5"
+userAddr=$(cast wallet address "${SIGNER_ARGS[@]}")
+
+quote=$(curl -sS -X POST https://api.odos.xyz/sor/quote/v3 \
+  -H 'Content-Type: application/json' \
+  -d "{
+    \"chainId\": ${chainId},
+    \"inputTokens\": [{\"tokenAddress\": \"${fromToken}\", \"amount\": \"${amount}\"}],
+    \"outputTokens\": [{\"tokenAddress\": \"${toToken}\", \"proportion\": 1}],
+    \"userAddr\": \"${userAddr}\",
+    \"slippageLimitPercent\": ${slippage},
+    \"compact\": true
+  }")
+
+pathId=$(echo "$quote" | jq -r '.pathId')
+permit2Message=$(echo "$quote" | jq -c '.permit2Message')
+
+echo "$quote" | jq '{
+  outAmount: .outAmounts[0],
+  outValueUsd: .outValues[0],
+  netOutValueUsd: .netOutValue,
+  gasEstimateUsd: .gasEstimateValue,
+  priceImpact,
+  permit2Required: (.permit2Message != null)
+}'
+```
+
+### Step 2 — Confirm with the user
+
+**Always.** Show the summary above and ask "shall I proceed?". Do not
+continue until they say yes.
+
+### Step 3 — If non-Permit2 path: approve the Odos router
+
+Skip this step if `permit2Required` is true (Permit2 handles approval inline)
+or if `fromToken` is the native gas token.
+
+```bash
+router=$(curl -sS "https://api.odos.xyz/info/router/v3/${chainId}" | jq -r '.address')
+
+# Always approve only the amount you're about to swap, plus a tiny buffer
+# for rounding (the Odos router consumes at most $amount per swap).
+approveAmount=$(python3 -c "print(int(${amount}) * 101 // 100)")  # +1%
+cast send "$fromToken" "approve(address,uint256)" "$router" "$approveAmount" \
+  --rpc-url "$RPC_URL" "${SIGNER_ARGS[@]}"
+```
+
+Do not use `MaxUint256`. An infinite allowance turns every future agent
+action into a potential drain — Permit2 is the right primitive for one-time
+approvals. See AST-W01.
+
+### Step 4 — If Permit2 path: sign the typed data
+
+```bash
+# Save the typed-data envelope to a file, then sign with cast
+echo "$permit2Message" > /tmp/permit2.json
+permit2Signature=$(cast wallet sign "${SIGNER_ARGS[@]}" --data --from-file /tmp/permit2.json)
+```
+
+### Step 5 — Assemble (with mandatory simulation)
+
+```bash
+assembleBody="{
+  \"userAddr\": \"${userAddr}\",
+  \"pathId\": \"${pathId}\",
+  \"simulate\": true"
+if [ -n "$permit2Signature" ] && [ "$permit2Message" != "null" ]; then
+  assembleBody="${assembleBody},\"permit2Signature\":\"${permit2Signature}\""
+fi
+assembleBody="${assembleBody}}"
+
+assembled=$(curl -sS -X POST https://api.odos.xyz/sor/assemble \
+  -H 'Content-Type: application/json' \
+  -d "$assembleBody")
+
+# Refuse to broadcast if simulation failed
+isSuccess=$(echo "$assembled" | jq -r '.simulation.isSuccess')
+if [ "$isSuccess" = "false" ]; then
+  echo "Simulation failed — NOT broadcasting." >&2
+  echo "$assembled" | jq '.simulation'
+  exit 1
+fi
+```
+
+### Step 6 — Broadcast
+
+```bash
+to=$(echo "$assembled" | jq -r '.transaction.to')
+data=$(echo "$assembled" | jq -r '.transaction.data')
+value=$(echo "$assembled" | jq -r '.transaction.value')
+gas=$(echo "$assembled" | jq -r '.transaction.gas')
+
+cast send "$to" \
+  --data "$data" \
+  --value "$value" \
+  --gas-limit "$gas" \
+  --rpc-url "$RPC_URL" \
+  "${SIGNER_ARGS[@]}"
+```
+
+## Final report to the user
+
+> "Swap submitted. Tx hash: `0x...`. Expected output: ~X USDC. Wait for one
+>  confirmation; I'll fetch the receipt if you want."
+
+If they want the receipt:
+
+```bash
+cast receipt "$txHash" --rpc-url "$RPC_URL"
+```
+
+## Hard rules
+
+- **Never modify the calldata** returned by `/sor/assemble`. Pass it to
+  `cast send` exactly as received.
+- **Refuse to broadcast** if `simulation.isSuccess === false`. Surface the
+  `simulationError` to the user and ask them to fix the underlying issue
+  (insufficient balance, missing approval, slippage too tight).
+- **Re-quote** if more than ~30 seconds have passed since the original
+  quote. The `pathId` will have expired.

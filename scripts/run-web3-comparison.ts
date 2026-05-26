@@ -39,6 +39,12 @@ const EXPECTED_SKILLS: ExpectedSkill[] = [
   { dir: "kyberswap-swap", label: "KyberSwap", role: "competitor" },
   { dir: "0x-swap", label: "0x", role: "competitor" },
   { dir: "cowswap-swap", label: "CowSwap", role: "competitor" },
+  { dir: "uniswap-swap", label: "Uniswap", role: "competitor" },
+  { dir: "pancakeswap-swap", label: "PancakeSwap", role: "competitor" },
+  { dir: "lifi-swap", label: "LI.FI", role: "competitor" },
+  { dir: "across-swap", label: "Across", role: "competitor" },
+  { dir: "sushiswap-swap", label: "SushiSwap", role: "competitor" },
+  { dir: "debridge-swap", label: "deBridge", role: "competitor" },
 ];
 
 const SEVERITY_ORDER: Severity[] = ["critical", "high", "medium", "low", "info"];
