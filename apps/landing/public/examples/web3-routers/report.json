@@ -1,0 +1,440 @@
+{
+  "generatedAt": "2026-05-26T16:40:10.483Z",
+  "profileDir": "e2e/fixtures/profiles/web3",
+  "reference": "Odos",
+  "skills": [
+    {
+      "dir": "odos-swap",
+      "label": "Odos",
+      "role": "reference",
+      "score": 88,
+      "grade": "B",
+      "totalFindings": 4,
+      "cells": {
+        "AST-W12": {
+          "severity": "low",
+          "count": 3
+        },
+        "AST04": {
+          "severity": "low",
+          "count": 1
+        }
+      }
+    },
+    {
+      "dir": "1inch-swap",
+      "label": "1inch",
+      "role": "competitor",
+      "score": 26,
+      "grade": "F",
+      "totalFindings": 136,
+      "cells": {
+        "AST05": {
+          "severity": "critical",
+          "count": 2
+        },
+        "AST04": {
+          "severity": "high",
+          "count": 5
+        },
+        "AST-W08": {
+          "severity": "high",
+          "count": 85
+        },
+        "AST-W11": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST-W12": {
+          "severity": "high",
+          "count": 4
+        },
+        "AST03": {
+          "severity": "medium",
+          "count": 14
+        },
+        "AST08": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST09": {
+          "severity": "medium",
+          "count": 2
+        },
+        "AST-W01": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W07": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W10": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST06": {
+          "severity": "low",
+          "count": 13
+        },
+        "AST-W05": {
+          "severity": "low",
+          "count": 6
+        }
+      }
+    },
+    {
+      "dir": "kyberswap-swap",
+      "label": "KyberSwap",
+      "role": "competitor",
+      "score": 49,
+      "grade": "D",
+      "totalFindings": 29,
+      "cells": {
+        "AST01": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST-W01": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W12": {
+          "severity": "medium",
+          "count": 2
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 4
+        },
+        "AST-W05": {
+          "severity": "low",
+          "count": 20
+        }
+      }
+    },
+    {
+      "dir": "0x-swap",
+      "label": "0x",
+      "role": "competitor",
+      "score": 48,
+      "grade": "D",
+      "totalFindings": 9,
+      "cells": {
+        "AST-W02": {
+          "severity": "critical",
+          "count": 3
+        },
+        "AST-W01": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W12": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 3
+        }
+      }
+    },
+    {
+      "dir": "cowswap-swap",
+      "label": "CowSwap",
+      "role": "competitor",
+      "score": 70,
+      "grade": "C",
+      "totalFindings": 4,
+      "cells": {
+        "AST-W11": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W02": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 1
+        }
+      }
+    },
+    {
+      "dir": "uniswap-swap",
+      "label": "Uniswap",
+      "role": "competitor",
+      "score": 49,
+      "grade": "D",
+      "totalFindings": 12,
+      "cells": {
+        "AST-W01": {
+          "severity": "high",
+          "count": 2
+        },
+        "AST-W10": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST-W11": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W02": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W07": {
+          "severity": "medium",
+          "count": 2
+        },
+        "AST-W12": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 3
+        }
+      }
+    },
+    {
+      "dir": "pancakeswap-swap",
+      "label": "PancakeSwap",
+      "role": "competitor",
+      "score": 49,
+      "grade": "D",
+      "totalFindings": 13,
+      "cells": {
+        "AST-W01": {
+          "severity": "high",
+          "count": 2
+        },
+        "AST-W11": {
+          "severity": "high",
+          "count": 2
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W12": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 2
+        },
+        "AST-W05": {
+          "severity": "low",
+          "count": 5
+        }
+      }
+    },
+    {
+      "dir": "lifi-swap",
+      "label": "LI.FI",
+      "role": "competitor",
+      "score": 45,
+      "grade": "D",
+      "totalFindings": 8,
+      "cells": {
+        "AST-W02": {
+          "severity": "critical",
+          "count": 1
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W07": {
+          "severity": "medium",
+          "count": 2
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 4
+        }
+      }
+    },
+    {
+      "dir": "across-swap",
+      "label": "Across",
+      "role": "competitor",
+      "score": 49,
+      "grade": "D",
+      "totalFindings": 8,
+      "cells": {
+        "AST-W01": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W07": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST-W12": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 4
+        }
+      }
+    },
+    {
+      "dir": "sushiswap-swap",
+      "label": "SushiSwap",
+      "role": "competitor",
+      "score": 71,
+      "grade": "C",
+      "totalFindings": 5,
+      "cells": {
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 4
+        }
+      }
+    },
+    {
+      "dir": "debridge-swap",
+      "label": "deBridge",
+      "role": "competitor",
+      "score": 49,
+      "grade": "D",
+      "totalFindings": 9,
+      "cells": {
+        "AST-W07": {
+          "severity": "high",
+          "count": 4
+        },
+        "AST-W12": {
+          "severity": "high",
+          "count": 1
+        },
+        "AST05": {
+          "severity": "medium",
+          "count": 1
+        },
+        "AST04": {
+          "severity": "medium",
+          "count": 3
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "ruleId": "AST-W01",
+      "owaspId": "AST-W01",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST-W02",
+      "owaspId": "AST-W02",
+      "worstSeverity": "critical"
+    },
+    {
+      "ruleId": "AST-W05",
+      "owaspId": "AST-W05",
+      "worstSeverity": "low"
+    },
+    {
+      "ruleId": "AST-W07",
+      "owaspId": "AST-W07",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST-W08",
+      "owaspId": "AST-W08",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST-W10",
+      "owaspId": "AST-W10",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST-W11",
+      "owaspId": "AST-W11",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST-W12",
+      "owaspId": "AST-W12",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST01",
+      "owaspId": "AST01",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST03",
+      "owaspId": "AST03",
+      "worstSeverity": "medium"
+    },
+    {
+      "ruleId": "AST04",
+      "owaspId": "AST04",
+      "worstSeverity": "high"
+    },
+    {
+      "ruleId": "AST05",
+      "owaspId": "AST05",
+      "worstSeverity": "critical"
+    },
+    {
+      "ruleId": "AST06",
+      "owaspId": "AST06",
+      "worstSeverity": "low"
+    },
+    {
+      "ruleId": "AST08",
+      "owaspId": "AST08",
+      "worstSeverity": "medium"
+    },
+    {
+      "ruleId": "AST09",
+      "owaspId": "AST09",
+      "worstSeverity": "medium"
+    }
+  ],
+  "missing": [],
+  "best": {
+    "label": "Odos",
+    "score": 88
+  },
+  "worst": {
+    "label": "1inch",
+    "score": 26
+  },
+  "averageScore": 54
+}
