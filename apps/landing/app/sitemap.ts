@@ -17,6 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: new URL("/web3-routers", DEPLOYMENT_URL).toString(),
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: new URL("/examples", DEPLOYMENT_URL).toString(),
       lastModified,
       changeFrequency: "monthly",

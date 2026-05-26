@@ -14,6 +14,7 @@ const NAV_LINKS: readonly NavLink[] = [
   { href: "/#commandments", label: "Commandments" },
   { href: "/#formats", label: "Outputs" },
   { href: "/#enterprise", label: "Contact" },
+  { href: "/web3-routers", label: "Web3 Routers" },
   { href: "/skill-watch", label: "Skill Watch" },
 ];
 
