@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-22T20:14:50.224Z",
+  "generatedAt": "2026-05-26T16:40:10.483Z",
   "profileDir": "e2e/fixtures/profiles/web3",
   "reference": "Odos",
   "skills": [
@@ -25,9 +25,9 @@
       "dir": "1inch-swap",
       "label": "1inch",
       "role": "competitor",
-      "score": 29,
+      "score": 26,
       "grade": "F",
-      "totalFindings": 134,
+      "totalFindings": 136,
       "cells": {
         "AST05": {
           "severity": "critical",
@@ -56,6 +56,10 @@
         "AST08": {
           "severity": "medium",
           "count": 1
+        },
+        "AST09": {
+          "severity": "medium",
+          "count": 2
         },
         "AST-W01": {
           "severity": "medium",
@@ -416,6 +420,11 @@
       "ruleId": "AST08",
       "owaspId": "AST08",
       "worstSeverity": "medium"
+    },
+    {
+      "ruleId": "AST09",
+      "owaspId": "AST09",
+      "worstSeverity": "medium"
     }
   ],
   "missing": [],
@@ -425,7 +434,7 @@
   },
   "worst": {
     "label": "1inch",
-    "score": 29
+    "score": 26
   },
   "averageScore": 54
 }

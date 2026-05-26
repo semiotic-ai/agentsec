@@ -1,6 +1,6 @@
 # Web3 Router Comparison
 
-Generated: 2026-05-22T20:14:50.224Z
+Generated: 2026-05-26T16:40:10.483Z
 
 Reference skill: **Odos**. Competitors are audited with the AST-10 Web3 Annex
 rules forced on (`--profile web3`) so coverage is identical across rows.
@@ -10,7 +10,7 @@ rules forced on (`--profile web3`) so coverage is identical across rows.
 | Skill | Role | Score | Grade | Findings |
 | --- | --- | ---: | :-: | ---: |
 | Odos | reference | 88 | B | 4 |
-| 1inch | competitor | 29 | F | 134 |
+| 1inch | competitor | 26 | F | 136 |
 | KyberSwap | competitor | 49 | D | 29 |
 | 0x | competitor | 48 | D | 9 |
 | CowSwap | competitor | 70 | C | 4 |
@@ -42,6 +42,7 @@ Empty cells mean no finding for that rule.
 | `AST05` |  | 🔴 critical (2) | 🟡 medium (1) | 🟡 medium (1) | 🟡 medium (1) | 🟡 medium (1) | 🟡 medium (1) | 🟡 medium (1) | 🟡 medium (1) | 🟡 medium (1) | 🟡 medium (1) |
 | `AST06` |  | 🟢 low (13) |  |  |  |  |  |  |  |  |  |
 | `AST08` |  | 🟡 medium (1) |  |  |  |  |  |  |  |  |  |
+| `AST09` |  | 🟡 medium (2) |  |  |  |  |  |  |  |  |  |
 
 ## Legend
 
