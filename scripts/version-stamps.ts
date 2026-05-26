@@ -57,6 +57,11 @@ export const STAMPS: VersionStamp[] = [
     description: "Landing site mirror of SKILL.md (served at /skill.md, indexed by ClawHub)",
     pattern: "\nversion: {VERSION}\nlicense: MIT\nhomepage:",
   },
+  {
+    file: "apps/landing/lib/version.ts",
+    description: "Landing-site fallback when npm registry is unreachable (Vercel builds apps/landing/ in isolation, can't import from packages/cli/)",
+    pattern: 'const FALLBACK_VERSION = "{VERSION}";',
+  },
 ];
 
 export function fillPattern(pattern: string, version: string): string {

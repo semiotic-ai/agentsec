@@ -1,8 +1,14 @@
-import cliPackageJson from "../../../packages/cli/package.json";
+/**
+ * Fallback version stamped at release time by `scripts/bump-version.ts`.
+ *
+ * Vercel builds `apps/landing/` in isolation, so we can't import a JSON file
+ * from `packages/cli/` — the path escapes the project root. Keep this literal
+ * in sync via the version-stamps pipeline (see scripts/version-stamps.ts).
+ */
+const FALLBACK_VERSION = "0.3.2";
 
 const NPM_REGISTRY_URL = "https://registry.npmjs.org/agentsec/latest";
 const REVALIDATE_SECONDS = 3600;
-const FALLBACK_VERSION = cliPackageJson.version;
 
 type NpmRegistryResponse = { version?: string };
 
