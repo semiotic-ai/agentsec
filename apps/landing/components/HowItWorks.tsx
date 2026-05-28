@@ -10,7 +10,7 @@ const STEPS: readonly Step[] = [
     n: "01",
     title: "Discover",
     body: "Crawls .skill/, skill.md files, and platform manifests across your project. No config, no flags — it finds every installed skill.",
-    meta: "openclaw · claude · codex",
+    meta: "claude · openclaw · codex · hermes",
   },
   {
     n: "02",

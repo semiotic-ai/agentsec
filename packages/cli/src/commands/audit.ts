@@ -620,7 +620,7 @@ function printPassOrWarnStatus(summary: AuditSummary, verbose: boolean): void {
 function printNoSkillsHint(config: AuditConfig): void {
   console.log();
   if (isAutoDiscoverMode(config)) {
-    info("Searched default locations for Claude, OpenClaw, and Codex skills");
+    info("Searched default locations for Claude, OpenClaw, Codex, and Hermes skills");
     info("Pass --path <dir> to scan a custom location");
   } else {
     info(
@@ -633,7 +633,13 @@ function printNoSkillsHint(config: AuditConfig): void {
 }
 
 /** Order platforms appear in output. `null` ("Other") comes last. */
-const PLATFORM_ORDER: (AgentPlatform | null)[] = ["claude", "openclaw", "codex", null];
+const PLATFORM_ORDER: (AgentPlatform | null)[] = [
+  "claude",
+  "openclaw",
+  "codex",
+  "hermes",
+  null,
+];
 
 /**
  * Bucket skills by their `discoveredAs` platform. Unknown/missing

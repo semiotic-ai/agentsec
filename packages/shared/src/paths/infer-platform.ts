@@ -7,7 +7,8 @@ import type { AgentPlatform } from "../types";
  * Priority order (first match wins; evaluated top-down):
  *   1. `"claude"`   - any of `/.claude/skills`, `/.claude/commands`, `/.claude/plugins/`
  *   2. `"openclaw"` - any occurrence of `/.openclaw/`
- *   3. `"codex"`    - any of `/.agents/skills`, `/.codex/`, `/etc/codex/`
+ *   3. `"hermes"`   - any occurrence of `/.hermes/`
+ *   4. `"codex"`    - any of `/.agents/skills`, `/.codex/`, `/etc/codex/`
  *
  * Normalizes Windows backslashes to forward slashes before matching so the
  * same implementation works on every OS.
@@ -30,6 +31,10 @@ export function inferPlatformFromPath(absPath: string): AgentPlatform | null {
 
   if (normalized.includes("/.openclaw/")) {
     return "openclaw";
+  }
+
+  if (normalized.includes("/.hermes/")) {
+    return "hermes";
   }
 
   if (

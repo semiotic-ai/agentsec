@@ -133,7 +133,7 @@ export function normalizeManifest(
 }
 
 function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
-  const hoisted = hoistOpenclawWeb3(raw);
+  const hoisted = hoistPlatformWeb3(raw);
   return {
     name: asString(raw.name, "unknown"),
     version: asString(raw.version, "0.0.0"),
@@ -166,27 +166,35 @@ function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
  * Resolve the canonical Web3 manifest block.
  *
  * Skills may declare web3 capability either at the top level
- * (`web3: { ... }`) or nested under the OpenClaw metadata block
- * (`metadata.openclaw.web3: { ... }`). The latter shape matches the
- * agentsec-own SKILL.md convention.
+ * (`web3: { ... }`) or nested under any platform-namespaced metadata
+ * block (`metadata.<platform>.web3: { ... }`). agentsec is platform-
+ * agnostic, so the parser checks every known namespace — OpenClaw,
+ * Hermes, Claude, and Codex — for a nested block.
  *
- * If both are present, the top-level block wins; otherwise the
- * `metadata.openclaw.web3` block is hoisted so every downstream rule
+ * If both are present, the top-level block wins; otherwise the first
+ * platform-namespaced `web3` block found (in the order listed in
+ * {@link PLATFORM_NAMESPACES}) is hoisted so every downstream rule
  * can read from one canonical path (`manifest.web3.*`).
  *
  * Returns undefined when neither location declares a web3 block.
  */
-function hoistOpenclawWeb3(raw: Record<string, unknown>): Web3ManifestBlock | undefined {
+const PLATFORM_NAMESPACES = ["openclaw", "hermes", "claude", "codex"] as const;
+
+function hoistPlatformWeb3(raw: Record<string, unknown>): Web3ManifestBlock | undefined {
   const topLevel = isPlainObject(raw.web3) ? (raw.web3 as Record<string, unknown>) : undefined;
   if (topLevel) return normalizeWeb3Block(topLevel);
 
   const metadata = raw.metadata;
   if (!isPlainObject(metadata)) return undefined;
-  const openclaw = (metadata as Record<string, unknown>).openclaw;
-  if (!isPlainObject(openclaw)) return undefined;
-  const nested = (openclaw as Record<string, unknown>).web3;
-  if (!isPlainObject(nested)) return undefined;
-  return normalizeWeb3Block(nested as Record<string, unknown>);
+  for (const ns of PLATFORM_NAMESPACES) {
+    const block = (metadata as Record<string, unknown>)[ns];
+    if (!isPlainObject(block)) continue;
+    const nested = (block as Record<string, unknown>).web3;
+    if (isPlainObject(nested)) {
+      return normalizeWeb3Block(nested as Record<string, unknown>);
+    }
+  }
+  return undefined;
 }
 
 /**

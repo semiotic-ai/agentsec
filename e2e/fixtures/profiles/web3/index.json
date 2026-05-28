@@ -1,18 +1,18 @@
 {
   "profile": "web3",
-  "description": "Real-world DEX-aggregator and router agent skills for cross-comparison auditing. Reference + 10 competitors sourced from public registries (GitHub, skills.sh, ClawHub).",
+  "description": "Real-world DEX-aggregator and router agent skills for cross-comparison auditing. Mirrored from public registries (GitHub, skills.sh, ClawHub) so the AST-10 Web3 Annex can be exercised against real-world-shaped skills side by side.",
   "skills": [
-    { "name": "odos-swap", "path": "odos-swap", "role": "reference" },
-    { "name": "oneinch-swap", "path": "1inch-swap", "role": "competitor" },
-    { "name": "kyberswap-swap-execute", "path": "kyberswap-swap", "role": "competitor" },
-    { "name": "zerox-swap", "path": "0x-swap", "role": "competitor" },
-    { "name": "cowswap-intent", "path": "cowswap-swap", "role": "competitor" },
-    { "name": "uniswap-swap", "path": "uniswap-swap", "role": "competitor" },
-    { "name": "pancakeswap-swap", "path": "pancakeswap-swap", "role": "competitor" },
-    { "name": "lifi-swap", "path": "lifi-swap", "role": "competitor" },
-    { "name": "across-swap", "path": "across-swap", "role": "competitor" },
-    { "name": "sushiswap-swap", "path": "sushiswap-swap", "role": "competitor" },
-    { "name": "debridge-swap", "path": "debridge-swap", "role": "competitor" }
+    { "name": "zerox-swap", "path": "0x-swap" },
+    { "name": "oneinch-swap", "path": "1inch-swap" },
+    { "name": "across-swap", "path": "across-swap" },
+    { "name": "cowswap-intent", "path": "cowswap-swap" },
+    { "name": "debridge-swap", "path": "debridge-swap" },
+    { "name": "kyberswap-swap-execute", "path": "kyberswap-swap" },
+    { "name": "lifi-swap", "path": "lifi-swap" },
+    { "name": "odos-swap", "path": "odos-swap" },
+    { "name": "pancakeswap-swap", "path": "pancakeswap-swap" },
+    { "name": "sushiswap-swap", "path": "sushiswap-swap" },
+    { "name": "uniswap-swap", "path": "uniswap-swap" }
   ],
   "expectedRules": ["AST-W01", "AST-W02", "AST-W04", "AST-W05", "AST-W06", "AST-W11", "AST-W12"]
 }

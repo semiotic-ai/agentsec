@@ -1,6 +1,7 @@
 export * from "./constants";
 export * from "./defaults/claude";
 export * from "./defaults/codex";
+export * from "./defaults/hermes";
 export * from "./defaults/openclaw";
 export * from "./paths/expand";
 export * from "./paths/infer-platform";

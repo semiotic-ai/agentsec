@@ -1,9 +1,9 @@
 /**
  * Multi-platform auto-discover — unions the default skill search paths
  * from every supported agent platform (Claude Code, OpenClaw/ClawHub,
- * Codex/skills.sh), resolves `~` / env vars / `*` globs, and also walks
- * the current working directory looking for generic `skills/` folders
- * that don't live under a recognized platform path.
+ * Codex/skills.sh, Hermes), resolves `~` / env vars / `*` globs, and
+ * also walks the current working directory looking for generic
+ * `skills/` folders that don't live under a recognized platform path.
  */
 
 import { readdir } from "node:fs/promises";
@@ -14,6 +14,7 @@ import {
   CLAUDE_SKILL_DIRS_V2,
   CODEX_SKILL_DIRS,
   expandDefaultPath,
+  HERMES_SKILL_DIRS,
   inferPlatformFromPath,
   OPENCLAW_SKILL_DIRS_V2,
 } from "@agentsec/shared";
@@ -86,7 +87,13 @@ const CWD_IGNORE = new Set([
  * Hidden dirs that ARE meaningful for skill discovery (i.e. platform
  * conventions). Other hidden dirs are skipped during cwd walking.
  */
-const CWD_ALLOWED_HIDDEN = new Set([".claude", ".openclaw", ".agents", ".codex"]);
+const CWD_ALLOWED_HIDDEN = new Set([
+  ".claude",
+  ".openclaw",
+  ".agents",
+  ".codex",
+  ".hermes",
+]);
 
 /**
  * Walk `cwd` up to `depth` levels deep and collect every directory named
@@ -134,7 +141,12 @@ async function findLocalSkillsDirs(cwd: string, depth: number): Promise<string[]
  * predictable display.
  */
 function collectPatterns(platformKey: string, extra: string[]): string[] {
-  const sources = [CLAUDE_SKILL_DIRS_V2, OPENCLAW_SKILL_DIRS_V2, CODEX_SKILL_DIRS];
+  const sources = [
+    CLAUDE_SKILL_DIRS_V2,
+    OPENCLAW_SKILL_DIRS_V2,
+    CODEX_SKILL_DIRS,
+    HERMES_SKILL_DIRS,
+  ];
   const seen = new Set<string>();
   const patterns: string[] = [];
   for (const src of sources) {
@@ -157,9 +169,9 @@ function collectPatterns(platformKey: string, extra: string[]): string[] {
 /**
  * Discover installed skills across ALL supported agent platforms in
  * one sweep. Unions the platform-specific default search paths (Claude
- * Code, OpenClaw/ClawHub, Codex/skills.sh), walks the cwd for generic
- * `skills/` dirs, expands `~` / env vars / `*` globs, scans each
- * resolved directory, and deduplicates skills by absolute path.
+ * Code, OpenClaw/ClawHub, Codex/skills.sh, Hermes), walks the cwd for
+ * generic `skills/` dirs, expands `~` / env vars / `*` globs, scans
+ * each resolved directory, and deduplicates skills by absolute path.
  *
  * @param options - discovery options; see {@link DiscoverAllOptions}
  * @returns merged, deduplicated list of skills across every root

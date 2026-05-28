@@ -56,11 +56,14 @@ This scans every default skills directory on the machine — grouped by platform
 
 ### Auto-discovery locations
 
+agentsec is agent-platform agnostic — every platform listed below ships skills in the [agentskills.io](https://agentskills.io/specification) `SKILL.md` format and is auto-discovered.
+
 | Platform               | Paths scanned                                                                                                             |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | **Claude Code**        | `~/.claude/skills`, `./.claude/skills`, `~/.claude/plugins/*/skills/*`, `~/.claude/commands`, `./.claude/commands`         |
 | **OpenClaw / ClawHub** | `~/.openclaw/workspace/skills`, `~/.openclaw/workspace-*/skills` (profiles via `OPENCLAW_PROFILE`), `~/.openclaw/skills`  |
 | **Codex / skills.sh**  | `~/.agents/skills`, `./.agents/skills`, `../.agents/skills`, `/etc/codex/skills`                                          |
+| **Hermes**             | `~/.hermes/skills`, `~/.hermes/skills/*` (bundled categories), `./.hermes/skills`                                         |
 | **Other** (generic)    | Any `skills/` directory found within the current project, up to two levels deep                                           |
 
 ## Core Commands
@@ -115,7 +118,7 @@ All flags work with any command.
 | `--format`   | `-f`  | `text`, `json`, `sarif`, `html` | `text`     | Output format                                            |
 | `--output`   | `-o`  | path                            | stdout     | Write report to file                                     |
 | `--policy`   | `-p`  | preset name or path             | `default`  | Apply a policy preset                                    |
-| `--platform` |       | `openclaw`, `claude`, `codex`   | auto       | Narrow to one agent platform                             |
+| `--platform` |       | `openclaw`, `claude`, `codex`, `hermes` | auto | Narrow to one agent platform                             |
 | `--path`     |       | path                            | auto       | Custom skill directory to scan                           |
 | `--profile`  |       | `default`, `web3`, `strict`     | `default`  | Rule profile. `default` auto-detects Web3 skills; `web3` forces the annex on every skill |
 | `--verbose`  | `-v`  |                                 | off        | Show detailed findings                                   |
@@ -142,6 +145,8 @@ npx agentsec scan --path ./my-skills
 ```bash
 npx agentsec --platform claude
 npx agentsec --platform codex
+npx agentsec --platform hermes
+npx agentsec --platform openclaw
 ```
 
 ### Audit with a strict policy and save JSON

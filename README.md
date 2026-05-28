@@ -33,7 +33,7 @@
 
 ---
 
-Run one command to audit every skill your AI agent uses against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/). Supports **Claude Code**, **OpenClaw / ClawHub**, **Codex / skills.sh**, and generic project-local skill directories.
+Run one command to audit every skill your AI agent uses against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/). agentsec is **agent-platform agnostic** — it supports **Claude Code**, **OpenClaw / ClawHub**, **Codex / skills.sh**, **Hermes** (Nous Research), and generic project-local skill directories.
 
 ## Quick Start
 
@@ -56,14 +56,16 @@ Then ask the agent to audit your skills — it'll invoke `npx agentsec` and surf
 ### Example Output
 
 ```
-  ✔ Found 6 skills
-  ℹ Scanned 4 locations across Claude Code, OpenClaw, Codex / skills.sh, Other
+  ✔ Found 7 skills
+  ℹ Scanned 5 locations across Claude Code, OpenClaw, Codex / skills.sh, Hermes, Other
     Claude Code
       ~/.claude/skills (3 skills)
     OpenClaw
       ~/.openclaw/workspace/skills (1 skill)
     Codex / skills.sh
       ~/.agents/skills (1 skill)
+    Hermes
+      ~/.hermes/skills (1 skill)
     Other
       ./skills (1 skill)
 
@@ -81,10 +83,13 @@ Scanning Skills
   Codex / skills.sh (1 skill)
   ✔ db-migrate     v1.4.2  B (78)
 
+  Hermes (1 skill)
+  ✔ research-assistant v0.3.1  B (82)
+
   Other (1 skill)
   ✔ lint-fix       v2.0.0  A (93)
 
-  6 skills scanned  •  avg score 78  •  4 certified
+  7 skills scanned  •  avg score 79  •  5 certified
   Findings: 2 critical, 1 high, 2 medium
 
   ⚠ WARN  3 high/critical finding(s) detected
@@ -100,9 +105,10 @@ Running `npx agentsec` with no arguments scans every default skills directory fo
 | **Claude Code**     | `~/.claude/skills`, `./.claude/skills`, `~/.claude/plugins/*/skills/*`, `~/.claude/commands`, `./.claude/commands` (legacy) |
 | **OpenClaw / ClawHub** | `~/.openclaw/workspace/skills`, `~/.openclaw/workspace-*/skills` (profiles via `OPENCLAW_PROFILE`), `~/.openclaw/skills` |
 | **Codex / skills.sh** | `~/.agents/skills`, `./.agents/skills`, `../.agents/skills`, `/etc/codex/skills`                                         |
+| **Hermes**          | `~/.hermes/skills`, `~/.hermes/skills/*` (bundled categories), `./.hermes/skills`                                          |
 | **Other** (generic) | Any `skills/` directory found within the current working directory, up to two levels deep                                   |
 
-Discovered skills are grouped by platform in the output so you can see at a glance where each skill came from. Pass `--path <dir>` to audit a specific directory instead, or `--platform <claude\|openclaw\|codex>` to narrow to one platform.
+Discovered skills are grouped by platform in the output so you can see at a glance where each skill came from. Pass `--path <dir>` to audit a specific directory instead, or `--platform <claude\|openclaw\|codex\|hermes>` to narrow to one platform.
 
 ## CLI Commands
 
@@ -175,10 +181,13 @@ Findings carry their canonical OWASP code in every report format (text, JSON, HT
 
 ## Supported Agents
 
-- **Claude Code** — scans installed skills and MCP servers
-- **OpenClaw** — full SKILL.md manifest analysis
-- **Codex** — skill and plugin scanning
-- More platforms coming soon
+agentsec is built to be agent-platform agnostic. Every platform that publishes its skills as [agentskills.io](https://agentskills.io/specification) `SKILL.md` files is auditable:
+
+- **Claude Code** — scans installed skills, plugins, and MCP servers
+- **OpenClaw / ClawHub** — full `SKILL.md` manifest analysis, including `metadata.openclaw.*` extensions
+- **Codex / skills.sh** — skill and plugin scanning under `~/.agents/skills` and `/etc/codex/skills`
+- **Hermes** — Nous Research's Hermes Agent, including `metadata.hermes.*` extensions (tags, category, requires_toolsets, config)
+- **Generic** — any project-local `./skills` directory
 
 Browse the skills ecosystem at [skills.sh](https://skills.sh) and [clawhub.ai](https://clawhub.ai). The `agentsec` skill itself is published at [clawhub.ai/markeljan/agentsec](https://clawhub.ai/markeljan/agentsec).
 

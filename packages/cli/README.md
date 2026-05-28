@@ -27,7 +27,7 @@
 
 ---
 
-`agentsec` is a zero-config CLI that audits every skill your AI agent runs — against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/). It supports **Claude Code**, **OpenClaw / ClawHub**, **Codex / skills.sh**, and generic project-local skill directories.
+`agentsec` is a zero-config CLI that audits every skill your AI agent runs — against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/). Agent-platform agnostic: supports **Claude Code**, **OpenClaw / ClawHub**, **Codex / skills.sh**, **Hermes** (Nous Research), and generic project-local skill directories.
 
 One command. Full security report. No sign-up.
 
@@ -42,14 +42,16 @@ No flags needed. agentsec walks every default skills directory on your machine �
 ### Example Output
 
 ```
-  ✔ Found 6 skills
-  ℹ Scanned 4 locations across Claude Code, OpenClaw, Codex / skills.sh, Other
+  ✔ Found 7 skills
+  ℹ Scanned 5 locations across Claude Code, OpenClaw, Codex / skills.sh, Hermes, Other
     Claude Code
       ~/.claude/skills (3 skills)
     OpenClaw
       ~/.openclaw/workspace/skills (1 skill)
     Codex / skills.sh
       ~/.agents/skills (1 skill)
+    Hermes
+      ~/.hermes/skills (1 skill)
     Other
       ./skills (1 skill)
 
@@ -64,10 +66,13 @@ No flags needed. agentsec walks every default skills directory on your machine �
   Codex / skills.sh (1 skill)
   ✔ db-migrate     v1.4.2  B (78)
 
+  Hermes (1 skill)
+  ✔ research-assistant v0.3.1  B (82)
+
   Other (1 skill)
   ✔ lint-fix       v2.0.0  A (93)
 
-  6 skills scanned  •  avg score 78  •  4 certified
+  7 skills scanned  •  avg score 79  •  5 certified
   Findings: 2 critical, 1 high, 2 medium
 
   ⚠ WARN  3 high/critical finding(s) detected
@@ -83,9 +88,10 @@ No flags needed. agentsec walks every default skills directory on your machine �
 | **Claude Code**        | `~/.claude/skills`, `./.claude/skills`, `~/.claude/plugins/*/skills/*`, `~/.claude/commands`, `./.claude/commands`         |
 | **OpenClaw / ClawHub** | `~/.openclaw/workspace/skills`, `~/.openclaw/workspace-*/skills` (profiles via `OPENCLAW_PROFILE`), `~/.openclaw/skills`  |
 | **Codex / skills.sh**  | `~/.agents/skills`, `./.agents/skills`, `../.agents/skills`, `/etc/codex/skills`                                          |
+| **Hermes**             | `~/.hermes/skills`, `~/.hermes/skills/*` (bundled categories), `./.hermes/skills`                                         |
 | **Other** (generic)    | Any `skills/` directory inside the current project, up to two levels deep                                                 |
 
-Pass `--path <dir>` to audit a specific directory instead, or `--platform <claude\|openclaw\|codex>` to narrow to one platform.
+Pass `--path <dir>` to audit a specific directory instead, or `--platform <claude\|openclaw\|codex\|hermes>` to narrow to one platform.
 
 ## Installation
 
@@ -114,7 +120,7 @@ agentsec scan --path ./my-project
 agentsec audit --policy strict
 agentsec audit --policy enterprise
 
-# Narrow to one platform (openclaw | claude | codex)
+# Narrow to one platform (openclaw | claude | codex | hermes)
 agentsec --platform claude
 
 # Output formats: text | json | sarif | html
@@ -150,10 +156,13 @@ Every scan checks all 10 risk categories from the [OWASP AST10](https://owasp.or
 
 ## Supported Agent Platforms
 
-- **Claude Code** — scans installed skills and MCP servers
-- **OpenClaw** — full `SKILL.md` manifest analysis
-- **Codex** — skill and plugin scanning
-- More platforms coming soon
+agentsec is agent-platform agnostic — every platform that emits an [agentskills.io](https://agentskills.io/specification) `SKILL.md` is auditable.
+
+- **Claude Code** — scans installed skills, plugins, and MCP servers
+- **OpenClaw / ClawHub** — full `SKILL.md` manifest analysis, including `metadata.openclaw.*` extensions
+- **Codex / skills.sh** — skill and plugin scanning under `~/.agents/skills` and `/etc/codex/skills`
+- **Hermes** — Nous Research's Hermes Agent, including `metadata.hermes.*` extensions (tags, category, requires_toolsets, config)
+- **Generic** — any project-local `./skills` directory
 
 ## Output Formats
 

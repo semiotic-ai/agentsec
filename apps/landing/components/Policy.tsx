@@ -106,7 +106,7 @@ export function Policy(): React.ReactNode {
           <div>
             {"  "}
             <span className="text-brand-blue">"platform"</span>:{" "}
-            <span className="text-brand-teal">"openclaw"</span>,
+            <span className="text-brand-teal">"hermes"</span>,
           </div>
           <div>
             {"  "}

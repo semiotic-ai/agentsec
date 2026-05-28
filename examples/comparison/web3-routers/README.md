@@ -1,8 +1,9 @@
 # Web3 Router Comparison Artifacts
 
-Regenerated artifacts that compare a reference router skill (Odos) against a
-fixed set of competitor router skills (1inch, KyberSwap, 0x, CowSwap) under
-the AST-10 Web3 Annex (`--profile web3`).
+Regenerated artifacts that audit a fixed set of public DEX-aggregator and router
+agent skills under the AST-10 Web3 Annex (`--profile web3`). Every skill is
+scanned with identical coverage so the report shows objective scores side by
+side, sorted by score (highest first).
 
 ## Files
 

@@ -33,12 +33,14 @@ agentsec/
     scanner/       @agentsec/scanner     - Skill scanning engine and detectors
     metrics/       @agentsec/metrics     - Security scoring algorithms
     policy/        @agentsec/policy      - Policy rules and compliance engine
-    openclaw/      @agentsec/openclaw    - OpenClaw (SKILL.md) format support
+    openclaw/      @agentsec/openclaw    - SKILL.md parsing / discovery (platform-agnostic: openclaw, hermes, claude, codex)
     reporter/      @agentsec/reporter    - Report generation (HTML, JSON, SARIF)
     cli/           @agentsec/cli         - CLI entry point (published as "agentsec")
   apps/
     landing/       @agentsec/landing     - Marketing landing page
 ```
+
+Although the `openclaw/` package is named for OpenClaw — the format that originally drove the `SKILL.md` spec — it handles parsing and discovery for every [agentskills.io](https://agentskills.io/specification)-conformant agent platform agentsec supports: **OpenClaw / ClawHub**, **Hermes** (Nous Research), **Claude Code**, and **Codex / skills.sh**.
 
 ### Dependency Graph
 

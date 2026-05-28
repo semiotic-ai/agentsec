@@ -268,7 +268,7 @@ export function AnimatedTerminal(): ReactNode {
             <span className="w-3 h-3 rounded-full bg-[#febc2e]" aria-hidden="true" />
             <span className="w-3 h-3 rounded-full bg-[#28c840]" aria-hidden="true" />
             <span className="flex-1 text-center text-xs text-brand-muted font-mono select-none">
-              agentsec — ~/.openclaw
+              agentsec — claude · openclaw · codex · hermes
             </span>
             <span className="w-[42px]" aria-hidden="true" />
           </div>

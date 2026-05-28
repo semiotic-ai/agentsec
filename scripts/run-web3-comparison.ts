@@ -2,9 +2,11 @@
 /**
  * Web3 router comparison runner.
  *
- * Audits a fixed set of router-swap skills (Odos as reference + four
- * competitors) and renders a side-by-side comparison as Markdown, HTML,
- * JSON, and CSV under `examples/comparison/web3-routers/`.
+ * Audits a fixed set of router-swap skills and renders a side-by-side
+ * comparison as Markdown, HTML, JSON, and CSV under
+ * `examples/comparison/web3-routers/`. Every skill is audited under the
+ * same `--profile web3` configuration so coverage is identical and the
+ * comparison is neutral.
  *
  * Usage:
  *   bun run compare:web3
@@ -25,26 +27,29 @@ const PROFILE_DIR = process.env.AGENTSEC_COMPARISON_DIR ?? DEFAULT_PROFILE_DIR;
 const OUT_DIR = join(REPO_ROOT, "examples/comparison/web3-routers");
 const TMP_DIR = join(REPO_ROOT, ".agentsec-tmp/comparison");
 
-type SkillRole = "reference" | "competitor";
-
 interface ExpectedSkill {
   dir: string;
   label: string;
-  role: SkillRole;
 }
 
+/**
+ * Router fixtures audited by the comparison runner. Listed alphabetically
+ * by label so the source code does not imply a ranking; the rendered
+ * outputs sort by score so readers can see how each skill places on
+ * objective scan results.
+ */
 const EXPECTED_SKILLS: ExpectedSkill[] = [
-  { dir: "odos-swap", label: "Odos", role: "reference" },
-  { dir: "1inch-swap", label: "1inch", role: "competitor" },
-  { dir: "kyberswap-swap", label: "KyberSwap", role: "competitor" },
-  { dir: "0x-swap", label: "0x", role: "competitor" },
-  { dir: "cowswap-swap", label: "CowSwap", role: "competitor" },
-  { dir: "uniswap-swap", label: "Uniswap", role: "competitor" },
-  { dir: "pancakeswap-swap", label: "PancakeSwap", role: "competitor" },
-  { dir: "lifi-swap", label: "LI.FI", role: "competitor" },
-  { dir: "across-swap", label: "Across", role: "competitor" },
-  { dir: "sushiswap-swap", label: "SushiSwap", role: "competitor" },
-  { dir: "debridge-swap", label: "deBridge", role: "competitor" },
+  { dir: "0x-swap", label: "0x" },
+  { dir: "1inch-swap", label: "1inch" },
+  { dir: "across-swap", label: "Across" },
+  { dir: "cowswap-swap", label: "CowSwap" },
+  { dir: "debridge-swap", label: "deBridge" },
+  { dir: "kyberswap-swap", label: "KyberSwap" },
+  { dir: "lifi-swap", label: "LI.FI" },
+  { dir: "odos-swap", label: "Odos" },
+  { dir: "pancakeswap-swap", label: "PancakeSwap" },
+  { dir: "sushiswap-swap", label: "SushiSwap" },
+  { dir: "uniswap-swap", label: "Uniswap" },
 ];
 
 const SEVERITY_ORDER: Severity[] = ["critical", "high", "medium", "low", "info"];
@@ -88,7 +93,6 @@ interface Cell {
 interface SkillRow {
   dir: string;
   label: string;
-  role: SkillRole;
   score: number;
   grade: string;
   totalFindings: number;
@@ -104,7 +108,6 @@ interface RuleColumn {
 interface ComparisonView {
   generatedAt: string;
   profileDir: string;
-  reference: string;
   skills: SkillRow[];
   rules: RuleColumn[];
   missing: string[];
@@ -187,13 +190,16 @@ function buildMatrix(
     skills.push({
       dir: spec.dir,
       label: spec.label,
-      role: spec.role,
       score,
       grade,
       totalFindings: findings.length,
       cells,
     });
   }
+
+  // Sort rows by score (descending) then by label so the rendered output
+  // reflects the audit result rather than any predetermined ranking.
+  skills.sort((a, b) => b.score - a.score || a.label.localeCompare(b.label));
 
   const rules = Array.from(ruleColumns.values()).sort((a, b) => a.ruleId.localeCompare(b.ruleId));
 
@@ -210,7 +216,6 @@ function buildMatrix(
   return {
     generatedAt: new Date().toISOString(),
     profileDir: displayProfileDir(),
-    reference: "Odos",
     skills,
     rules,
     missing,
@@ -241,8 +246,9 @@ function renderMd(view: ComparisonView): string {
   lines.push("");
   lines.push(`Generated: ${view.generatedAt}`);
   lines.push("");
-  lines.push("Reference skill: **Odos**. Competitors are audited with the AST-10 Web3 Annex");
-  lines.push("rules forced on (`--profile web3`) so coverage is identical across rows.");
+  lines.push("Every router skill is audited with the AST-10 Web3 Annex rules forced on");
+  lines.push("(`--profile web3`) so coverage is identical across rows. Rows are sorted by");
+  lines.push("score (highest first).");
   lines.push("");
 
   if (view.skills.length === 0) {
@@ -252,10 +258,10 @@ function renderMd(view: ComparisonView): string {
 
   lines.push("## Summary");
   lines.push("");
-  lines.push("| Skill | Role | Score | Grade | Findings |");
-  lines.push("| --- | --- | ---: | :-: | ---: |");
+  lines.push("| Skill | Score | Grade | Findings |");
+  lines.push("| --- | ---: | :-: | ---: |");
   for (const s of view.skills) {
-    lines.push(`| ${s.label} | ${s.role} | ${s.score} | ${s.grade} | ${s.totalFindings} |`);
+    lines.push(`| ${s.label} | ${s.score} | ${s.grade} | ${s.totalFindings} |`);
   }
   lines.push("");
 
@@ -360,9 +366,6 @@ tbody tr:hover { background: var(--bg-hover); }
 .rule-id { font-family: var(--font-mono); color: var(--text-secondary); }
 .cell-content { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.78rem; }
 .cell-empty { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.78rem; }
-.role-badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
-.role-reference { background: var(--blue-bg); color: var(--blue); }
-.role-competitor { background: var(--bg-tertiary); color: var(--text-secondary); }
 .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; color: var(--text-secondary); font-size: 0.8rem; }
 .legend span { display: inline-flex; align-items: center; gap: 4px; }
 .muted { color: var(--text-muted); }
@@ -396,7 +399,7 @@ tbody tr:hover { background: var(--bg-hover); }
     const rows = view.skills
       .map(
         (s) =>
-          `<tr><td>${escapeHtml(s.label)}</td><td><span class="role-badge role-${s.role}">${s.role}</span></td><td>${s.score}</td><td>${s.grade}</td><td>${s.totalFindings}</td></tr>`,
+          `<tr><td>${escapeHtml(s.label)}</td><td>${s.score}</td><td>${s.grade}</td><td>${s.totalFindings}</td></tr>`,
       )
       .join("");
     return `
@@ -404,7 +407,7 @@ tbody tr:hover { background: var(--bg-hover); }
   <h2>Summary</h2>
   <div class="matrix-wrap">
     <table>
-      <thead><tr><th>Skill</th><th>Role</th><th>Score</th><th>Grade</th><th>Findings</th></tr></thead>
+      <thead><tr><th>Skill</th><th>Score</th><th>Grade</th><th>Findings</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
   </div>
@@ -470,7 +473,7 @@ tbody tr:hover { background: var(--bg-hover); }
 <body>
   <div class="container">
     <h1>Web3 Router Comparison</h1>
-    <div class="subtitle">Reference skill: <strong>Odos</strong>. Competitors audited with <code>--profile web3</code>.</div>
+    <div class="subtitle">Every router skill audited under <code>--profile web3</code> — identical coverage, side by side.</div>
     <div class="muted" style="margin-bottom:24px;font-size:0.85rem">Generated ${escapeHtml(view.generatedAt)} from <code>${escapeHtml(view.profileDir)}</code></div>
     ${emptyBanner}
     ${missingBanner}

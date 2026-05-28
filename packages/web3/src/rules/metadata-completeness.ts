@@ -9,7 +9,9 @@ import type { AgentSkill, SecurityFinding } from "@agentsec/shared";
  *
  *   - `license`                          — provenance / trust
  *   - `permissions[]`                    — least-privilege enforcement
- *   - `metadata.openclaw`                — registry classification / routing
+ *   - `metadata.<platform>` namespace    — registry classification / routing
+ *                                          (accepts `openclaw`, `hermes`,
+ *                                          `claude`, or `codex`)
  *   - `web3.policy.allowedContracts`     — contract-target verification surface
  *
  * Each missing field produces an independent finding so reports surface
@@ -28,16 +30,32 @@ const RULE_CATEGORY = "web3-metadata-completeness" as const;
 const STUB_LICENSES = new Set(["", "UNKNOWN", "unknown", "TBD", "TODO", "NONE", "none"]);
 
 /**
- * Returns true when the manifest carries a non-empty `metadata.openclaw`
- * block. The `metadata` field lives on the open-ended index signature of
- * `SkillManifest`, so we narrow it here rather than burdening the type.
- * An empty object counts as "present but unhelpful" — treat as missing.
+ * Platform-namespaced metadata keys recognized by agentsec. A skill is
+ * considered "registry-classifiable" when at least one of these blocks
+ * is present and non-empty. Keeps the rule platform-agnostic — Hermes,
+ * OpenClaw, Claude, and Codex skills all satisfy the AST04 metadata
+ * hygiene requirement without favoring one ecosystem.
  */
-function hasOpenclawMetadata(metadata: unknown): boolean {
+const PLATFORM_METADATA_KEYS = ["openclaw", "hermes", "claude", "codex"] as const;
+
+/**
+ * Returns true when the manifest carries a non-empty platform-namespaced
+ * metadata block (any of `metadata.openclaw`, `metadata.hermes`,
+ * `metadata.claude`, `metadata.codex`). The `metadata` field lives on
+ * the open-ended index signature of `SkillManifest`, so we narrow it
+ * here rather than burdening the type. An empty object counts as
+ * "present but unhelpful" — treat as missing.
+ */
+function hasPlatformMetadata(metadata: unknown): boolean {
   if (!metadata || typeof metadata !== "object") return false;
-  const openclaw = (metadata as Record<string, unknown>).openclaw;
-  if (!openclaw || typeof openclaw !== "object") return false;
-  return Object.keys(openclaw as Record<string, unknown>).length > 0;
+  const meta = metadata as Record<string, unknown>;
+  for (const key of PLATFORM_METADATA_KEYS) {
+    const block = meta[key];
+    if (block && typeof block === "object" && Object.keys(block as Record<string, unknown>).length > 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function checkMetadataCompleteness(skill: AgentSkill): SecurityFinding[] {
@@ -83,20 +101,20 @@ export function checkMetadataCompleteness(skill: AgentSkill): SecurityFinding[] 
     });
   }
 
-  if (!hasOpenclawMetadata((m as Record<string, unknown>).metadata)) {
+  if (!hasPlatformMetadata((m as Record<string, unknown>).metadata)) {
     counter++;
     findings.push({
       id: `W04M-003-${counter}`,
       rule: RULE_NAME,
       severity: "low",
       category: RULE_CATEGORY,
-      title: "Web3 skill manifest has no `metadata.openclaw` block",
+      title: "Web3 skill manifest has no platform-namespaced metadata block",
       description:
-        "OpenClaw metadata enables registries to classify and route skills correctly. Without a `metadata.openclaw` block, the skill cannot advertise its tags, capabilities, or registry namespace to ClawHub / skills.sh consumers.",
+        "Platform-namespaced metadata enables registries to classify and route skills correctly. Without at least one of `metadata.openclaw`, `metadata.hermes`, `metadata.claude`, or `metadata.codex`, the skill cannot advertise its tags, capabilities, or registry namespace to ClawHub, skills.sh, or Hermes consumers.",
       file: "skill.json",
-      evidence: "manifest.metadata.openclaw is missing",
+      evidence: "manifest.metadata.{openclaw,hermes,claude,codex} is missing",
       remediation:
-        'Add a `"metadata": { "openclaw": { "tags": [...], "namespace": "..." } }` block to skill.json.',
+        'Add a `"metadata": { "openclaw": { "tags": [...] } }` block (or the equivalent `hermes` / `claude` / `codex` namespace for your target platform) to skill.json.',
     });
   }
 

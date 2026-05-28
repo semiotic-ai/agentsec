@@ -93,7 +93,7 @@ export function Hero({ version }: { version: string }): React.ReactNode {
             <div className="flex flex-wrap gap-8 mt-12 pt-7 border-t border-brand-border/60">
               <Stat value="10" label="OWASP AST categories" />
               <Stat value="4" label="Output formats" />
-              <Stat value="3" label="Agent platforms" />
+              <Stat value="4" label="Agent platforms" />
               <Stat value="0–100" label="Skill score range" mono />
             </div>
           </div>

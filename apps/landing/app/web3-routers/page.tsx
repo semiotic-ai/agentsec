@@ -14,8 +14,6 @@ type RouterRow = {
   grade: Grade;
   findings: number;
   source: string | null;
-  /** Marks the reference / design partner. */
-  reference?: boolean;
 };
 
 const ROUTERS: readonly RouterRow[] = [
@@ -26,7 +24,6 @@ const ROUTERS: readonly RouterRow[] = [
     grade: "B",
     findings: 4,
     source: "https://github.com/odos-xyz/odos-skills",
-    reference: true,
   },
   {
     rank: 2,
@@ -192,7 +189,7 @@ const ANNEX_RULES: readonly { id: string; title: string; what: string }[] = [
 export const metadata: Metadata = {
   title: "Web3 Router Audit",
   description:
-    "AgentSec audited 11 production DEX router agent skills against the AST-10 Web3 Annex. Compare scores, grades, and findings across Odos, Uniswap, 1inch, 0x, KyberSwap, SushiSwap, LI.FI, Across, PancakeSwap, CowSwap, and deBridge.",
+    "AgentSec audited 11 production DEX router agent skills against the AST-10 Web3 Annex. Identical coverage across 0x, 1inch, Across, CowSwap, deBridge, KyberSwap, LI.FI, Odos, PancakeSwap, SushiSwap, and Uniswap — sorted by score.",
   alternates: { canonical: "/web3-routers" },
   openGraph: {
     title: `Web3 Router Audit | ${SITE_NAME}`,
@@ -300,10 +297,10 @@ function StatsSection({
 }): React.ReactNode {
   const stats: { label: string; value: string; tone?: "teal" | "red" | "green"; sub?: string }[] = [
     {
-      label: "Reference skill",
-      value: "Odos",
+      label: "Skills audited",
+      value: "11",
       tone: "teal",
-      sub: "v1.0.0 · 88 / B",
+      sub: "public DEX routers",
     },
     {
       label: "Avg. score",
@@ -427,20 +424,11 @@ function ScoreboardSection(): React.ReactNode {
                 {ROUTERS.map((r) => (
                   <tr
                     key={r.name}
-                    className={`border-b border-brand-border/40 last:border-b-0 ${
-                      r.reference ? "bg-brand-teal/[0.04]" : "hover:bg-brand-secondary/50"
-                    } transition-colors`}
+                    className="border-b border-brand-border/40 last:border-b-0 hover:bg-brand-secondary/50 transition-colors"
                   >
                     <td className="px-5 py-3 font-mono text-xs text-brand-dim">{r.rank}</td>
                     <td className="px-3 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-brand-text font-medium">{r.name}</span>
-                        {r.reference && (
-                          <span className="font-mono text-[10px] tracking-[0.06em] uppercase px-1.5 py-0.5 rounded border border-brand-teal/40 bg-brand-teal/10 text-brand-teal">
-                            reference
-                          </span>
-                        )}
-                      </div>
+                      <span className="text-brand-text font-medium">{r.name}</span>
                     </td>
                     <td className="px-3 py-3 text-right font-mono text-brand-text">{r.score}</td>
                     <td className="px-3 py-3 text-center">

@@ -334,6 +334,8 @@ export function platformLabel(platform: AgentPlatform | null | undefined): strin
       return "OpenClaw";
     case "codex":
       return "Codex / skills.sh";
+    case "hermes":
+      return "Hermes";
     default:
       return "Other";
   }
@@ -348,6 +350,8 @@ export function platformColor(platform: AgentPlatform | null | undefined): (s: s
       return color.cyan;
     case "codex":
       return color.yellow;
+    case "hermes":
+      return color.blue;
     default:
       return color.gray;
   }

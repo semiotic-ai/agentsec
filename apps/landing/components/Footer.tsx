@@ -33,9 +33,10 @@ const COLS: readonly FooterCol[] = [
   {
     title: "Platforms",
     items: [
-      { label: "OpenClaw", href: "#" },
       { label: "Claude Code", href: "#" },
+      { label: "OpenClaw", href: "#" },
       { label: "Codex / Cursor", href: "#" },
+      { label: "Hermes", href: "#" },
       { label: "Compare", href: "#" },
     ],
   },

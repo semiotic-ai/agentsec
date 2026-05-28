@@ -94,7 +94,7 @@ const COMMANDMENTS: readonly Commandment[] = [
     name: "Cross-Platform Reuse",
     sev: "yellow",
     what: "Skills that are safe on one platform but dangerous when reused on another.",
-    why: "Permission models differ across OpenClaw, Claude Code, and Cursor. The same skill is not the same risk.",
+    why: "Permission models differ across Claude Code, OpenClaw, Codex, Hermes, and Cursor. The same skill is not the same risk.",
   },
 ];
 

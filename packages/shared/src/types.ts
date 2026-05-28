@@ -8,7 +8,7 @@ export interface AgentSkill {
   version: string;
   /** Absolute path to skill directory */
   path: string;
-  /** Agent platform (openclaw, claude, codex) */
+  /** Agent platform (openclaw, claude, codex, hermes) */
   platform: AgentPlatform;
   /** Skill metadata from manifest */
   manifest: SkillManifest;
@@ -20,7 +20,7 @@ export interface AgentSkill {
   discoveredAs?: AgentPlatform;
 }
 
-export type AgentPlatform = "openclaw" | "claude" | "codex";
+export type AgentPlatform = "openclaw" | "claude" | "codex" | "hermes";
 
 export interface SkillManifest {
   name: string;

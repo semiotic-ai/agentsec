@@ -374,7 +374,7 @@ describe("Scanner Integration: edge cases", () => {
   });
 
   test("multi-platform skill detection works", () => {
-    for (const platform of ["openclaw", "claude", "codex"] as const) {
+    for (const platform of ["openclaw", "claude", "codex", "hermes"] as const) {
       const skill: AgentSkill = {
         id: `${platform}-skill`,
         name: `${platform} Test Skill`,

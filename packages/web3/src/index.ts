@@ -189,7 +189,7 @@ export const WEB3_RULES: Web3RuleDefinition[] = [
     name: "web3-metadata-completeness",
     category: "web3-metadata-completeness",
     description:
-      "Web3-specific tightening of AST04: flags web3 skills whose manifest is missing license, permissions, metadata.openclaw, or web3.policy.allowedContracts",
+      "Web3-specific tightening of AST04: flags web3 skills whose manifest is missing license, permissions, a platform-namespaced metadata block (openclaw / hermes / claude / codex), or web3.policy.allowedContracts",
     owaspId: "AST04",
     owaspLink: ANNEX_LINK,
     run: checkMetadataCompleteness,

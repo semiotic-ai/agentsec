@@ -2,11 +2,12 @@
  * e2e/auto-discover.test.ts — Zero-argument auto-discovery integration test.
  *
  * Exercises `agentsec audit` with no arguments against a synthetic $HOME that
- * contains skills laid out for three agent platforms:
+ * contains skills laid out for four agent platforms:
  *
  *   ~/.openclaw/workspace/skills/demo-openclaw  (OpenClaw workspace default)
  *   ~/.agents/skills/demo-codex                 (Codex / skills.sh default)
  *   ~/.claude/skills/demo-claude                (Claude Code personal default)
+ *   ~/.hermes/skills/demo-hermes                (Hermes / Nous Research default)
  *   <cwd>/skills/demo-generic                   (generic cwd walk)
  *
  * We override cwd to a controlled temp directory containing a generic
@@ -33,6 +34,7 @@ const FIXTURES: ReadonlyArray<readonly ["home" | "cwd", string, string]> = [
   ["home", ".openclaw/workspace/skills/demo-openclaw", "demo-openclaw"],
   ["home", ".agents/skills/demo-codex", "demo-codex"],
   ["home", ".claude/skills/demo-claude", "demo-claude"],
+  ["home", ".hermes/skills/demo-hermes", "demo-hermes"],
   ["cwd", "skills/demo-generic", "demo-generic"],
 ];
 
@@ -90,6 +92,7 @@ describe("agentsec audit (zero-arg auto-discover)", () => {
     expect(output).toContain("demo-openclaw");
     expect(output).toContain("demo-codex");
     expect(output).toContain("demo-claude");
+    expect(output).toContain("demo-hermes");
     expect(output).toContain("demo-generic");
   }, 60_000);
 });

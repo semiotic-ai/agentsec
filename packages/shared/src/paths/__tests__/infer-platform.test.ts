@@ -44,6 +44,20 @@ describe("inferPlatformFromPath", () => {
     });
   });
 
+  describe("hermes platform", () => {
+    it("matches /.hermes/skills/ paths", () => {
+      expect(inferPlatformFromPath("/Users/x/.hermes/skills/foo")).toBe("hermes");
+    });
+
+    it("matches bundled-category hermes paths", () => {
+      expect(inferPlatformFromPath("/Users/x/.hermes/skills/devops/deploy-helper")).toBe("hermes");
+    });
+
+    it("matches Windows-style backslash hermes paths after normalization", () => {
+      expect(inferPlatformFromPath("C:\\Users\\x\\.hermes\\skills\\foo")).toBe("hermes");
+    });
+  });
+
   describe("no match", () => {
     it("returns null for unrelated paths", () => {
       expect(inferPlatformFromPath("/some/random/dir")).toBeNull();

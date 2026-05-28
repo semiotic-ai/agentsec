@@ -105,28 +105,47 @@ describe("AST04 (web3 tightening): metadata-completeness", () => {
     expect(findings.length).toBe(0);
   });
 
-  test("fires missing-openclaw when metadata is undefined", () => {
+  test("fires missing-platform-namespace when metadata is undefined", () => {
     const skill = mockSkill({ metadata: null });
     const findings = checkMetadataCompleteness(skill).filter((f) => f.id.startsWith("W04M-003"));
     expect(findings.length).toBe(1);
     expect(findings[0].severity).toBe("low");
   });
 
-  test("fires missing-openclaw when metadata exists but has no `openclaw` key", () => {
+  test("fires missing-platform-namespace when metadata exists but has no platform key", () => {
     const skill = mockSkill({ metadata: { other: "stuff" } });
     const findings = checkMetadataCompleteness(skill).filter((f) => f.id.startsWith("W04M-003"));
     expect(findings.length).toBe(1);
   });
 
-  test("fires missing-openclaw when metadata.openclaw is an empty object", () => {
+  test("fires missing-platform-namespace when every platform block is empty", () => {
     // Empty object is "present but unhelpful" — treat as missing.
-    const skill = mockSkill({ metadata: { openclaw: {} } });
+    const skill = mockSkill({ metadata: { openclaw: {}, hermes: {} } });
     const findings = checkMetadataCompleteness(skill).filter((f) => f.id.startsWith("W04M-003"));
     expect(findings.length).toBe(1);
   });
 
-  test("does not fire missing-openclaw when metadata.openclaw has fields", () => {
+  test("does not fire missing-platform-namespace when metadata.openclaw has fields", () => {
     const skill = mockSkill({ metadata: { openclaw: { tags: ["web3"] } } });
+    const findings = checkMetadataCompleteness(skill).filter((f) => f.id.startsWith("W04M-003"));
+    expect(findings.length).toBe(0);
+  });
+
+  test("does not fire missing-platform-namespace when metadata.hermes has fields", () => {
+    // Platform-agnostic: Hermes-namespaced metadata should satisfy the rule.
+    const skill = mockSkill({ metadata: { hermes: { tags: ["web3"], category: "defi" } } });
+    const findings = checkMetadataCompleteness(skill).filter((f) => f.id.startsWith("W04M-003"));
+    expect(findings.length).toBe(0);
+  });
+
+  test("does not fire missing-platform-namespace when metadata.claude has fields", () => {
+    const skill = mockSkill({ metadata: { claude: { tags: ["web3"] } } });
+    const findings = checkMetadataCompleteness(skill).filter((f) => f.id.startsWith("W04M-003"));
+    expect(findings.length).toBe(0);
+  });
+
+  test("does not fire missing-platform-namespace when metadata.codex has fields", () => {
+    const skill = mockSkill({ metadata: { codex: { tags: ["web3"] } } });
     const findings = checkMetadataCompleteness(skill).filter((f) => f.id.startsWith("W04M-003"));
     expect(findings.length).toBe(0);
   });

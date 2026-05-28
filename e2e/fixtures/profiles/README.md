@@ -12,7 +12,7 @@ Profiles here are **fixture collections**, not the CLI's `--profile {default,web
 
 | Path           | Status              | Description                                                                                  |
 | -------------- | ------------------- | -------------------------------------------------------------------------------------------- |
-| `web3/`        | Populated           | Real-world DEX-aggregator agent skills (Odos as reference, plus 1inch / KyberSwap / 0x / CowSwap competitors). |
+| `web3/`        | Populated           | Real-world DEX-aggregator and router agent skills (0x, 1inch, Across, CowSwap, deBridge, KyberSwap, LI.FI, Odos, PancakeSwap, SushiSwap, Uniswap). |
 | `financial/`   | Empty scaffold      | Reserved for fiat payments, banking, accounting, KYC.                                        |
 | `document/`    | Empty scaffold      | Reserved for PDF / DOCX / contract / legal-text skills.                                      |
 | `standard/`    | Empty scaffold      | Reserved for general-purpose utility skills that don't fit a domain.                         |
@@ -23,7 +23,7 @@ The empty scaffolds are placeholders to claim the directory shape now and avoid 
 
 1. `mkdir e2e/fixtures/profiles/<name>/`
 2. Add a `README.md` describing the domain, the run command, and the expected risk taxonomy.
-3. Add an `index.json` listing the fixtures (`{ profile, description, skills: [{name, path, role}], expectedRules }`).
+3. Add an `index.json` listing the fixtures (`{ profile, description, skills: [{name, path}], expectedRules }`).
 4. Add the actual fixture directories (each with its own `skill.json` or `SKILL.md`) under the profile.
 
 ## Comparison runner

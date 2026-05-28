@@ -1,8 +1,8 @@
 # KyberSwap swap-execute fixture
 
 E2E fixture mirroring KyberNetwork's official skills repo so the agentsec scanner
-can grade the polished safe-vs-fast architecture against other DEX router skills
-(Odos, 1inch, 0x, CowSwap).
+can grade the polished safe-vs-fast architecture alongside the other router
+fixtures under `e2e/fixtures/profiles/web3/`.
 
 ## Provenance
 

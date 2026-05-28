@@ -55,7 +55,7 @@ function printHelp(): void {
   console.log(`  ${color.cyan("    --no-policy")}  Skip policy evaluation`);
   console.log(`  ${color.cyan("    --no-reports")} Skip the auto-written ./agentsec-report bundle`);
   console.log(
-    `  ${color.cyan("    --platform")}   Narrow to one platform: openclaw, claude, codex`,
+    `  ${color.cyan("    --platform")}   Narrow to one platform: openclaw, claude, codex, hermes`,
   );
   console.log(`  ${color.cyan("    --path")}       Custom skill directory to scan`);
   console.log(
@@ -78,6 +78,7 @@ function printHelp(): void {
   console.log(
     `    ${color.yellow("Codex")}         ${color.dim("~/.agents/skills, ./.agents/skills, /etc/codex/skills")}`,
   );
+  console.log(`    ${color.blue("Hermes")}        ${color.dim("~/.hermes/skills, ./.hermes/skills")}`);
   console.log();
 
   console.log(color.bold("EXAMPLES"));

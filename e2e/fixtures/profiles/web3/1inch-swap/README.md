@@ -1,9 +1,9 @@
 # 1inch swap fixture
 
 Third-party 1inch wrapper skill mirrored verbatim from upstream so the agentsec
-scanner can grade its risky patterns against the Web3 Annex (AST-W01..W12). Used
-by the web3 router skill comparison set alongside Odos (reference), KyberSwap,
-0x, and CowSwap fixtures.
+scanner can grade its risky patterns against the Web3 Annex (AST-W01..W12). One
+of the router fixtures consumed by the web3 router skill comparison set under
+`e2e/fixtures/profiles/web3/`.
 
 ## Provenance
 

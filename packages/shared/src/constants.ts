@@ -49,6 +49,6 @@ export const DANGEROUS_PERMISSIONS = [
   "clipboard:write",
 ];
 
-export const SUPPORTED_PLATFORMS: AgentPlatform[] = ["openclaw", "claude", "codex"];
+export const SUPPORTED_PLATFORMS: AgentPlatform[] = ["openclaw", "claude", "codex", "hermes"];
 
 export const AUDIT_VERSION = "0.3.2";

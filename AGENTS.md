@@ -19,14 +19,16 @@ This is a **Turborepo** monorepo with **bun workspaces**.
 ```
 agentsec/
   packages/
-    shared/        @agentsec/shared      - Shared types and utilities
+    shared/        @agentsec/shared       - Shared types and utilities
     scanner/       @agentsec/scanner      - Skill scanner engine
     metrics/       @agentsec/metrics      - Security scoring and metrics
     policy/        @agentsec/policy       - Policy engine and rules
-    openclaw/      @agentsec/openclaw     - OpenClaw format support
+    openclaw/      @agentsec/openclaw     - SKILL.md parser/discovery (platform-agnostic: openclaw, hermes, claude, codex)
     reporter/      @agentsec/reporter     - Report generation
     cli/           @agentsec/cli          - CLI entry point
 ```
+
+Although the `openclaw/` package is named for the OpenClaw format that originally seeded the SKILL.md spec, it parses and discovers skills across every [agentskills.io](https://agentskills.io/specification)-conformant platform agentsec supports: **OpenClaw / ClawHub**, **Hermes** (Nous Research), **Claude Code**, and **Codex / skills.sh**. New agent platforms that emit `SKILL.md` files only need a path-default entry in `packages/shared/src/defaults/` and an inference rule in `packages/shared/src/paths/infer-platform.ts`.
 
 ### Package Naming
 
@@ -40,7 +42,7 @@ shared (types, constants, utilities)
   ^--- scanner  (skill scanning, vulnerability detection)
   ^--- metrics  (security scoring, risk calculation)
   ^--- policy   (policy rules, compliance checks)
-  ^--- openclaw (OpenClaw SKILL.md parsing)
+  ^--- openclaw (SKILL.md parsing for openclaw/hermes/claude/codex)
   ^--- reporter (HTML/JSON/PDF report generation)
 
 cli (command-line interface, published as "agentsec")
