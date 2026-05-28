@@ -51,4 +51,4 @@ export const DANGEROUS_PERMISSIONS = [
 
 export const SUPPORTED_PLATFORMS: AgentPlatform[] = ["openclaw", "claude", "codex", "hermes"];
 
-export const AUDIT_VERSION = "0.3.2";
+export const AUDIT_VERSION = "0.3.3";

@@ -5,7 +5,7 @@
  * from `packages/cli/` — the path escapes the project root. Keep this literal
  * in sync via the version-stamps pipeline (see scripts/version-stamps.ts).
  */
-const FALLBACK_VERSION = "0.3.2";
+const FALLBACK_VERSION = "0.3.3";
 
 const NPM_REGISTRY_URL = "https://registry.npmjs.org/agentsec/latest";
 const REVALIDATE_SECONDS = 3600;

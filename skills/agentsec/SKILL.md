@@ -5,7 +5,7 @@ description: >
   installed skills against the OWASP Agentic Skills Top 10, checking skills
   before running them, gating CI/CD on skill safety, or generating audit
   reports (text, JSON, SARIF, HTML) for stakeholders.
-version: 0.3.2
+version: 0.3.3
 license: MIT
 homepage: https://agentsec.sh
 author: semiotic-ai
