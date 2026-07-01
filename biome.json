@@ -6,7 +6,10 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
+      "a11y": {
+        "noSvgWithoutTitle": "off"
+      },
       "suspicious": {
         "noExplicitAny": "warn",
         "noAssignInExpressions": "warn",
@@ -45,7 +48,9 @@
       "!.claude",
       "!e2e/fixtures",
       "!examples",
-      "!apps/landing/public/examples"
+      "!apps/landing/public/examples",
+      "!.agentsec-tmp",
+      "!agentsec-report"
     ]
   }
 }

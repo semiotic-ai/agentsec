@@ -136,6 +136,9 @@ export function checkPermissions(skill: AgentSkill): SecurityFinding[] {
   // Check manifest permissions
   checkManifestPermissions(skill, findings);
 
+  // Check declared tool grants (agentskills.io `allowed-tools`)
+  checkAllowedTools(skill, findings);
+
   // Check code-level permissions
   for (const file of skill.files) {
     const ext = file.relativePath.split(".").pop()?.toLowerCase() ?? "";
@@ -208,6 +211,78 @@ function checkManifestPermissions(skill: AgentSkill, findings: SecurityFinding[]
       remediation:
         "Review all requested permissions and remove any that are not strictly necessary for the skill's core functionality.",
     });
+  }
+}
+
+/** Tool base-names that grant arbitrary shell/command execution. */
+const SHELL_TOOL_NAMES = new Set(["bash", "shell", "sh", "execute", "exec", "terminal", "run"]);
+
+/**
+ * Split an `allowed-tools` entry into its base name and capability scope.
+ * `Bash(npm:*)` -> `{ name: "Bash", scope: "npm:*" }`; `Read` ->
+ * `{ name: "Read", scope: undefined }`.
+ */
+function parseToolEntry(entry: string): { name: string; scope?: string } {
+  const match = entry.match(/^([^(]+)(?:\((.*)\))?$/);
+  if (!match) return { name: entry.trim() };
+  return { name: match[1].trim(), scope: match[2]?.trim() };
+}
+
+/** A scope that grants everything (`*`, `:*`, empty) offers no real restriction. */
+function isWildcardScope(scope: string | undefined): boolean {
+  if (scope === undefined) return true;
+  const s = scope.trim();
+  return s === "" || s === "*" || s === ":*" || s === "*:*";
+}
+
+/**
+ * Rule: Over-broad tool grants (AST-03)
+ *
+ * Skills declare pre-approved tools via the agentskills.io `allowed-tools`
+ * field; those tools run without prompting the user. A bare or wildcard-scoped
+ * shell grant (`Bash`, `Bash(*)`) hands the skill unrestricted command
+ * execution, and a bare `*` grants every tool — both violate least privilege.
+ * Narrowly-scoped grants (`Bash(npm:*)`) are considered acceptable and are not
+ * flagged.
+ */
+function checkAllowedTools(skill: AgentSkill, findings: SecurityFinding[]): void {
+  const tools = skill.manifest.allowedTools ?? [];
+  for (const raw of tools) {
+    const { name, scope } = parseToolEntry(raw);
+    const lower = name.toLowerCase();
+
+    if (name === "*") {
+      findings.push({
+        id: `PERM-TOOL-WILDCARD-${raw}`,
+        rule: "permissions",
+        severity: "critical",
+        category: "excessive-permissions",
+        title: "Wildcard tool grant pre-approves every tool",
+        description:
+          "The skill's `allowed-tools` grants '*', pre-approving every available tool to run without prompting. This maximizes the blast radius of a compromised or malicious skill.",
+        file: "SKILL.md",
+        evidence: `allowed-tools: ${raw}`,
+        remediation:
+          "Replace the wildcard with an explicit, minimal list of the specific tools the skill needs.",
+      });
+      continue;
+    }
+
+    if (SHELL_TOOL_NAMES.has(lower) && isWildcardScope(scope)) {
+      findings.push({
+        id: `PERM-TOOL-SHELL-${raw}`,
+        rule: "permissions",
+        severity: "high",
+        category: "excessive-permissions",
+        title: `Unrestricted shell grant in allowed-tools: ${name}`,
+        description:
+          "The skill pre-approves an unscoped shell/command tool, allowing it to run arbitrary commands without prompting the user. This grants far broader access than a scoped grant such as `Bash(npm:*)`.",
+        file: "SKILL.md",
+        evidence: `allowed-tools: ${raw}`,
+        remediation:
+          "Scope the shell grant to the exact commands the skill runs, e.g. `Bash(npm:*)` or `Bash(git:*)`, instead of a bare or wildcard grant.",
+      });
+    }
   }
 }
 

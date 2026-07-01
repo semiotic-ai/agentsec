@@ -51,7 +51,11 @@ function hasPlatformMetadata(metadata: unknown): boolean {
   const meta = metadata as Record<string, unknown>;
   for (const key of PLATFORM_METADATA_KEYS) {
     const block = meta[key];
-    if (block && typeof block === "object" && Object.keys(block as Record<string, unknown>).length > 0) {
+    if (
+      block &&
+      typeof block === "object" &&
+      Object.keys(block as Record<string, unknown>).length > 0
+    ) {
       return true;
     }
   }

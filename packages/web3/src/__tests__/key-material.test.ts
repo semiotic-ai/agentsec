@@ -39,7 +39,7 @@ function mockManifestSkill(manifest: SkillManifest): AgentSkill {
   };
 }
 
-const HEX_64 = "a".repeat(63) + "b"; // 64 hex chars, not all-same so not the 0xff... constant
+const HEX_64 = `${"a".repeat(63)}b`; // 64 hex chars, not all-same so not the 0xff... constant
 
 describe("AST-W11: const PRIVATE_KEY assignment (W11-003)", () => {
   test('flags `const PRIVATE_KEY = "0x..."` as critical', () => {
@@ -74,8 +74,7 @@ function debug(key) {
   });
 
   test("flags template-literal interpolation containing 64-char hex", () => {
-    // biome-ignore lint/suspicious/noTemplateCurlyInString: intentional test fixture
-    const skill = mockSkill('const msg = `loaded key ${"' + HEX_64 + '"} from env`;');
+    const skill = mockSkill(`const msg = \`loaded key \${"${HEX_64}"} from env\`;`);
     const findings = checkKeyMaterial(skill);
     expect(findings.some((f) => f.id.startsWith("W11-001"))).toBe(true);
   });

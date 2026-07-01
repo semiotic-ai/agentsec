@@ -633,13 +633,7 @@ function printNoSkillsHint(config: AuditConfig): void {
 }
 
 /** Order platforms appear in output. `null` ("Other") comes last. */
-const PLATFORM_ORDER: (AgentPlatform | null)[] = [
-  "claude",
-  "openclaw",
-  "codex",
-  "hermes",
-  null,
-];
+const PLATFORM_ORDER: (AgentPlatform | null)[] = ["claude", "openclaw", "codex", "hermes", null];
 
 /**
  * Bucket skills by their `discoveredAs` platform. Unknown/missing

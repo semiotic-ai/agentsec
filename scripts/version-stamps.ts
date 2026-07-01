@@ -59,7 +59,8 @@ export const STAMPS: VersionStamp[] = [
   },
   {
     file: "apps/landing/lib/version.ts",
-    description: "Landing-site fallback when npm registry is unreachable (Vercel builds apps/landing/ in isolation, can't import from packages/cli/)",
+    description:
+      "Landing-site fallback when npm registry is unreachable (Vercel builds apps/landing/ in isolation, can't import from packages/cli/)",
     pattern: 'const FALLBACK_VERSION = "{VERSION}";',
   },
 ];

@@ -104,7 +104,7 @@ export function checkAuditSink(skill: AgentSkill): SecurityFinding[] {
   const web3Present = isWeb3BlockPresent(web3);
 
   if (web3Present) {
-    if (!web3.audit || !web3.audit.sink) {
+    if (!web3.audit?.sink) {
       counter++;
       findings.push({
         id: `W12-001-${counter}`,
@@ -123,7 +123,7 @@ export function checkAuditSink(skill: AgentSkill): SecurityFinding[] {
       });
     }
 
-    if (!web3.killSwitch || !web3.killSwitch.contract) {
+    if (!web3.killSwitch?.contract) {
       counter++;
       findings.push({
         id: `W12-002-${counter}`,
@@ -143,7 +143,7 @@ export function checkAuditSink(skill: AgentSkill): SecurityFinding[] {
       });
     }
 
-    if (!web3.incident || !web3.incident.runbook) {
+    if (!web3.incident?.runbook) {
       counter++;
       findings.push({
         id: `W12-003-${counter}`,
@@ -176,7 +176,7 @@ export function checkAuditSink(skill: AgentSkill): SecurityFinding[] {
     }
 
     const autonomy = bodyClaimsAutonomy(skill);
-    if (autonomy && (!web3.killSwitch || !web3.killSwitch.contract)) {
+    if (autonomy && !web3.killSwitch?.contract) {
       counter++;
       findings.push({
         id: `W12-020-${counter}`,

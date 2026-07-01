@@ -84,7 +84,7 @@ test('detects eval() usage', () => {
   const findings = analyzeSkill('./test-fixtures/malicious-skill');
   expect(findings).toContainEqual({
     severity: 'critical',
-    riskId: 'AST05',
+    riskId: 'AST01',
   });
 });
 ```
@@ -164,11 +164,12 @@ Create a fixture skill under `e2e/fixtures/` that triggers your rule (see next s
 | File | Category | OWASP |
 |------|----------|-------|
 | `injection.ts` | Code injection detection | AST01 |
-| `permissions.ts` | Permission analysis | AST03 |
+| `deserialization.ts` | Unsafe deserialization (code execution from untrusted data) | AST01 |
+| `storage.ts` | Insecure credential/secret storage patterns | AST01 |
+| `permissions.ts` | Permission analysis, over-broad `allowed-tools` grants | AST03 |
 | `dependencies.ts` | Dependency risk checks | AST02 |
 | `supply-chain.ts` | Supply chain indicators | AST02 |
-| `storage.ts` | Insecure storage patterns | AST05 |
-| `deserialization.ts` | Unsafe deserialization | AST05 |
+| `external-instructions.ts` | Untrusted external instructions (indirect prompt injection, covert/exfil directives, dynamic load-time execution) | AST05 |
 | `dos.ts` | Denial of service patterns | AST06 |
 | `logging.ts` | Logging hygiene | AST08 |
 | `error-handling.ts` | Error handling checks | AST09 |

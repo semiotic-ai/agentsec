@@ -188,6 +188,50 @@ describe("normalizeManifest", () => {
     expect(manifest.entrypoint).toBe("dist/main.js");
   });
 
+  test("parses space-separated allowed-tools (agentskills.io spec form)", () => {
+    const raw = {
+      name: "tools-skill",
+      version: "1.0.0",
+      "allowed-tools": "Bash(git:*) Bash(jq:*) Read",
+    };
+    const manifest = normalizeManifest(raw, "skill-md");
+    expect(manifest.allowedTools).toEqual(["Bash(git:*)", "Bash(jq:*)", "Read"]);
+    // The raw hyphenated key must not leak through as an extra property.
+    expect(manifest["allowed-tools"]).toBeUndefined();
+  });
+
+  test("parses comma-separated allowed-tools (Claude Code form) and keeps scopes intact", () => {
+    const raw = {
+      name: "tools-skill",
+      version: "1.0.0",
+      "allowed-tools": "Read, Write, Bash(npm:*), Task(subagent_type:swap-expert)",
+    };
+    const manifest = normalizeManifest(raw, "skill-md");
+    expect(manifest.allowedTools).toEqual([
+      "Read",
+      "Write",
+      "Bash(npm:*)",
+      "Task(subagent_type:swap-expert)",
+    ]);
+  });
+
+  test("parses YAML-list allowed-tools and a disallowed-tools list", () => {
+    const raw = {
+      name: "tools-skill",
+      version: "1.0.0",
+      "allowed-tools": ["Read", "Bash(git:*)"],
+      "disallowed-tools": ["WebFetch"],
+    };
+    const manifest = normalizeManifest(raw, "skill-md");
+    expect(manifest.allowedTools).toEqual(["Read", "Bash(git:*)"]);
+    expect(manifest.disallowedTools).toEqual(["WebFetch"]);
+  });
+
+  test("omits allowedTools when absent", () => {
+    const manifest = normalizeManifest({ name: "x", version: "1.0.0" }, "skill-md");
+    expect(manifest.allowedTools).toBeUndefined();
+  });
+
   test("normalizes from package-json with author object", () => {
     const raw = {
       name: "auth-test",

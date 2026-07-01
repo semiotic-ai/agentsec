@@ -219,11 +219,7 @@ export default async function Web3RoutersPage(): Promise<React.ReactNode> {
       <Header version={version} />
       <main id="web3-routers-main">
         <Hero />
-        <StatsSection
-          avgScore={avgScore}
-          totalFindings={totalFindings}
-          gradeCount={gradeCount}
-        />
+        <StatsSection avgScore={avgScore} totalFindings={totalFindings} gradeCount={gradeCount} />
         <ScoreboardSection />
         <AnnexSection />
         <CTASection />

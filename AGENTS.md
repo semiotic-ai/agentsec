@@ -161,20 +161,22 @@ bun run check
 
 ## OWASP Agentic Skills Top 10
 
-This project implements scanning and auditing based on OWASP Agentic Skills Top 10 (AST10). Reference materials are in `.reference/owasp-agentic-skills-top-10/`. The ten risk categories are:
+This project implements scanning and auditing based on OWASP Agentic Skills Top 10 (AST10), **v1.0 (2026 edition)**. Reference materials are in `.reference/owasp-agentic-skills-top-10/`. The ten risk categories are:
 
-| ID    | Risk                    |
-| ----- | ----------------------- |
-| AST01 | Malicious Skills        |
-| AST02 | Supply Chain Compromise |
-| AST03 | Over-Privileged Skills  |
-| AST04 | Insecure Metadata       |
-| AST05 | Unsafe Deserialization  |
-| AST06 | Weak Isolation          |
-| AST07 | Update Drift            |
-| AST08 | Poor Scanning           |
-| AST09 | No Governance           |
-| AST10 | Cross-Platform Reuse    |
+| ID    | Risk                            |
+| ----- | ------------------------------- |
+| AST01 | Malicious Skills                |
+| AST02 | Supply Chain Compromise         |
+| AST03 | Over-Privileged Skills          |
+| AST04 | Insecure Metadata               |
+| AST05 | Untrusted External Instructions |
+| AST06 | Weak Isolation                  |
+| AST07 | Update Drift                    |
+| AST08 | Poor Scanning                   |
+| AST09 | No Governance                   |
+| AST10 | Cross-Platform Reuse            |
+
+> **Note:** In OWASP AST10 v1.0 (March 2026) AST05 was renamed from "Unsafe Deserialization" to **Untrusted External Instructions** — indirect prompt injection / hidden-instruction ("tool poisoning") payloads embedded in skill content. agentsec's `external-instructions` rule implements AST05; the unsafe-deserialization and insecure-storage detectors (both dangerous-code patterns) are mapped to AST01.
 
 ### Web3 Annex (AST-W01–W12)
 

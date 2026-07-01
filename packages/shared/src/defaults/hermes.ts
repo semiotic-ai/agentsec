@@ -19,19 +19,7 @@
  * Keyed by `process.platform` values (`darwin`, `linux`, `win32`).
  */
 export const HERMES_SKILL_DIRS: Record<string, string[]> = {
-  darwin: [
-    "~/.hermes/skills",
-    "~/.hermes/skills/*",
-    "./.hermes/skills",
-  ],
-  linux: [
-    "~/.hermes/skills",
-    "~/.hermes/skills/*",
-    "./.hermes/skills",
-  ],
-  win32: [
-    "%USERPROFILE%/.hermes/skills",
-    "%USERPROFILE%/.hermes/skills/*",
-    ".\\.hermes\\skills",
-  ],
+  darwin: ["~/.hermes/skills", "~/.hermes/skills/*", "./.hermes/skills"],
+  linux: ["~/.hermes/skills", "~/.hermes/skills/*", "./.hermes/skills"],
+  win32: ["%USERPROFILE%/.hermes/skills", "%USERPROFILE%/.hermes/skills/*", ".\\.hermes\\skills"],
 };

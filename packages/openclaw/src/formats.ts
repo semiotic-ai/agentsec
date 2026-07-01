@@ -134,6 +134,10 @@ export function normalizeManifest(
 
 function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
   const hoisted = hoistPlatformWeb3(raw);
+  const allowedTools = parseToolList(raw["allowed-tools"] ?? raw.allowedTools);
+  const disallowedTools = parseToolList(
+    raw["disallowed-tools"] ?? raw.disallowedTools ?? raw.disallowed_tools,
+  );
   return {
     name: asString(raw.name, "unknown"),
     version: asString(raw.version, "0.0.0"),
@@ -141,6 +145,8 @@ function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
     author: asOptionalString(raw.author),
     license: asOptionalString(raw.license),
     permissions: asStringArray(raw.permissions),
+    ...(allowedTools ? { allowedTools } : {}),
+    ...(disallowedTools ? { disallowedTools } : {}),
     dependencies: asStringRecord(raw.dependencies),
     entrypoint: asOptionalString(raw.entrypoint ?? raw.main ?? raw.entry),
     hooks: asStringRecord(raw.hooks),
@@ -152,6 +158,11 @@ function normalizeFromDirect(raw: Record<string, unknown>): SkillManifest {
       "author",
       "license",
       "permissions",
+      "allowed-tools",
+      "allowedTools",
+      "disallowed-tools",
+      "disallowedTools",
+      "disallowed_tools",
       "dependencies",
       "entrypoint",
       "main",
@@ -260,6 +271,10 @@ function normalizeFromPackageJson(raw: Record<string, unknown>): SkillManifest {
   // Look for skill-specific metadata under "openclaw" or "skill" keys
   const skillMeta = (raw.openclaw ?? raw.skill ?? {}) as Record<string, unknown>;
 
+  const allowedTools = parseToolList(skillMeta["allowed-tools"] ?? skillMeta.allowedTools);
+  const disallowedTools = parseToolList(
+    skillMeta["disallowed-tools"] ?? skillMeta.disallowedTools ?? skillMeta.disallowed_tools,
+  );
   return {
     name: asString(skillMeta.name ?? raw.name, "unknown"),
     version: asString(skillMeta.version ?? raw.version, "0.0.0"),
@@ -267,6 +282,8 @@ function normalizeFromPackageJson(raw: Record<string, unknown>): SkillManifest {
     author: normalizeAuthor(raw.author),
     license: asOptionalString(raw.license),
     permissions: asStringArray(skillMeta.permissions),
+    ...(allowedTools ? { allowedTools } : {}),
+    ...(disallowedTools ? { disallowedTools } : {}),
     dependencies: asStringRecord(raw.dependencies),
     entrypoint: asOptionalString(skillMeta.entrypoint ?? skillMeta.main ?? raw.main),
     hooks: asStringRecord(skillMeta.hooks),
@@ -277,6 +294,11 @@ function normalizeFromPackageJson(raw: Record<string, unknown>): SkillManifest {
       "author",
       "license",
       "permissions",
+      "allowed-tools",
+      "allowedTools",
+      "disallowed-tools",
+      "disallowedTools",
+      "disallowed_tools",
       "dependencies",
       "entrypoint",
       "main",
@@ -305,6 +327,36 @@ function asOptionalString(value: unknown): string | undefined {
 function asStringArray(value: unknown): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
   return value.filter((v): v is string => typeof v === "string");
+}
+
+/**
+ * Parse an `allowed-tools` / `disallowed-tools` declaration into a normalized
+ * string array.
+ *
+ * The agentskills.io spec defines `allowed-tools` as a space-separated string
+ * (e.g. `Bash(git:*) Bash(jq:*) Read`), but Claude Code and other platforms
+ * also accept comma-separated strings and native YAML lists. This accepts all
+ * three shapes and preserves each tool's capability scope verbatim.
+ *
+ * Splitting respects parenthesized scopes so `Bash(npm:*), Bash(npx:*)` yields
+ * two entries rather than being torn apart on the space inside a scope.
+ *
+ * Returns undefined for unrecognized shapes or empty results so callers can
+ * omit the field entirely.
+ */
+function parseToolList(value: unknown): string[] | undefined {
+  let tokens: string[];
+  if (Array.isArray(value)) {
+    tokens = value.filter((v): v is string => typeof v === "string");
+  } else if (typeof value === "string") {
+    // Split on commas and whitespace, but keep `Bash(...)` scopes intact even
+    // when the scope itself contains spaces (e.g. `Bash(git commit:*)`).
+    tokens = value.match(/[^\s,()]+(?:\([^)]*\))?/g) ?? [];
+  } else {
+    return undefined;
+  }
+  const cleaned = tokens.map((t) => t.trim()).filter((t) => t.length > 0);
+  return cleaned.length > 0 ? cleaned : undefined;
 }
 
 function asStringRecord(value: unknown): Record<string, string> | undefined {

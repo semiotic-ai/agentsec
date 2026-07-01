@@ -7,7 +7,7 @@ const OWASP_NAMES: Record<string, string> = {
   AST02: "Supply Chain Compromise",
   AST03: "Over-Privileged Skills",
   AST04: "Insecure Metadata",
-  AST05: "Unsafe Deserialization",
+  AST05: "Untrusted External Instructions",
   AST06: "Weak Isolation",
   AST07: "Update Drift",
   AST08: "Poor Scanning",

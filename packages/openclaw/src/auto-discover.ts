@@ -87,13 +87,7 @@ const CWD_IGNORE = new Set([
  * Hidden dirs that ARE meaningful for skill discovery (i.e. platform
  * conventions). Other hidden dirs are skipped during cwd walking.
  */
-const CWD_ALLOWED_HIDDEN = new Set([
-  ".claude",
-  ".openclaw",
-  ".agents",
-  ".codex",
-  ".hermes",
-]);
+const CWD_ALLOWED_HIDDEN = new Set([".claude", ".openclaw", ".agents", ".codex", ".hermes"]);
 
 /**
  * Walk `cwd` up to `depth` levels deep and collect every directory named

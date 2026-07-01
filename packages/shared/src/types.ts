@@ -29,6 +29,20 @@ export interface SkillManifest {
   author?: string;
   license?: string;
   permissions?: string[];
+  /**
+   * Tools pre-approved to run without prompting. Sourced from the
+   * agentskills.io `allowed-tools` frontmatter field (also emitted by Claude
+   * Code). Normalized to an array regardless of whether the manifest declared
+   * it as a space-separated string, comma-separated string, or YAML list.
+   * Capability scopes are preserved verbatim (e.g. `Bash(npm:*)`).
+   */
+  allowedTools?: string[];
+  /**
+   * Tools explicitly removed from the agent's pool while the skill is active
+   * (Claude Code `disallowed-tools` extension). Normalized like
+   * {@link allowedTools}.
+   */
+  disallowedTools?: string[];
   dependencies?: Record<string, string>;
   entrypoint?: string;
   hooks?: Record<string, string>;
@@ -175,6 +189,7 @@ export type OWASPCategory =
   | "supply-chain"
   | "improper-error-handling"
   | "unsafe-deserialization"
+  | "untrusted-external-instructions"
   // AST-10 Web3 Annex (AST-W01..W12) — see `packages/web3` and
   // docs/plans/ast10-web3-annex-rules.md.
   | "web3-signing-authority"

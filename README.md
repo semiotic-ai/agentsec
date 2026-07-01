@@ -143,11 +143,11 @@ Every scan checks for all 10 risk categories:
 
 | ID        | Risk                    | What We Detect                                          |
 | --------- | ----------------------- | ------------------------------------------------------- |
-| **AST01** | Malicious Skills        | Dangerous code patterns, known-malicious signatures     |
+| **AST01** | Malicious Skills        | Dangerous code patterns, hardcoded secrets, unsafe deserialization, known-malicious signatures |
 | **AST02** | Supply Chain Compromise | Dependency provenance, transparency log gaps            |
-| **AST03** | Over-Privileged Skills  | Excessive permission grants, least-privilege violations |
+| **AST03** | Over-Privileged Skills  | Excessive permission grants, over-broad `allowed-tools`, least-privilege violations |
 | **AST04** | Insecure Metadata       | Schema validation failures, metadata integrity issues   |
-| **AST05** | Unsafe Deserialization  | Parser safety gaps, injection vectors                   |
+| **AST05** | Untrusted External Instructions | Indirect prompt injection, covert-action & exfiltration directives, dynamic load-time execution in skill content |
 | **AST06** | Weak Isolation          | Missing sandboxing, container misconfigurations         |
 | **AST07** | Update Drift            | Unpinned versions, stale dependencies, hash mismatches  |
 | **AST08** | Poor Scanning           | Coverage gaps, incomplete scanning pipelines            |
@@ -183,7 +183,7 @@ Findings carry their canonical OWASP code in every report format (text, JSON, HT
 
 agentsec is built to be agent-platform agnostic. Every platform that publishes its skills as [agentskills.io](https://agentskills.io/specification) `SKILL.md` files is auditable:
 
-- **Claude Code** — scans installed skills, plugins, and MCP servers
+- **Claude Code** — scans installed skills, plugins, and MCP servers, and audits the `allowed-tools` / `disallowed-tools` frontmatter for over-broad tool grants
 - **OpenClaw / ClawHub** — full `SKILL.md` manifest analysis, including `metadata.openclaw.*` extensions
 - **Codex / skills.sh** — skill and plugin scanning under `~/.agents/skills` and `/etc/codex/skills`
 - **Hermes** — Nous Research's Hermes Agent, including `metadata.hermes.*` extensions (tags, category, requires_toolsets, config)

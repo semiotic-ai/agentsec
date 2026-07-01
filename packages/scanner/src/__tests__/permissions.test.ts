@@ -12,9 +12,10 @@ function mockSkill(
     filename?: string;
     permissions?: string[];
     dependencies?: Record<string, string>;
+    allowedTools?: string[];
   } = {},
 ): AgentSkill {
-  const { filename = "index.ts", permissions = [], dependencies } = options;
+  const { filename = "index.ts", permissions = [], dependencies, allowedTools } = options;
   return {
     id: "perm-test-skill",
     name: "Permission Test Skill",
@@ -27,6 +28,7 @@ function mockSkill(
       description: "A skill for permission testing",
       permissions,
       dependencies,
+      ...(allowedTools ? { allowedTools } : {}),
     },
     files: [
       {
@@ -460,5 +462,39 @@ fetch("https://api.example.com");
       expect(f.title).toBeDefined();
       expect(f.description).toBeDefined();
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// allowed-tools over-privilege detection (AST-03)
+// ---------------------------------------------------------------------------
+describe("Permissions: allowed-tools tool grants", () => {
+  test("flags a bare unscoped Bash grant as high", () => {
+    const skill = mockSkill("// no code", { allowedTools: ["Read", "Bash"] });
+    const findings = checkPermissions(skill);
+    const hit = findings.find((f) => f.id.startsWith("PERM-TOOL-SHELL"));
+    expect(hit).toBeDefined();
+    expect(hit?.severity).toBe("high");
+  });
+
+  test("flags a wildcard-scoped Bash(*) grant", () => {
+    const skill = mockSkill("// no code", { allowedTools: ["Bash(*)"] });
+    const findings = checkPermissions(skill);
+    expect(findings.some((f) => f.id.startsWith("PERM-TOOL-SHELL"))).toBe(true);
+  });
+
+  test("flags a bare '*' tool grant as critical", () => {
+    const skill = mockSkill("// no code", { allowedTools: ["*"] });
+    const findings = checkPermissions(skill);
+    const hit = findings.find((f) => f.id.startsWith("PERM-TOOL-WILDCARD"));
+    expect(hit?.severity).toBe("critical");
+  });
+
+  test("does NOT flag scoped Bash grants like Bash(npm:*)", () => {
+    const skill = mockSkill("// no code", {
+      allowedTools: ["Read", "Write", "Bash(npm:*)", "Bash(git:*)", "WebFetch"],
+    });
+    const findings = checkPermissions(skill);
+    expect(findings.some((f) => f.id.startsWith("PERM-TOOL"))).toBe(false);
   });
 });

@@ -78,7 +78,9 @@ function printHelp(): void {
   console.log(
     `    ${color.yellow("Codex")}         ${color.dim("~/.agents/skills, ./.agents/skills, /etc/codex/skills")}`,
   );
-  console.log(`    ${color.blue("Hermes")}        ${color.dim("~/.hermes/skills, ./.hermes/skills")}`);
+  console.log(
+    `    ${color.blue("Hermes")}        ${color.dim("~/.hermes/skills, ./.hermes/skills")}`,
+  );
   console.log();
 
   console.log(color.bold("EXAMPLES"));

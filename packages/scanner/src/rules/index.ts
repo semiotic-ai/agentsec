@@ -2,6 +2,7 @@ export { checkDependencies } from "./dependencies";
 export { checkUnsafeDeserialization } from "./deserialization";
 export { checkDenialOfService } from "./dos";
 export { checkErrorHandling } from "./error-handling";
+export { checkExternalInstructions } from "./external-instructions";
 export { checkInjection } from "./injection";
 export { checkInsufficientLogging } from "./logging";
 export { checkOutputHandling } from "./output-handling";
@@ -14,6 +15,7 @@ import { checkDependencies } from "./dependencies";
 import { checkUnsafeDeserialization } from "./deserialization";
 import { checkDenialOfService } from "./dos";
 import { checkErrorHandling } from "./error-handling";
+import { checkExternalInstructions } from "./external-instructions";
 import { checkInjection } from "./injection";
 import { checkInsufficientLogging } from "./logging";
 import { checkOutputHandling } from "./output-handling";
@@ -72,10 +74,19 @@ export const ALL_RULES: RuleDefinition[] = [
     run: checkDependencies,
   },
   {
+    name: "external-instructions",
+    category: "untrusted-external-instructions",
+    description:
+      "Detects untrusted external instructions: indirect prompt injection, covert-action and exfiltration directives, and dynamic load-time execution in skill content (AST-05)",
+    owaspId: "AST05",
+    owaspLink: OWASP_BASE,
+    run: checkExternalInstructions,
+  },
+  {
     name: "storage",
     category: "insecure-storage",
-    description: "Detects insecure credential and secret storage patterns (AST-05)",
-    owaspId: "AST05",
+    description: "Detects insecure credential and secret storage patterns (AST-01)",
+    owaspId: "AST01",
     owaspLink: OWASP_BASE,
     run: checkStorage,
   },
@@ -116,8 +127,9 @@ export const ALL_RULES: RuleDefinition[] = [
   {
     name: "deserialization",
     category: "unsafe-deserialization",
-    description: "Detects unsafe deserialization and prototype pollution patterns (AST-05)",
-    owaspId: "AST05",
+    description:
+      "Detects unsafe deserialization and prototype pollution patterns — code execution from untrusted data (AST-01)",
+    owaspId: "AST01",
     owaspLink: OWASP_BASE,
     run: checkUnsafeDeserialization,
   },
