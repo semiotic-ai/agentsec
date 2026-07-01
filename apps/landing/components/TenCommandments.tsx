@@ -51,10 +51,10 @@ const COMMANDMENTS: readonly Commandment[] = [
   {
     id: "AST-05",
     slug: "ast05",
-    name: "Unsafe Deserialization",
+    name: "Untrusted External Instructions",
     sev: "red",
-    what: "YAML, JSON, and markdown parsed by skill loaders without sandboxing.",
-    why: "Attackers ship executable payloads that trigger on skill load, before any user action.",
+    what: "Hidden imperative instructions embedded in a skill's description, metadata, or body — indirect prompt injection and “tool poisoning.”",
+    why: "The agent reads skill text as trusted guidance, so a buried “ignore previous instructions” or exfiltration directive executes silently on load.",
   },
   {
     id: "AST-06",
